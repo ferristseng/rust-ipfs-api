@@ -1,3 +1,6 @@
+use response::serde;
+
+
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct LogLevelResponse {
@@ -8,7 +11,7 @@ pub struct LogLevelResponse {
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct LogLsResponse {
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     pub strings: Vec<String>,
 }
 

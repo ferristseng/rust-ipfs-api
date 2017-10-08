@@ -1,10 +1,10 @@
-use response::IpfsFile;
+use response::{serde, IpfsFile};
 
 
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct LsResponse {
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     pub objects: Vec<IpfsFile>
 }
 

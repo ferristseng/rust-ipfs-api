@@ -1,14 +1,14 @@
-use response::IpfsFile;
+use response::{serde, IpfsFile};
 use std::collections::HashMap;
 
 
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct FileLsResponse {
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_hashmap")]
     pub arguments: HashMap<String, String>,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_hashmap")]
     pub objects: HashMap<String, IpfsFile>,
 }
 

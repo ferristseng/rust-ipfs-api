@@ -1,3 +1,6 @@
+use response::serde;
+
+
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct DhtPeerResponse {
@@ -17,7 +20,7 @@ pub struct DhtFindPeerResponse {
     #[serde(rename = "Type")]
     pub typ: isize,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     pub responses: Vec<DhtPeerResponse>,
 
     pub extra: String,
@@ -33,7 +36,7 @@ pub struct DhtFindProvsResponse {
     #[serde(rename = "Type")]
     pub typ: isize,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     pub responses: Vec<DhtPeerResponse>,
 
     pub extra: String,
@@ -49,7 +52,7 @@ pub struct DhtGetResponse {
     #[serde(rename = "Type")]
     pub typ: isize,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     pub responses: Vec<DhtPeerResponse>,
 
     pub extra: String,
@@ -65,7 +68,7 @@ pub struct DhtProvideResponse {
     #[serde(rename = "Type")]
     pub typ: isize,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     pub responses: Vec<DhtPeerResponse>,
 
     pub extra: String,
@@ -81,7 +84,7 @@ pub struct DhtPutResponse {
     #[serde(rename = "Type")]
     pub typ: isize,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     pub responses: Vec<DhtPeerResponse>,
 
     pub extra: String,
@@ -97,7 +100,7 @@ pub struct DhtQueryResponse {
     #[serde(rename = "Type")]
     pub typ: isize,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     pub responses: Vec<DhtPeerResponse>,
 
     pub extra: String,

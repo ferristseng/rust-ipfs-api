@@ -1,4 +1,4 @@
-use response::IpfsHeader;
+use response::{serde, IpfsHeader};
 use std::collections::HashMap;
 
 
@@ -13,10 +13,10 @@ pub struct ObjectDiff {
 
     path: String,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_hashmap")]
     before: HashMap<String, String>,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_hashmap")]
     after: HashMap<String, String>,
 }
 
@@ -24,7 +24,7 @@ pub struct ObjectDiff {
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectDiffResponse {
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     changes: Vec<ObjectDiff>,
 }
 
@@ -34,7 +34,7 @@ pub struct ObjectDiffResponse {
 pub struct ObjectLinksResponse {
     hash: String,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     links: Vec<IpfsHeader>,
 }
 
@@ -44,7 +44,7 @@ pub struct ObjectLinksResponse {
 pub struct ObjectNewResponse {
     hash: String,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     links: Vec<IpfsHeader>,
 }
 
@@ -54,7 +54,7 @@ pub struct ObjectNewResponse {
 pub struct ObjectPatchAddLinkResponse {
     hash: String,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     links: Vec<IpfsHeader>,
 }
 
@@ -64,7 +64,7 @@ pub struct ObjectPatchAddLinkResponse {
 pub struct ObjectPatchAppendDataResponse {
     hash: String,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     links: Vec<IpfsHeader>,
 }
 
@@ -74,7 +74,7 @@ pub struct ObjectPatchAppendDataResponse {
 pub struct ObjectPatchRmLinkResponse {
     hash: String,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     links: Vec<IpfsHeader>,
 }
 
@@ -84,7 +84,7 @@ pub struct ObjectPatchRmLinkResponse {
 pub struct ObjectPatchSetDataResponse {
     hash: String,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     links: Vec<IpfsHeader>,
 }
 
@@ -94,7 +94,7 @@ pub struct ObjectPatchSetDataResponse {
 pub struct ObjectPutResponse {
     hash: String,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     links: Vec<IpfsHeader>,
 }
 

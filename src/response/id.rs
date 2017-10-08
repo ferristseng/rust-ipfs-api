@@ -1,3 +1,6 @@
+use response::serde;
+
+
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct IdResponse {
@@ -6,7 +9,7 @@ pub struct IdResponse {
 
     public_key: String,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     addresses: Vec<String>,
 
     agent_version: String,

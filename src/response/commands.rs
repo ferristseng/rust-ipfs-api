@@ -1,3 +1,6 @@
+use response::serde;
+
+
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct CommandsResponseOptions {
@@ -11,10 +14,10 @@ pub struct CommandsResponseOptions {
 pub struct CommandsResponse {
     pub name: String,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     pub subcommands: Vec<CommandsResponse>,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     pub options: Vec<CommandsResponseOptions>,
 }
 
