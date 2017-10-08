@@ -13,6 +13,7 @@ pub use self::error::*;
 pub use self::file::*;
 pub use self::files::*;
 pub use self::filestore::*;
+pub use self::get::*;
 pub use self::id::*;
 pub use self::key::*;
 pub use self::log::*;
