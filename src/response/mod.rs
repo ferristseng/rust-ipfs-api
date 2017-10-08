@@ -16,6 +16,7 @@ pub use self::filestore::*;
 pub use self::id::*;
 pub use self::key::*;
 pub use self::log::*;
+pub use self::ls::*;
 pub use self::mount::*;
 pub use self::name::*;
 pub use self::object::*;
@@ -28,6 +29,7 @@ pub use self::resolve::*;
 pub use self::stats::*;
 pub use self::swarm::*;
 pub use self::tar::*;
+pub use self::version::*;
 
 
 /// Create a test to deserialize a file to the given instance.
@@ -67,6 +69,7 @@ mod get;
 mod id;
 mod key;
 mod log;
+mod ls;
 mod mount;
 mod name;
 mod object;
@@ -80,6 +83,7 @@ mod serde;
 mod stats;
 mod swarm;
 mod tar;
+mod version;
 
 
 #[derive(Deserialize)]

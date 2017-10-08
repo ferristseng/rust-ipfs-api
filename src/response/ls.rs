@@ -5,7 +5,7 @@ use response::{serde, IpfsFile};
 #[serde(rename_all = "PascalCase")]
 pub struct LsResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub objects: Vec<IpfsFile>
+    pub objects: Vec<IpfsFile>,
 }
 
 
