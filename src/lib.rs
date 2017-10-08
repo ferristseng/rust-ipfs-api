@@ -1,4 +1,3 @@
-extern crate base58;
 extern crate futures;
 extern crate hyper;
 extern crate serde;
@@ -11,5 +10,6 @@ extern crate tokio_core;
 pub use client::IpfsClient;
 
 
+pub mod request;
 pub mod response;
 mod client;
