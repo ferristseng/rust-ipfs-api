@@ -20,6 +20,7 @@ pub use self::name::*;
 pub use self::object::*;
 pub use self::pin::*;
 pub use self::ping::*;
+pub use self::pubsub::*;
 
 
 /// Create a test to deserialize a file to the given instance.
@@ -63,6 +64,8 @@ mod name;
 mod object;
 mod pin;
 mod ping;
+mod pubsub;
+mod serde;
 
 
 #[derive(Deserialize)]
