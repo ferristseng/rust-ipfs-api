@@ -23,16 +23,9 @@ pub type PubsubPubResponse = ();
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct PubsubMessage {
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub from: Vec<u8>,
-
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub data: Vec<u8>,
-
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub seqno: Vec<u8>,
-
-    #[serde(deserialize_with = "serde::deserialize_vec")]
+    pub from: String,
+    pub data: String,
+    pub seqno: String,
     pub topic_ids: Vec<String>,
 
     #[serde(rename = "XXX_unrecognized")]
@@ -51,4 +44,7 @@ pub struct PubsubSubResponse {
 #[cfg(test)]
 mod tests {
     deserialize_test!(v0_pubsub_ls_0, PubsubLsResponse);
+    deserialize_test!(v0_pubsub_ls_1, PubsubLsResponse);
+    deserialize_test!(v0_pubsub_peers_0, PubsubPeersResponse);
+    deserialize_test!(v0_pubsub_sub_0, PubsubSubResponse);
 }

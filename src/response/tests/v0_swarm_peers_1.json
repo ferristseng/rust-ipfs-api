@@ -1,0 +1,18 @@
+{
+  "Peers": [
+    {
+      "Addr": "/ip4/35.167.26.28/tcp/4001",
+      "Peer": "QmNRuQrwtGgeVQgndTny4A4Rukg7GR7vzDJrVJxUBfqevk",
+      "Latency": "393.975341ms",
+      "Muxer": "*sm_yamux.conn",
+      "Streams": [
+        {
+          "Protocol": ""
+        },
+        {
+          "Protocol": "/ipfs/bitswap"
+        }
+      ]
+    }
+  ]
+}

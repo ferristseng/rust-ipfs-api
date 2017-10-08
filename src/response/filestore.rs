@@ -2,7 +2,7 @@
 #[serde(rename_all = "PascalCase")]
 pub struct FilestoreDupsResponse {
     #[serde(rename = "Ref")]
-    pub refr: String,
+    pub reference: String,
 
     pub err: String,
 }

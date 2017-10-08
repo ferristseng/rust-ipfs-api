@@ -9,6 +9,7 @@ pub use self::dag::*;
 pub use self::dht::*;
 pub use self::diag::*;
 pub use self::dns::*;
+pub use self::error::*;
 pub use self::file::*;
 pub use self::files::*;
 pub use self::filestore::*;
@@ -21,6 +22,12 @@ pub use self::object::*;
 pub use self::pin::*;
 pub use self::ping::*;
 pub use self::pubsub::*;
+pub use self::refs::*;
+pub use self::repo::*;
+pub use self::resolve::*;
+pub use self::stats::*;
+pub use self::swarm::*;
+pub use self::tar::*;
 
 
 /// Create a test to deserialize a file to the given instance.
@@ -52,6 +59,7 @@ mod dag;
 mod dht;
 mod diag;
 mod dns;
+mod error;
 mod file;
 mod files;
 mod filestore;
@@ -65,7 +73,13 @@ mod object;
 mod pin;
 mod ping;
 mod pubsub;
+mod refs;
+mod repo;
+mod resolve;
 mod serde;
+mod stats;
+mod swarm;
+mod tar;
 
 
 #[derive(Deserialize)]

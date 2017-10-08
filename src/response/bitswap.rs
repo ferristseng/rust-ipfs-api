@@ -15,7 +15,7 @@ pub struct BitswapLedgerResponse {
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BitswapStatResponse {
-    pub provide_buf_len: isize,
+    pub provide_buf_len: usize,
 
     #[serde(deserialize_with = "serde::deserialize_vec")]
     pub wantlist: Vec<String>,
@@ -23,11 +23,11 @@ pub struct BitswapStatResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
     pub peers: Vec<String>,
 
-    pub blocks_received: isize,
+    pub blocks_received: usize,
     pub data_received: u64,
-    pub blocks_sent: isize,
+    pub blocks_sent: usize,
     pub data_sent: u64,
-    pub dup_blks_received: isize,
+    pub dup_blks_received: usize,
     pub dup_data_received: u64,
 }
 

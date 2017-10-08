@@ -1,0 +1,7 @@
+{
+  "Version": "0.4.11",
+  "Commit": "",
+  "Repo": "6",
+  "System": "amd64/linux",
+  "Golang": "go1.9"
+}
