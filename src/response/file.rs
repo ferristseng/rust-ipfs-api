@@ -15,9 +15,6 @@ pub struct FileLsResponse {
 
 #[cfg(test)]
 mod tests {
-    use super::FileLsResponse;
-
-
     deserialize_test!(v0_file_ls_0, FileLsResponse);
     deserialize_test!(v0_file_ls_1, FileLsResponse);
 }

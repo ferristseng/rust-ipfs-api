@@ -24,7 +24,5 @@ pub struct BootstrapRmAllResponse {
 
 #[cfg(test)]
 mod tests {
-    use super::BootstrapListResponse;
-
     deserialize_test!(v0_bootstrap_list_0, BootstrapListResponse);
 }

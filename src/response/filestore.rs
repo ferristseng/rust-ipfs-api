@@ -4,7 +4,7 @@ pub struct FilestoreDupsResponse {
     #[serde(rename = "Ref")]
     pub refr: String,
 
-    pub err: String
+    pub err: String,
 }
 
 
@@ -16,7 +16,7 @@ pub struct FilestoreLsResponse {
     pub key: String,
     pub file_path: String,
     pub offset: u64,
-    pub size: u64
+    pub size: u64,
 }
 
 
@@ -28,5 +28,5 @@ pub struct FilestoreVerifyResponse {
     pub key: String,
     pub file_path: String,
     pub offset: u64,
-    pub size: u64
+    pub size: u64,
 }

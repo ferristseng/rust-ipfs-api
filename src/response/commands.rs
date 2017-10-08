@@ -21,8 +21,5 @@ pub struct CommandsResponse {
 
 #[cfg(test)]
 mod tests {
-    use super::CommandsResponse;
-
-
     deserialize_test!(v0_commands_0, CommandsResponse);
 }

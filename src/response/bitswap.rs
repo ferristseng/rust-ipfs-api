@@ -42,8 +42,5 @@ pub struct BitswapWantlistResponse {
 
 #[cfg(test)]
 mod tests {
-    use super::BitswapStatResponse;
-
-
     deserialize_test!(v0_bitswap_stat_0, BitswapStatResponse);
 }

@@ -18,18 +18,20 @@ pub use self::log::*;
 pub use self::mount::*;
 pub use self::name::*;
 pub use self::object::*;
+pub use self::pin::*;
+pub use self::ping::*;
 
 
 /// Create a test to deserialize a file to the given instance.
 ///
 #[cfg(test)]
 macro_rules! deserialize_test {
-    ($f:ident, $ty:ty) => (
+    ($f:ident, $ty:ident) => (
         #[test]
         fn $f() {
             let raw = include_str!(concat!("tests/", stringify!($f), ".json"));
 
-            match ::serde_json::from_str::<$ty>(raw) {
+            match ::serde_json::from_str::<super::$ty>(raw) {
                 Ok(_) => assert!(true),
                 Err(e) => assert!(false, format!("failed with error: {}", e))
             };
@@ -59,6 +61,8 @@ mod log;
 mod mount;
 mod name;
 mod object;
+mod pin;
+mod ping;
 
 
 #[derive(Deserialize)]
@@ -71,17 +75,17 @@ pub struct IpfsFile {
     pub typ: String,
 
     #[serde(default)]
-    pub links: Vec<IpfsFileLink>,
+    pub links: Vec<IpfsHeader>,
 }
 
 
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
-pub struct IpfsFileLink {
+pub struct IpfsHeader {
     pub name: String,
     pub hash: String,
     pub size: u64,
 
     #[serde(rename = "Type")]
-    pub typ: String,
+    pub typ: Option<String>,
 }

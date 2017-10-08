@@ -25,7 +25,7 @@ pub struct FilesStatResponse {
     pub blocks: isize,
 
     #[serde(rename = "Type")]
-    pub typ: String
+    pub typ: String,
 }
 
 
@@ -34,8 +34,5 @@ pub type FilesWriteResponse = ();
 
 #[cfg(test)]
 mod tests {
-    use super::FilesStatResponse;
-
-
     deserialize_test!(v0_files_stat_0, FilesStatResponse);
 }

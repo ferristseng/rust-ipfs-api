@@ -10,14 +10,11 @@ pub struct IdResponse {
     addresses: Vec<String>,
 
     agent_version: String,
-    protocol_version: String
+    protocol_version: String,
 }
 
 
 #[cfg(test)]
 mod tests {
-    use super::IdResponse;
-
-
     deserialize_test!(v0_id_0, IdResponse);
 }

@@ -27,8 +27,5 @@ pub struct BlockStatResponse {
 
 #[cfg(test)]
 mod tests {
-    use super::BlockStatResponse;
-
-
     deserialize_test!(v0_block_stat_0, BlockStatResponse);
 }

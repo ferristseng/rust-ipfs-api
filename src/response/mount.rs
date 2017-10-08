@@ -13,8 +13,5 @@ pub struct MountResponse {
 
 #[cfg(test)]
 mod tests {
-    use super::MountResponse;
-
-
     deserialize_test!(v0_mount_0, MountResponse);
 }
