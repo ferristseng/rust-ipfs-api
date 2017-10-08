@@ -5,15 +5,15 @@ use response::serde;
 #[serde(rename_all = "PascalCase")]
 pub struct IdResponse {
     #[serde(rename = "ID")]
-    id: String,
+    pub id: String,
 
-    public_key: String,
+    pub public_key: String,
 
     #[serde(deserialize_with = "serde::deserialize_vec")]
-    addresses: Vec<String>,
+    pub addresses: Vec<String>,
 
-    agent_version: String,
-    protocol_version: String,
+    pub agent_version: String,
+    pub protocol_version: String,
 }
 
 

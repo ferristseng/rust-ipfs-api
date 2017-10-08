@@ -9,15 +9,15 @@ pub type ObjectDataResponse = Vec<u8>;
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectDiff {
     #[serde(rename = "Type")]
-    typ: isize,
+    pub typ: isize,
 
-    path: String,
-
-    #[serde(deserialize_with = "serde::deserialize_hashmap")]
-    before: HashMap<String, String>,
+    pub path: String,
 
     #[serde(deserialize_with = "serde::deserialize_hashmap")]
-    after: HashMap<String, String>,
+    pub before: HashMap<String, String>,
+
+    #[serde(deserialize_with = "serde::deserialize_hashmap")]
+    pub after: HashMap<String, String>,
 }
 
 
@@ -25,89 +25,89 @@ pub struct ObjectDiff {
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectDiffResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
-    changes: Vec<ObjectDiff>,
+    pub changes: Vec<ObjectDiff>,
 }
 
 
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectLinksResponse {
-    hash: String,
+    pub hash: String,
 
     #[serde(deserialize_with = "serde::deserialize_vec")]
-    links: Vec<IpfsHeader>,
+    pub links: Vec<IpfsHeader>,
 }
 
 
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectNewResponse {
-    hash: String,
+    pub hash: String,
 
     #[serde(deserialize_with = "serde::deserialize_vec")]
-    links: Vec<IpfsHeader>,
+    pub links: Vec<IpfsHeader>,
 }
 
 
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectPatchAddLinkResponse {
-    hash: String,
+    pub hash: String,
 
     #[serde(deserialize_with = "serde::deserialize_vec")]
-    links: Vec<IpfsHeader>,
+    pub links: Vec<IpfsHeader>,
 }
 
 
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectPatchAppendDataResponse {
-    hash: String,
+    pub hash: String,
 
     #[serde(deserialize_with = "serde::deserialize_vec")]
-    links: Vec<IpfsHeader>,
+    pub links: Vec<IpfsHeader>,
 }
 
 
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectPatchRmLinkResponse {
-    hash: String,
+    pub hash: String,
 
     #[serde(deserialize_with = "serde::deserialize_vec")]
-    links: Vec<IpfsHeader>,
+    pub links: Vec<IpfsHeader>,
 }
 
 
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectPatchSetDataResponse {
-    hash: String,
+    pub hash: String,
 
     #[serde(deserialize_with = "serde::deserialize_vec")]
-    links: Vec<IpfsHeader>,
+    pub links: Vec<IpfsHeader>,
 }
 
 
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectPutResponse {
-    hash: String,
+    pub hash: String,
 
     #[serde(deserialize_with = "serde::deserialize_vec")]
-    links: Vec<IpfsHeader>,
+    pub links: Vec<IpfsHeader>,
 }
 
 
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectStatResponse {
-    hash: String,
-    num_links: isize,
-    block_size: isize,
-    links_size: isize,
-    data_size: isize,
-    cumulative_size: isize,
+    pub hash: String,
+    pub num_links: isize,
+    pub block_size: isize,
+    pub links_size: isize,
+    pub data_size: isize,
+    pub cumulative_size: isize,
 }
 
 

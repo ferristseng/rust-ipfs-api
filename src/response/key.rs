@@ -4,8 +4,8 @@ use response::serde;
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct KeyGenResponse {
-    name: String,
-    id: String,
+    pub name: String,
+    pub id: String,
 }
 
 
