@@ -1,7 +1,7 @@
 use response::serde;
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BootstrapAddDefaultResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
@@ -9,7 +9,7 @@ pub struct BootstrapAddDefaultResponse {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BootstrapListResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
@@ -17,7 +17,7 @@ pub struct BootstrapListResponse {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BootstrapRmAllResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]

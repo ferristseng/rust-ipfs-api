@@ -1,12 +1,16 @@
 pub use self::add::*;
+pub use self::bootstrap::*;
 pub use self::commands::*;
+pub use self::config::*;
 pub use self::ls::*;
 pub use self::stats::*;
 pub use self::version::*;
 
 
 mod add;
+mod bootstrap;
 mod commands;
+mod config;
 mod ls;
 mod stats;
 mod version;

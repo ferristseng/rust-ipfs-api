@@ -1,9 +1,9 @@
 use request::ApiRequest;
 
 
-pub struct LsRequest<'a>(pub Option<&'a str>);
+pub struct Ls<'a>(pub Option<&'a str>);
 
-impl<'a> ApiRequest for LsRequest<'a> {
+impl<'a> ApiRequest for Ls<'a> {
     #[inline]
     fn path() -> &'static str {
         "/ls"

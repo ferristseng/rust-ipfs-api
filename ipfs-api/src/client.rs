@@ -1,7 +1,8 @@
+use futures::Stream;
 use futures::future::Future;
 use request::{self, ApiRequest};
-use reqwest::{self, multipart, Method, Url};
-use reqwest::unstable::async::{Client, ClientBuilder};
+use reqwest::{self, multipart, Method, StatusCode, Url};
+use reqwest::unstable::async::{self, Client, ClientBuilder};
 use response::{self, Error};
 use serde::Deserialize;
 use std::io::Read;
@@ -59,6 +60,19 @@ impl IpfsClient {
         Ok(uri)
     }
 
+    /// Generates a request, and returns the unprocessed response future.
+    ///
+    fn request_raw<Req>(&self, req: &Req) -> ApiResult<async::Response>
+    where
+        Req: ApiRequest,
+    {
+        let url = self.build_url(req)?;
+        let mut req = self.client.request(Method::Get, url);
+        let res = req.send().from_err();
+
+        Ok(Box::new(res))
+    }
+
     /// Generic method for making a request to the Ipfs server, and getting
     /// a deserializable response.
     ///
@@ -67,9 +81,9 @@ impl IpfsClient {
         Req: ApiRequest,
         for<'de> Res: 'static + Deserialize<'de>,
     {
-        let url = self.build_url(req)?;
-        let mut req = self.client.request(Method::Get, url);
-        let res = req.send().and_then(move |mut res| res.json()).from_err();
+        let res = self.request_raw(req)?.and_then(
+            move |mut res| res.json().from_err(),
+        );
 
         Ok(Box::new(res))
     }
@@ -77,11 +91,7 @@ impl IpfsClient {
     /// Generic method for making a request to the Ipfs server, and getting
     /// a deserializable response.
     ///
-    fn request_with_body<Req, Res, R>(
-        &self,
-        data: R,
-        req: &Req,
-    ) -> ApiResult<Res>
+    fn request_with_body<Req, Res, R>(&self, data: R, req: &Req) -> ApiResult<Res>
     where
         Req: ApiRequest,
         for<'de> Res: 'static + Deserialize<'de>,
@@ -89,7 +99,7 @@ impl IpfsClient {
     {
         let url = self.build_url(req)?;
         let form = multipart::Form::new().part("file", multipart::Part::reader(data));
-        let mut req = self.client.request(Method::Get, url);//.form(&form);
+        let mut req = self.client.request(Method::Get, url);
         let res = req.send().and_then(move |mut res| res.json()).from_err();
 
         Ok(Box::new(res))
@@ -107,6 +117,24 @@ impl IpfsClient {
         self.request_with_body(data, &request::Add)
     }
 
+    /// Add default peers to the bootstrap list.
+    ///
+    pub fn bootstrap_add_default(&self) -> ApiResult<response::BootstrapAddDefaultResponse> {
+        self.request(&request::BootstrapAddDefault)
+    }
+
+    /// Lists peers in bootstrap list.
+    ///
+    pub fn bootstrap_list(&self) -> ApiResult<response::BootstrapListResponse> {
+        self.request(&request::BootstrapList)
+    }
+
+    /// Removes all peers in bootstrap list.
+    ///
+    pub fn bootstrap_rm_all(&self) -> ApiResult<response::BootstrapRmAllResponse> {
+        self.request(&request::BootstrapRmAll)
+    }
+
     /// List available commands that the server accepts.
     ///
     #[inline]
@@ -114,11 +142,31 @@ impl IpfsClient {
         self.request(&request::Commands)
     }
 
+    /// Opens the config file for editing (on the server).
+    ///
+    pub fn config_edit(&self) -> ApiResult<response::ConfigEditResponse> {
+        self.request(&request::ConfigEdit)
+    }
+
+    /// Show the current config of the server.
+    ///
+    /// Returns an unparsed json string, due to an unclear spec.
+    ///
+    pub fn config_show(&self) -> ApiResult<response::ConfigShowResponse> {
+        let req = self.request_raw(&request::ConfigShow)?
+            .and_then(move |res| res.into_body().concat2().from_err())
+            .and_then(|chunk| {
+                String::from_utf8(chunk.to_vec()).map_err(From::from)
+            });
+
+        Ok(Box::new(req))
+    }
+
     /// List the contents of an Ipfs multihash.
     ///
     #[inline]
     pub fn ls(&self, path: Option<&str>) -> ApiResult<response::LsResponse> {
-        self.request(&request::LsRequest(path))
+        self.request(&request::Ls(path))
     }
 
     /// Returns bitswap stats.
