@@ -18,7 +18,7 @@ pub struct RepoGcResponse {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct RepoStatResponse {
     pub num_objects: u64,

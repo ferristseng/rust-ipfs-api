@@ -4,7 +4,7 @@ use response::{BitswapStatResponse, RepoStatResponse};
 pub type StatsBitswapResponse = BitswapStatResponse;
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct StatsBwResponse {
     pub total_in: u64,

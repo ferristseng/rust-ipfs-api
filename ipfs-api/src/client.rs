@@ -13,6 +13,11 @@ use tokio_core::reactor::Handle;
 type AsyncResponse<T> = Box<Future<Item = T, Error = Error>>;
 
 
+/// A result returned by a public facing call to the Ipfs api.
+///
+type ApiResult<T> = Result<AsyncResponse<T>, Error>;
+
+
 /// Asynchronous Ipfs client.
 ///
 pub struct IpfsClient {
@@ -57,7 +62,7 @@ impl IpfsClient {
     /// Generic method for making a request to the Ipfs server, and getting
     /// a deserializable response.
     ///
-    fn request<Req, Res>(&self, req: &Req) -> Result<AsyncResponse<Res>, Error>
+    fn request<Req, Res>(&self, req: &Req) -> ApiResult<Res>
     where
         Req: ApiRequest,
         for<'de> Res: 'static + Deserialize<'de>,
@@ -76,7 +81,7 @@ impl IpfsClient {
         &self,
         data: R,
         req: &Req,
-    ) -> Result<AsyncResponse<Res>, Error>
+    ) -> ApiResult<Res>
     where
         Req: ApiRequest,
         for<'de> Res: 'static + Deserialize<'de>,
@@ -84,7 +89,7 @@ impl IpfsClient {
     {
         let url = self.build_url(req)?;
         let form = multipart::Form::new().part("file", multipart::Part::reader(data));
-        let mut req = self.client.request(Method::Get, url); //.form(&form);
+        let mut req = self.client.request(Method::Get, url);//.form(&form);
         let res = req.send().and_then(move |mut res| res.json()).from_err();
 
         Ok(Box::new(res))
@@ -95,7 +100,7 @@ impl IpfsClient {
     /// Add file to Ipfs.
     ///
     #[inline]
-    pub fn add<R>(&self, data: R) -> Result<AsyncResponse<response::AddResponse>, Error>
+    pub fn add<R>(&self, data: R) -> ApiResult<response::AddResponse>
     where
         R: 'static + Read + Send,
     {
@@ -105,21 +110,39 @@ impl IpfsClient {
     /// List available commands that the server accepts.
     ///
     #[inline]
-    pub fn commands(&self) -> Result<AsyncResponse<response::CommandsResponse>, Error> {
+    pub fn commands(&self) -> ApiResult<response::CommandsResponse> {
         self.request(&request::Commands)
     }
 
     /// List the contents of an Ipfs multihash.
     ///
     #[inline]
-    pub fn ls(&self, path: Option<&str>) -> Result<AsyncResponse<response::LsResponse>, Error> {
+    pub fn ls(&self, path: Option<&str>) -> ApiResult<response::LsResponse> {
         self.request(&request::LsRequest(path))
+    }
+
+    /// Returns bitswap stats.
+    ///
+    pub fn stats_bitswap(&self) -> ApiResult<response::StatsBitswapResponse> {
+        self.request(&request::StatsBitswap)
+    }
+
+    /// Returns bandwidth stats.
+    ///
+    pub fn stats_bw(&self) -> ApiResult<response::StatsBwResponse> {
+        self.request(&request::StatsBw)
+    }
+
+    /// Returns repo stats.
+    ///
+    pub fn stats_repo(&self) -> ApiResult<response::StatsRepoResponse> {
+        self.request(&request::StatsRepo)
     }
 
     /// Returns information about the Ipfs server version.
     ///
     #[inline]
-    pub fn version(&self) -> Result<AsyncResponse<response::VersionResponse>, Error> {
+    pub fn version(&self) -> ApiResult<response::VersionResponse> {
         self.request(&request::Version)
     }
 }

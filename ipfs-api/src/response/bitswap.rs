@@ -12,7 +12,7 @@ pub struct BitswapLedgerResponse {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BitswapStatResponse {
     pub provide_buf_len: usize,
