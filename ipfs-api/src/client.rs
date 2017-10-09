@@ -1,95 +1,125 @@
-use futures::Stream;
 use futures::future::Future;
-use hyper::{Chunk, Uri};
-use hyper::client::{Client, HttpConnector};
-use hyper::error::UriError;
 use request::{self, ApiRequest};
+use reqwest::{self, multipart, Method, Url};
+use reqwest::unstable::async::{Client, ClientBuilder};
 use response::{self, Error};
 use serde::Deserialize;
-use serde_json;
+use std::io::Read;
 use tokio_core::reactor::Handle;
 
 
-pub type AsyncResponse<T> = Box<Future<Item = T, Error = Error>>;
+/// A future response returned by the reqwest HTTP client.
+///
+type AsyncResponse<T> = Box<Future<Item = T, Error = Error>>;
 
 
 /// Asynchronous Ipfs client.
 ///
 pub struct IpfsClient {
-    base: Uri,
-    client: Client<HttpConnector>,
+    base: Url,
+    client: Client,
 }
 
 impl IpfsClient {
     /// Creates a new `IpfsClient`.
     ///
     #[inline]
-    pub fn new(handle: &Handle, host: &str, port: u16) -> Result<IpfsClient, UriError> {
+    pub fn new(
+        handle: &Handle,
+        host: &str,
+        port: u16,
+    ) -> Result<IpfsClient, Box<::std::error::Error>> {
         let base_path = IpfsClient::build_base_path(host, port)?;
 
         Ok(IpfsClient {
             base: base_path,
-            client: Client::new(handle),
+            client: ClientBuilder::new().build(handle)?,
         })
     }
 
-    /// Builds the base uri path for the Ipfs API.
+    /// Builds the base url path for the Ipfs api.
     ///
-    fn build_base_path(host: &str, port: u16) -> Result<Uri, UriError> {
+    fn build_base_path(host: &str, port: u16) -> Result<Url, reqwest::UrlError> {
         format!("http://{}:{}/api/v0", host, port).parse()
     }
 
-    /// Generic method for making a request to the Ipfs server.
+    /// Builds the url for an api call.
     ///
-    /// Returns the raw response.
-    ///
-    fn request_raw<Req>(&self, req: &Req) -> AsyncResponse<Chunk>
+    fn build_url<Req>(&self, req: &Req) -> Result<Url, reqwest::UrlError>
     where
         Req: ApiRequest,
     {
-        let uri = format!("{}{}?", self.base, Req::path()).parse().unwrap();
+        let uri = format!("{}{}?", self.base, Req::path()).parse()?;
 
-        Box::new(
-            self.client
-                .get(uri)
-                .and_then(|res| res.body().concat2())
-                .from_err(),
-        )
+        Ok(uri)
     }
 
     /// Generic method for making a request to the Ipfs server, and getting
     /// a deserializable response.
     ///
-    fn request<Req, Res>(&self, req: &Req) -> AsyncResponse<Res>
+    fn request<Req, Res>(&self, req: &Req) -> Result<AsyncResponse<Res>, Error>
     where
         Req: ApiRequest,
         for<'de> Res: 'static + Deserialize<'de>,
     {
-        Box::new(self.request_raw(req).and_then(move |body| {
-            serde_json::from_slice(&body).map_err(From::from)
-        }))
+        let url = self.build_url(req)?;
+        let mut req = self.client.request(Method::Get, url);
+        let res = req.send().and_then(move |mut res| res.json()).from_err();
+
+        Ok(Box::new(res))
+    }
+
+    /// Generic method for making a request to the Ipfs server, and getting
+    /// a deserializable response.
+    ///
+    fn request_with_body<Req, Res, R>(
+        &self,
+        data: R,
+        req: &Req,
+    ) -> Result<AsyncResponse<Res>, Error>
+    where
+        Req: ApiRequest,
+        for<'de> Res: 'static + Deserialize<'de>,
+        R: 'static + Read + Send,
+    {
+        let url = self.build_url(req)?;
+        let form = multipart::Form::new().part("file", multipart::Part::reader(data));
+        let mut req = self.client.request(Method::Get, url); //.form(&form);
+        let res = req.send().and_then(move |mut res| res.json()).from_err();
+
+        Ok(Box::new(res))
     }
 }
 
 impl IpfsClient {
+    /// Add file to Ipfs.
+    ///
+    #[inline]
+    pub fn add<R>(&self, data: R) -> Result<AsyncResponse<response::AddResponse>, Error>
+    where
+        R: 'static + Read + Send,
+    {
+        self.request_with_body(data, &request::Add)
+    }
+
     /// List available commands that the server accepts.
     ///
     #[inline]
-    pub fn commands(&self) -> AsyncResponse<response::CommandsResponse> {
+    pub fn commands(&self) -> Result<AsyncResponse<response::CommandsResponse>, Error> {
         self.request(&request::Commands)
     }
 
     /// List the contents of an Ipfs multihash.
     ///
     #[inline]
-    pub fn ls(&self, path: Option<&str>) -> AsyncResponse<response::LsResponse> {
+    pub fn ls(&self, path: Option<&str>) -> Result<AsyncResponse<response::LsResponse>, Error> {
         self.request(&request::LsRequest(path))
     }
 
     /// Returns information about the Ipfs server version.
     ///
     #[inline]
-    pub fn version(&self) -> AsyncResponse<response::VersionResponse> {
+    pub fn version(&self) -> Result<AsyncResponse<response::VersionResponse>, Error> {
         self.request(&request::Version)
     }
 }

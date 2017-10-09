@@ -1,18 +1,25 @@
-use hyper;
+use reqwest;
 use serde_json;
 use std::fmt::{self, Display, Formatter};
 
 
 #[derive(Debug)]
 pub enum Error {
-    Http(hyper::error::Error),
+    Http(reqwest::Error),
     Parse(serde_json::Error),
+    Url(reqwest::UrlError),
     Api(ApiError),
     Uncategorized(String),
 }
 
-impl From<hyper::error::Error> for Error {
-    fn from(error: hyper::error::Error) -> Self {
+impl From<reqwest::UrlError> for Error {
+    fn from(error: reqwest::UrlError) -> Self {
+        Error::Url(error)
+    }
+}
+
+impl From<reqwest::Error> for Error {
+    fn from(error: reqwest::Error) -> Self {
         Error::Http(error)
     }
 }
@@ -40,6 +47,7 @@ impl ::std::error::Error for Error {
         match *self {
             Error::Http(_) => "an http error occured",
             Error::Parse(_) => "an error occursed while parsing the api response",
+            Error::Url(_) => "an error occured while parsing the request url",
             Error::Api(_) => "an api error occured",
             Error::Uncategorized(_) => "an unknown error occured",
         }

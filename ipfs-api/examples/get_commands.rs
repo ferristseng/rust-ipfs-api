@@ -1,7 +1,6 @@
 extern crate ipfs_api;
 extern crate tokio_core;
 
-
 use ipfs_api::{response, IpfsClient};
 use tokio_core::reactor::Core;
 
@@ -37,7 +36,7 @@ fn main() {
 
         let client =
             IpfsClient::new(&core.handle(), "localhost", 5001).expect("expected a valid url");
-        let req = client.commands();
+        let req = client.commands().expect("expected a valid request");
 
         print_recursive(0, &core.run(req).expect("expected a valid response"));
     } else {
