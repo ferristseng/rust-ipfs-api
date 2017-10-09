@@ -1,7 +1,9 @@
+pub use self::commands::*;
 pub use self::ls::*;
 pub use self::version::*;
 
 
+mod commands;
 mod ls;
 mod version;
 

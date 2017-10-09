@@ -1,6 +1,6 @@
 use futures::Stream;
 use futures::future::Future;
-use hyper::Uri;
+use hyper::{Chunk, Uri};
 use hyper::client::{Client, HttpConnector};
 use hyper::error::UriError;
 use request::{self, ApiRequest};
@@ -39,13 +39,13 @@ impl IpfsClient {
         format!("http://{}:{}/api/v0", host, port).parse()
     }
 
-    /// Generic method for making a request to the client, and getting
-    /// a deserializable response.
+    /// Generic method for making a request to the Ipfs server.
     ///
-    fn request<Req, Res>(&self, req: &Req) -> AsyncResponse<Res>
+    /// Returns the raw response.
+    ///
+    fn request_raw<Req>(&self, req: &Req) -> AsyncResponse<Chunk>
     where
         Req: ApiRequest,
-        for<'de> Res: 'static + Deserialize<'de>,
     {
         let uri = format!("{}{}?", self.base, Req::path()).parse().unwrap();
 
@@ -53,15 +53,32 @@ impl IpfsClient {
             self.client
                 .get(uri)
                 .and_then(|res| res.body().concat2())
-                .from_err()
-                .and_then(move |body| {
-                    serde_json::from_slice(&body).map_err(From::from)
-                }),
+                .from_err(),
         )
+    }
+
+    /// Generic method for making a request to the Ipfs server, and getting
+    /// a deserializable response.
+    ///
+    fn request<Req, Res>(&self, req: &Req) -> AsyncResponse<Res>
+    where
+        Req: ApiRequest,
+        for<'de> Res: 'static + Deserialize<'de>,
+    {
+        Box::new(self.request_raw(req).and_then(move |body| {
+            serde_json::from_slice(&body).map_err(From::from)
+        }))
     }
 }
 
 impl IpfsClient {
+    /// List available commands that the server accepts.
+    ///
+    #[inline]
+    pub fn commands(&self) -> AsyncResponse<response::CommandsResponse> {
+        self.request(&request::Commands)
+    }
+
     /// List the contents of an Ipfs multihash.
     ///
     #[inline]

@@ -1,15 +1,15 @@
 use response::serde;
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct CommandsResponseOptions {
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     pub names: Vec<String>,
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct CommandsResponse {
     pub name: String,
