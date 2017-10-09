@@ -28,8 +28,14 @@ fn main() {
         println!("  data   recv: {}", bitswap_stats.data_received);
         println!("  blocks sent: {}", bitswap_stats.blocks_sent);
         println!("  data   sent: {}", bitswap_stats.data_sent);
-        println!("  peers:       {}", bitswap_stats.peers.join("\n               "));
-        println!("  wantlist:    {}", bitswap_stats.wantlist.join("\n               "));
+        println!(
+            "  peers:       {}",
+            bitswap_stats.peers.join("\n               ")
+        );
+        println!(
+            "  wantlist:    {}",
+            bitswap_stats.wantlist.join("\n               ")
+        );
         println!("");
         println!("bandwidth stats:");
         println!("  total    in: {}", bw_stats.total_in);
