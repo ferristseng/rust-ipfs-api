@@ -6,8 +6,7 @@ use std::fs::File;
 use tokio_core::reactor::Core;
 
 
-// Creates an Ipfs client, and gets a list of available commands from the
-// Ipfs server.
+// Creates an Ipfs client, and adds this source file to Ipfs.
 //
 fn main() {
     if let Ok(mut core) = Core::new() {
