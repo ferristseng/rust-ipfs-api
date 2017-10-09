@@ -6,22 +6,22 @@ use tokio_core::reactor::Core;
 
 
 fn print_recursive(indent: usize, cmd: &response::CommandsResponse) {
-    let cmd_indent = " ".repeat(indent);
-    let opt_indent = " ".repeat(indent + 2);
+    let cmd_indent = " ".repeat(indent * 4);
+    let opt_indent = " ".repeat((indent + 1) * 4);
 
-    println!("{}{}", cmd_indent, cmd.name);
+    println!("{}[{}]", cmd_indent, cmd.name);
 
     if cmd.options.len() > 0 {
-        println!("{}|options:", cmd_indent);
+        println!("{}* options:", cmd_indent);
         for options in cmd.options.iter() {
             println!("{}{}", opt_indent, &options.names[..].join(", "));
         }
     }
 
     if cmd.subcommands.len() > 0 {
-        println!("{}|subcommands:", cmd_indent);
+        println!("{}- subcommands:", cmd_indent);
         for subcommand in cmd.subcommands.iter() {
-            print_recursive(indent + 2, subcommand);
+            print_recursive(indent + 1, subcommand);
         }
     }
 }
