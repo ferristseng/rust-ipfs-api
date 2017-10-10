@@ -4,6 +4,7 @@ pub use self::commands::*;
 pub use self::config::*;
 pub use self::ls::*;
 pub use self::stats::*;
+pub use self::swarm::*;
 pub use self::version::*;
 
 
@@ -13,6 +14,7 @@ mod commands;
 mod config;
 mod ls;
 mod stats;
+mod swarm;
 mod version;
 
 

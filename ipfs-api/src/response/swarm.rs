@@ -1,7 +1,7 @@
 use response::serde;
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmAddrsLocalResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
@@ -41,14 +41,14 @@ pub struct SwarmFiltersRmResponse {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmPeerStream {
     pub protocol: String,
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmPeer {
     pub addr: String,
@@ -61,7 +61,7 @@ pub struct SwarmPeer {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmPeersResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]

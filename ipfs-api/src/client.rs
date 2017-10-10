@@ -187,6 +187,18 @@ impl IpfsClient {
         self.request(&request::StatsRepo)
     }
 
+    /// Return a list of local addresses.
+    ///
+    pub fn swarm_addrs_local(&self) -> ApiResult<response::SwarmAddrsLocalResponse> {
+        self.request(&request::SwarmAddrsLocal)
+    }
+
+    /// Return a list of peers with open connections.
+    ///
+    pub fn swarm_peers(&self) -> ApiResult<response::SwarmPeersResponse> {
+        self.request(&request::SwarmPeers)
+    }
+
     /// Returns information about the Ipfs server version.
     ///
     #[inline]
