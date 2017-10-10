@@ -89,20 +89,6 @@ mod version;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
-pub struct IpfsFile {
-    pub hash: String,
-    pub size: u64,
-
-    #[serde(rename = "Type")]
-    pub typ: String,
-
-    #[serde(default)]
-    pub links: Vec<IpfsHeader>,
-}
-
-
-#[derive(Deserialize)]
-#[serde(rename_all = "PascalCase")]
 pub struct IpfsHeader {
     pub name: String,
     pub hash: String,

@@ -1,4 +1,26 @@
-use response::{serde, IpfsFile};
+use response::serde;
+
+
+#[derive(Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct IpfsFile {
+    pub hash: String,
+
+    #[serde(default)]
+    pub links: Vec<IpfsFileHeader>,
+}
+
+
+#[derive(Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct IpfsFileHeader {
+    pub name: String,
+    pub hash: String,
+    pub size: u64,
+
+    #[serde(rename = "Type")]
+    pub typ: u32,
+}
 
 
 #[derive(Deserialize)]
