@@ -1,7 +1,7 @@
 extern crate ipfs_api;
 extern crate tokio_core;
 
-use ipfs_api::{response, IpfsClient};
+use ipfs_api::IpfsClient;
 use std::fs::File;
 use tokio_core::reactor::Core;
 

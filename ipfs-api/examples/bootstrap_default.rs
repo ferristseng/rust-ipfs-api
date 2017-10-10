@@ -36,7 +36,9 @@ fn main() {
         println!("");
         println!("adding default peers...");
 
-        let add = client.bootstrap_add_default().expect("expected a valid request");
+        let add = client.bootstrap_add_default().expect(
+            "expected a valid request",
+        );
         let add = core.run(add).expect("expected a valid response");
 
         println!("added:");
