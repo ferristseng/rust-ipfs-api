@@ -174,6 +174,30 @@ impl IpfsClient {
         self.request(&request::Ls { path })
     }
 
+    /// Returns the diff of two Ipfs objects.
+    ///
+    pub fn object_diff(&self, key0: &str, key1: &str) -> ApiResult<response::ObjectDiffResponse> {
+        self.request(&request::ObjectDiff { key0, key1 })
+    }
+
+    /// Returns the data in an object.
+    ///
+    pub fn object_get(&self, key: &str) -> ApiResult<response::ObjectGetResponse> {
+        self.request(&request::ObjectGet { key })
+    }
+
+    /// Returns the links that an object points to.
+    ///
+    pub fn object_links(&self, key: &str) -> ApiResult<response::ObjectLinksResponse> {
+        self.request(&request::ObjectLinks { key })
+    }
+
+    /// Returns the stats for an object.
+    ///
+    pub fn object_stat(&self, key: &str) -> ApiResult<response::ObjectStatResponse> {
+        self.request(&request::ObjectStat { key })
+    }
+
     /// Returns bitswap stats.
     ///
     pub fn stats_bitswap(&self) -> ApiResult<response::StatsBitswapResponse> {

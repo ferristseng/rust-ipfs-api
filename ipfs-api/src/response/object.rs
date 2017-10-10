@@ -5,7 +5,7 @@ use std::collections::HashMap;
 pub type ObjectDataResponse = Vec<u8>;
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectDiff {
     #[serde(rename = "Type")]
@@ -21,7 +21,7 @@ pub struct ObjectDiff {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectDiffResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
@@ -29,7 +29,17 @@ pub struct ObjectDiffResponse {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct ObjectGetResponse {
+    pub data: String,
+
+    #[serde(deserialize_with = "serde::deserialize_vec")]
+    pub links: Vec<IpfsHeader>,
+}
+
+
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectLinksResponse {
     pub hash: String,
@@ -99,7 +109,7 @@ pub struct ObjectPutResponse {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectStatResponse {
     pub hash: String,
