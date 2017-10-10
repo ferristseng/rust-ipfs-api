@@ -3,6 +3,8 @@ use request::ApiRequest;
 
 pub struct SwarmAddrsLocal;
 
+impl_skip_serialize!(SwarmAddrsLocal);
+
 impl ApiRequest for SwarmAddrsLocal {
     #[inline]
     fn path() -> &'static str {
@@ -12,6 +14,8 @@ impl ApiRequest for SwarmAddrsLocal {
 
 
 pub struct SwarmPeers;
+
+impl_skip_serialize!(SwarmPeers);
 
 impl ApiRequest for SwarmPeers {
     #[inline]

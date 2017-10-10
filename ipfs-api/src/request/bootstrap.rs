@@ -3,6 +3,8 @@ use request::ApiRequest;
 
 pub struct BootstrapAddDefault;
 
+impl_skip_serialize!(BootstrapAddDefault);
+
 impl ApiRequest for BootstrapAddDefault {
     #[inline]
     fn path() -> &'static str {
@@ -13,6 +15,8 @@ impl ApiRequest for BootstrapAddDefault {
 
 pub struct BootstrapList;
 
+impl_skip_serialize!(BootstrapList);
+
 impl ApiRequest for BootstrapList {
     #[inline]
     fn path() -> &'static str {
@@ -22,6 +26,8 @@ impl ApiRequest for BootstrapList {
 
 
 pub struct BootstrapRmAll;
+
+impl_skip_serialize!(BootstrapRmAll);
 
 impl ApiRequest for BootstrapRmAll {
     #[inline]

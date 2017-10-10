@@ -3,9 +3,44 @@ pub use self::bootstrap::*;
 pub use self::commands::*;
 pub use self::config::*;
 pub use self::ls::*;
+pub use self::object::*;
 pub use self::stats::*;
 pub use self::swarm::*;
 pub use self::version::*;
+
+
+/// Create a test to verify that serializing a `ApiRequest` returns the expected
+/// url encoded string.
+///
+#[cfg(test)]
+macro_rules! serialize_url_test {
+    ($f:ident, $obj:expr, $exp:expr) => (
+        #[test]
+        fn $f() {
+            assert_eq!(
+                ::serde_urlencoded::to_string($obj),
+                Ok($exp.to_string())
+            )
+        }
+    )
+}
+
+
+/// Implements the `Serialize` trait for types that do not require
+/// serialization. This provides a workaround for a limitation in
+/// `serde_urlencoded`, that prevents unit structs from being serialized.
+///
+macro_rules! impl_skip_serialize {
+    ($ty:ty) => (
+        impl ::serde::Serialize for $ty {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+                where S: ::serde::Serializer
+            {
+                serializer.serialize_none()
+            }
+        }
+    )
+}
 
 
 mod add;
@@ -13,6 +48,7 @@ mod bootstrap;
 mod commands;
 mod config;
 mod ls;
+mod object;
 mod stats;
 mod swarm;
 mod version;
