@@ -4,7 +4,7 @@ use request::{self, ApiRequest};
 use reqwest::{self, multipart, Method, StatusCode, Url};
 use reqwest::unstable::async::{self, Client, ClientBuilder};
 use response::{self, Error};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::io::Read;
 use tokio_core::reactor::Handle;
 
@@ -51,24 +51,31 @@ impl IpfsClient {
 
     /// Builds the url for an api call.
     ///
-    fn build_url<Req>(&self, req: &Req) -> Result<Url, reqwest::UrlError>
+    fn build_url<Req>(&self, req: &Req) -> Result<Url, Error>
     where
-        Req: ApiRequest,
+        Req: ApiRequest + Serialize,
     {
-        let uri = format!("{}{}?", self.base, Req::path()).parse()?;
+        let uri = format!(
+            "{}{}?{}",
+            self.base,
+            Req::path(),
+            ::serde_urlencoded::to_string(req)?
+        );
 
-        Ok(uri)
+        uri.parse().map_err(From::from)
     }
 
     /// Generates a request, and returns the unprocessed response future.
     ///
-    fn request_raw<Req>(&self, req: &Req) -> ApiResult<async::Response>
+    fn request_raw<Req>(&self, req: &Req) -> ApiResult<async::Chunk>
     where
-        Req: ApiRequest,
+        Req: ApiRequest + Serialize,
     {
         let url = self.build_url(req)?;
         let mut req = self.client.request(Method::Get, url);
-        let res = req.send().from_err();
+        let res = req.send()
+            .and_then(move |res| res.into_body().concat2())
+            .from_err();
 
         Ok(Box::new(res))
     }
@@ -78,12 +85,12 @@ impl IpfsClient {
     ///
     fn request<Req, Res>(&self, req: &Req) -> ApiResult<Res>
     where
-        Req: ApiRequest,
+        Req: ApiRequest + Serialize,
         for<'de> Res: 'static + Deserialize<'de>,
     {
-        let res = self.request_raw(req)?.and_then(
-            move |mut res| res.json().from_err(),
-        );
+        let res = self.request_raw(req)?.and_then(move |chunk| {
+            ::serde_json::from_slice(&chunk).map_err(From::from)
+        });
 
         Ok(Box::new(res))
     }
@@ -93,7 +100,7 @@ impl IpfsClient {
     ///
     fn request_with_body<Req, Res, R>(&self, data: R, req: &Req) -> ApiResult<Res>
     where
-        Req: ApiRequest,
+        Req: ApiRequest + Serialize,
         for<'de> Res: 'static + Deserialize<'de>,
         R: 'static + Read + Send,
     {
@@ -153,11 +160,9 @@ impl IpfsClient {
     /// Returns an unparsed json string, due to an unclear spec.
     ///
     pub fn config_show(&self) -> ApiResult<response::ConfigShowResponse> {
-        let req = self.request_raw(&request::ConfigShow)?
-            .and_then(move |res| res.into_body().concat2().from_err())
-            .and_then(|chunk| {
-                String::from_utf8(chunk.to_vec()).map_err(From::from)
-            });
+        let req = self.request_raw(&request::ConfigShow)?.and_then(|chunk| {
+            String::from_utf8(chunk.to_vec()).map_err(From::from)
+        });
 
         Ok(Box::new(req))
     }
@@ -166,7 +171,7 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn ls(&self, path: Option<&str>) -> ApiResult<response::LsResponse> {
-        self.request(&request::Ls(path))
+        self.request(&request::Ls { path })
     }
 
     /// Returns bitswap stats.
