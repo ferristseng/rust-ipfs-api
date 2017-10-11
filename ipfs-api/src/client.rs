@@ -262,6 +262,24 @@ impl IpfsClient {
         self.request(&request::PinLs { key, typ })
     }
 
+    /// Removes a pinned object from local storage.
+    ///
+    pub fn pin_rm(&self, key: &str, recursive: Option<bool>) -> ApiResult<response::PinRmResponse> {
+        self.request(&request::PinRm { key, recursive })
+    }
+
+    /// List subscribed pubsub topics.
+    ///
+    pub fn pubsub_ls(&self) -> ApiResult<response::PubsubLsResponse> {
+        self.request(&request::PubsubLs)
+    }
+
+    /// List peers that are being published to.
+    ///
+    pub fn pubsub_peers(&self, topic: Option<&str>) -> ApiResult<response::PubsubPeersResponse> {
+        self.request(&request::PubsubPeers { topic })
+    }
+
     /// Returns bitswap stats.
     ///
     pub fn stats_bitswap(&self) -> ApiResult<response::StatsBitswapResponse> {

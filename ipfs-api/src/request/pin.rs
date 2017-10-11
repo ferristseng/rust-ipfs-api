@@ -16,3 +16,19 @@ impl<'a> ApiRequest for PinLs<'a> {
         "/pin/ls"
     }
 }
+
+
+#[derive(Serialize)]
+pub struct PinRm<'a> {
+    #[serde(rename = "arg")]
+    pub key: &'a str,
+
+    pub recursive: Option<bool>,
+}
+
+impl<'a> ApiRequest for PinRm<'a> {
+    #[inline]
+    fn path() -> &'static str {
+        "/pin/rm"
+    }
+}
