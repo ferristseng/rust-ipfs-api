@@ -8,11 +8,17 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use std::io::Read;
 use tokio_core::reactor::Handle;
+use tokio_io::{AsyncRead, io as async_io};
 
 
 /// A future response returned by the reqwest HTTP client.
 ///
 type AsyncResponse<T> = Box<Future<Item = T, Error = Error>>;
+
+
+/// A future that returns a stream of responses.
+///
+type AsyncStreamResponse<T> = Box<Stream<Item = T, Error = Error>>;
 
 
 /// Asynchronous Ipfs client.
@@ -47,18 +53,20 @@ impl IpfsClient {
 
     /// Builds the url for an api call.
     ///
-    fn build_url<Req>(&self, req: &Req) -> Result<Url, Error>
+    fn build_base_request<Req>(&self, req: &Req) -> Result<async::RequestBuilder, Error>
     where
         Req: ApiRequest + Serialize,
     {
-        let uri = format!(
+        let url = format!(
             "{}{}?{}",
             self.base,
             Req::path(),
             ::serde_urlencoded::to_string(req)?
         );
 
-        uri.parse().map_err(From::from)
+        url.parse::<Url>()
+            .map(|url| self.client.request(Method::Get, url))
+            .map_err(From::from)
     }
 
     /// Processes a response, returning an error or a deserialized json response.
@@ -120,10 +128,9 @@ impl IpfsClient {
     where
         Req: ApiRequest + Serialize,
     {
-        let res = self.build_url(req)
-            .map(|url| self.client.request(Method::Get, url))
-            .into_future()
-            .and_then(|req| IpfsClient::send_request(req));
+        let res = self.build_base_request(req).into_future().and_then(|req| {
+            IpfsClient::send_request(req)
+        });
 
         Box::new(res)
     }
@@ -136,10 +143,9 @@ impl IpfsClient {
         Req: ApiRequest + Serialize,
         for<'de> Res: 'static + Deserialize<'de>,
     {
-        let res = self.build_url(req)
-            .map(|url| self.client.request(Method::Get, url))
-            .into_future()
-            .and_then(|req| IpfsClient::send_request_json(req));
+        let res = self.build_base_request(req).into_future().and_then(|req| {
+            IpfsClient::send_request_json(req)
+        });
 
         Box::new(res)
     }
@@ -153,13 +159,30 @@ impl IpfsClient {
         for<'de> Res: 'static + Deserialize<'de>,
         R: 'static + Read + Send,
     {
-        let res = self.build_url(req)
-            .map(|url| self.client.request(Method::Get, url))
-            .into_future()
-            .and_then(move |req| {
+        let res = self.build_base_request(req).into_future().and_then(
+            move |req| {
                 let form = multipart::Form::new().part("file", multipart::Part::reader(data));
                 IpfsClient::send_request_json(req)
-            });
+            },
+        );
+
+        Box::new(res)
+    }
+
+    /// Generic method to return a streaming response of deserialized json
+    /// objects delineated by new line separators.
+    ///
+    fn request_stream<Req, Res>(&self, req: &Req) -> AsyncStreamResponse<Res>
+    where
+        Req: ApiRequest + Serialize,
+        for<'de> Res: 'static + Deserialize<'de>,
+    {
+        let res = self.build_base_request(req)
+            .into_future()
+            .and_then(|mut req| req.send().from_err())
+            .map(|res| res.into_body().from_err())
+            .flatten_stream()
+            .and_then(|chunk| serde_json::from_slice(&chunk).map_err(From::from));
 
         Box::new(res)
     }
@@ -236,7 +259,11 @@ impl IpfsClient {
 
     /// Returns the diff of two Ipfs objects.
     ///
-    pub fn object_diff(&self, key0: &str, key1: &str) -> AsyncResponse<response::ObjectDiffResponse> {
+    pub fn object_diff(
+        &self,
+        key0: &str,
+        key1: &str,
+    ) -> AsyncResponse<response::ObjectDiffResponse> {
         self.request(&request::ObjectDiff { key0, key1 })
     }
 
@@ -270,8 +297,22 @@ impl IpfsClient {
 
     /// Removes a pinned object from local storage.
     ///
-    pub fn pin_rm(&self, key: &str, recursive: Option<bool>) -> AsyncResponse<response::PinRmResponse> {
+    pub fn pin_rm(
+        &self,
+        key: &str,
+        recursive: Option<bool>,
+    ) -> AsyncResponse<response::PinRmResponse> {
         self.request(&request::PinRm { key, recursive })
+    }
+
+    /// Pings a peer.
+    ///
+    pub fn ping(
+        &self,
+        peer: &str,
+        count: Option<usize>,
+    ) -> AsyncStreamResponse<response::PingResponse> {
+        self.request_stream(&request::Ping { peer, count })
     }
 
     /// List subscribed pubsub topics.
@@ -282,8 +323,21 @@ impl IpfsClient {
 
     /// List peers that are being published to.
     ///
-    pub fn pubsub_peers(&self, topic: Option<&str>) -> AsyncResponse<response::PubsubPeersResponse> {
+    pub fn pubsub_peers(
+        &self,
+        topic: Option<&str>,
+    ) -> AsyncResponse<response::PubsubPeersResponse> {
         self.request(&request::PubsubPeers { topic })
+    }
+
+    /// Publish a message to a topic.
+    ///
+    pub fn pubsub_pub(
+        &self,
+        topic: &str,
+        payload: &str,
+    ) -> AsyncResponse<response::PubsubPubResponse> {
+        self.request(&request::PubsubPub { topic, payload })
     }
 
     /// Returns bitswap stats.
