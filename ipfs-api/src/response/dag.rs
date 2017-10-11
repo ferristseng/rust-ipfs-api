@@ -9,7 +9,7 @@ pub struct DagIpfsHeader {
     pub size: u64,
 
     #[serde(deserialize_with = "serde::deserialize_hashmap")]
-    pub cid: HashMap<String, String>
+    pub cid: HashMap<String, String>,
 }
 
 
@@ -18,7 +18,7 @@ pub struct DagGetResponse {
     pub data: Option<String>,
 
     #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub links: Vec<DagIpfsHeader>
+    pub links: Vec<DagIpfsHeader>,
 }
 
 
