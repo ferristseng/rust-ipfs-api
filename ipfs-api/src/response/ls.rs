@@ -6,7 +6,7 @@ use response::serde;
 pub struct IpfsFile {
     pub hash: String,
 
-    #[serde(default)]
+    #[serde(deserialize_with = "serde::deserialize_vec")]
     pub links: Vec<IpfsFileHeader>,
 }
 

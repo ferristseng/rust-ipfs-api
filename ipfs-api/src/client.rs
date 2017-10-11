@@ -221,6 +221,12 @@ impl IpfsClient {
         Ok(Box::new(req))
     }
 
+    /// Returns information about a dag node in Ipfs.
+    ///
+    pub fn dag_get(&self, path: &str) -> ApiResult<response::DagGetResponse> {
+        self.request(&request::DagGet { path })
+    }
+
     /// List the contents of an Ipfs multihash.
     ///
     #[inline]

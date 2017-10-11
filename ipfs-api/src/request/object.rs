@@ -67,8 +67,8 @@ mod tests {
     serialize_url_test!(
         test_serializes_0,
         ObjectDiff {
-            path0: "test",
-            path1: "test2",
+            key0: "test",
+            key1: "test2",
         },
         "arg=test&arg=test2"
     );
