@@ -25,3 +25,20 @@ impl<'a> ApiRequest for PubsubPeers<'a> {
         "/pubsub/peers"
     }
 }
+
+
+#[derive(Serialize)]
+pub struct PubsubPub<'a> {
+    #[serde(rename = "arg")]
+    pub topic: &'a str,
+
+    #[serde(rename = "arg")]
+    pub payload: &'a str,
+}
+
+impl<'a> ApiRequest for PubsubPub<'a> {
+    #[inline]
+    fn path() -> &'static str {
+        "/pubsub/pub"
+    }
+}
