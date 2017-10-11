@@ -7,7 +7,7 @@ pub struct PinLs<'a> {
     pub key: Option<&'a str>,
 
     #[serde(rename = "type")]
-    pub typ: Option<&'a str>
+    pub typ: Option<&'a str>,
 }
 
 impl<'a> ApiRequest for PinLs<'a> {

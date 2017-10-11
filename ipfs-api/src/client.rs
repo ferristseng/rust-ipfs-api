@@ -5,6 +5,7 @@ use reqwest::{self, multipart, Method, StatusCode, Url};
 use reqwest::unstable::async::{self, Client, ClientBuilder};
 use response::{self, Error};
 use serde::{Deserialize, Serialize};
+use serde_json;
 use std::io::Read;
 use tokio_core::reactor::Handle;
 
@@ -65,19 +66,72 @@ impl IpfsClient {
         uri.parse().map_err(From::from)
     }
 
+    /// Processes a response, returning an error or a deserialized json response.
+    ///
+    fn process_response<Res>(status: StatusCode, chunk: async::Chunk) -> Result<Res, Error>
+    where
+        for<'de> Res: 'static + Deserialize<'de>,
+    {
+        match status {
+            StatusCode::Ok => serde_json::from_slice(&chunk).map_err(From::from),
+            _ => {
+                // For error responses, the error can either be a json error,
+                // or can just be a string message.
+                //
+                match serde_json::from_slice(&chunk) {
+                    Ok(e) => Err(Error::Api(e)),
+                    Err(_) => Err(Error::Uncategorized(String::from_utf8(chunk.to_vec())?)),
+                }
+            }
+        }
+    }
+
+    /// Sends a request and returns the raw response.
+    ///
+    /// Methods prefixed with `send_` work on a raw reqwest `RequestBuilder`
+    /// instance.
+    ///
+    fn send_request(
+        &self,
+        mut req: async::RequestBuilder,
+    ) -> ApiResult<(StatusCode, async::Chunk)> {
+        let res = req.send()
+            .and_then(|res| {
+                let status = res.status();
+
+                res.into_body().concat2().map(move |chunk| (status, chunk))
+            })
+            .from_err();
+
+        Ok(Box::new(res))
+    }
+
+    /// Sends a request and deserializes the response into Json.
+    ///
+    /// Methods prefixed with `send_` work on a raw reqwest `RequestBuilder`
+    /// instance.
+    ///
+    fn send_request_json<Res>(&self, req: async::RequestBuilder) -> ApiResult<Res>
+    where
+        for<'de> Res: 'static + Deserialize<'de>,
+    {
+        let res = self.send_request(req)?.and_then(move |(status, chunk)| {
+            IpfsClient::process_response(status, chunk)
+        });
+
+        Ok(Box::new(res))
+    }
+
     /// Generates a request, and returns the unprocessed response future.
     ///
-    fn request_raw<Req>(&self, req: &Req) -> ApiResult<async::Chunk>
+    fn request_raw<Req>(&self, req: &Req) -> ApiResult<(StatusCode, async::Chunk)>
     where
         Req: ApiRequest + Serialize,
     {
         let url = self.build_url(req)?;
-        let mut req = self.client.request(Method::Get, url);
-        let res = req.send()
-            .and_then(move |res| res.into_body().concat2())
-            .from_err();
+        let req = self.client.request(Method::Get, url);
 
-        Ok(Box::new(res))
+        self.send_request(req)
     }
 
     /// Generic method for making a request to the Ipfs server, and getting
@@ -88,11 +142,10 @@ impl IpfsClient {
         Req: ApiRequest + Serialize,
         for<'de> Res: 'static + Deserialize<'de>,
     {
-        let res = self.request_raw(req)?.and_then(move |chunk| {
-            ::serde_json::from_slice(&chunk).map_err(From::from)
-        });
+        let url = self.build_url(req)?;
+        let req = self.client.request(Method::Get, url);
 
-        Ok(Box::new(res))
+        self.send_request_json(req)
     }
 
     /// Generic method for making a request to the Ipfs server, and getting
@@ -106,10 +159,9 @@ impl IpfsClient {
     {
         let url = self.build_url(req)?;
         let form = multipart::Form::new().part("file", multipart::Part::reader(data));
-        let mut req = self.client.request(Method::Get, url);
-        let res = req.send().and_then(move |mut res| res.json()).from_err();
+        let req = self.client.request(Method::Get, url);
 
-        Ok(Box::new(res))
+        self.send_request_json(req)
     }
 }
 
@@ -160,9 +212,11 @@ impl IpfsClient {
     /// Returns an unparsed json string, due to an unclear spec.
     ///
     pub fn config_show(&self) -> ApiResult<response::ConfigShowResponse> {
-        let req = self.request_raw(&request::ConfigShow)?.and_then(|chunk| {
-            String::from_utf8(chunk.to_vec()).map_err(From::from)
-        });
+        let req = self.request_raw(&request::ConfigShow)?.and_then(
+            |(_, chunk)| {
+                String::from_utf8(chunk.to_vec()).map_err(From::from)
+            },
+        );
 
         Ok(Box::new(req))
     }
@@ -200,7 +254,11 @@ impl IpfsClient {
 
     /// Returns a list of pinned objects in local storage.
     ///
-    pub fn pin_ls(&self, key: Option<&str>, typ: Option<&str>) -> ApiResult<response::PinLsResponse> {
+    pub fn pin_ls(
+        &self,
+        key: Option<&str>,
+        typ: Option<&str>,
+    ) -> ApiResult<response::PinLsResponse> {
         self.request(&request::PinLs { key, typ })
     }
 
