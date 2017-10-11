@@ -15,9 +15,7 @@ fn main() {
         let client =
             IpfsClient::new(&core.handle(), "localhost", 5001).expect("expected a valid url");
 
-        let local = client.swarm_addrs_local().expect(
-            "expected a valid request",
-        );
+        let local = client.swarm_addrs_local();
         let local = core.run(local).expect("expected a valid response");
 
         println!("your addrs:");
@@ -26,7 +24,7 @@ fn main() {
         }
         println!("");
 
-        let connected = client.swarm_peers().expect("expected a valid request");
+        let connected = client.swarm_peers();
         let connected = core.run(connected).expect("expected a valid response");
 
         println!("connected:");

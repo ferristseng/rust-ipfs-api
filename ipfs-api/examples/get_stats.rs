@@ -14,13 +14,13 @@ fn main() {
         let client =
             IpfsClient::new(&core.handle(), "localhost", 5001).expect("expected a valid url");
 
-        let bitswap_stats = client.stats_bitswap().expect("expected a valid request");
+        let bitswap_stats = client.stats_bitswap();
         let bitswap_stats = core.run(bitswap_stats).expect("expected a valid response");
 
-        let bw_stats = client.stats_bw().expect("expected a valid request");
+        let bw_stats = client.stats_bw();
         let bw_stats = core.run(bw_stats).expect("expected a valid response");
 
-        let repo_stats = client.stats_repo().expect("expected a valid request");
+        let repo_stats = client.stats_repo();
         let repo_stats = core.run(repo_stats).expect("expected a valid response");
 
         println!("bitswap stats:");

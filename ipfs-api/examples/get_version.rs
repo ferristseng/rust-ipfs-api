@@ -13,7 +13,7 @@ fn main() {
 
         let client =
             IpfsClient::new(&core.handle(), "localhost", 5001).expect("expected a valid url");
-        let req = client.version().expect("expected a valid request");
+        let req = client.version();
         let version = core.run(req).expect("expected a valid response");
 
         println!("version: {:?}", version.version);

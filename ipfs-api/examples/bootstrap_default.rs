@@ -14,7 +14,7 @@ fn main() {
 
         let client =
             IpfsClient::new(&core.handle(), "localhost", 5001).expect("expected a valid url");
-        let bootstrap = client.bootstrap_list().expect("expected a valid request");
+        let bootstrap = client.bootstrap_list();
         let bootstrap = core.run(bootstrap).expect("expected a valid response");
 
         println!("current bootstrap peers:");
@@ -25,7 +25,7 @@ fn main() {
         println!("");
         println!("dropping all bootstrap peers...");
 
-        let drop = client.bootstrap_rm_all().expect("expected a valid request");
+        let drop = client.bootstrap_rm_all();
         let drop = core.run(drop).expect("expected a valid response");
 
         println!("dropped:");
@@ -36,9 +36,7 @@ fn main() {
         println!("");
         println!("adding default peers...");
 
-        let add = client.bootstrap_add_default().expect(
-            "expected a valid request",
-        );
+        let add = client.bootstrap_add_default();
         let add = core.run(add).expect("expected a valid response");
 
         println!("added:");
