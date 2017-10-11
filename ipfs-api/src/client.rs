@@ -198,6 +198,12 @@ impl IpfsClient {
         self.request(&request::ObjectStat { key })
     }
 
+    /// Returns a list of pinned objects in local storage.
+    ///
+    pub fn pin_ls(&self, key: Option<&str>, typ: Option<&str>) -> ApiResult<response::PinLsResponse> {
+        self.request(&request::PinLs { key, typ })
+    }
+
     /// Returns bitswap stats.
     ///
     pub fn stats_bitswap(&self) -> ApiResult<response::StatsBitswapResponse> {

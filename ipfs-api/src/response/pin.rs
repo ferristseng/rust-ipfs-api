@@ -2,7 +2,7 @@ use response::serde;
 use std::collections::HashMap;
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct PinAddResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
@@ -12,7 +12,7 @@ pub struct PinAddResponse {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct PinType {
     #[serde(rename = "Type")]
@@ -20,7 +20,7 @@ pub struct PinType {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct PinLsResponse {
     #[serde(deserialize_with = "serde::deserialize_hashmap")]
@@ -28,7 +28,7 @@ pub struct PinLsResponse {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct PinRmResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
