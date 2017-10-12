@@ -1,7 +1,7 @@
 use response::serde;
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct PubsubLsResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
@@ -9,7 +9,7 @@ pub struct PubsubLsResponse {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct PubsubPeersResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
@@ -20,24 +20,17 @@ pub struct PubsubPeersResponse {
 pub type PubsubPubResponse = ();
 
 
-#[derive(Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct PubsubMessage {
-    pub from: String,
-    pub data: String,
-    pub seqno: String,
-    pub topic_ids: Vec<String>,
+#[derive(Debug, Deserialize)]
+pub struct PubsubSubResponse {
+    pub from: Option<String>,
+    pub data: Option<String>,
+    pub seqno: Option<String>,
+
+    #[serde(rename = "topicIDs")]
+    pub topic_ids: Option<Vec<String>>,
 
     #[serde(rename = "XXX_unrecognized")]
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub unrecognized: Vec<u8>,
-}
-
-
-#[derive(Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct PubsubSubResponse {
-    pub message: Option<PubsubMessage>,
+    pub unrecognized: Option<Vec<u8>>,
 }
 
 
@@ -47,4 +40,5 @@ mod tests {
     deserialize_test!(v0_pubsub_ls_1, PubsubLsResponse);
     deserialize_test!(v0_pubsub_peers_0, PubsubPeersResponse);
     deserialize_test!(v0_pubsub_sub_0, PubsubSubResponse);
+    deserialize_test!(v0_pubsub_sub_1, PubsubSubResponse);
 }

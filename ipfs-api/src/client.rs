@@ -340,6 +340,16 @@ impl IpfsClient {
         self.request(&request::PubsubPub { topic, payload })
     }
 
+    /// Subscribes to a pubsub topic.
+    ///
+    pub fn pubsub_sub(
+        &self,
+        topic: &str,
+        discover: Option<bool>,
+    ) -> AsyncStreamResponse<response::PubsubSubResponse> {
+        self.request_stream(&request::PubsubSub { topic, discover })
+    }
+
     /// Returns bitswap stats.
     ///
     pub fn stats_bitswap(&self) -> AsyncResponse<response::StatsBitswapResponse> {
