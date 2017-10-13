@@ -28,7 +28,7 @@ fn main() {
     //
     thread::spawn(move || {
         let mut event_loop = Core::new().expect("expected event loop");
-        let handle = event_loop.handle();
+        let client = get_client(&event_loop.handle());
         let timer = Timer::default();
         let publish = timer
             .interval(Duration::from_secs(1))
@@ -39,12 +39,10 @@ fn main() {
                 println!("");
                 println!("publishing message...");
 
-                get_client(&handle)
-                    .pubsub_pub(TOPIC, "Hello World!")
-                    .then(|_| {
-                        println!("success");
-                        Ok(())
-                    })
+                client.pubsub_pub(TOPIC, "Hello World!").then(|_| {
+                    println!("success");
+                    Ok(())
+                })
             });
 
         println!("");
