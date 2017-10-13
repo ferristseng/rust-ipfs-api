@@ -1,4 +1,4 @@
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct RefsLocalResponse {
     #[serde(rename = "Ref")]

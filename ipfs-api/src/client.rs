@@ -356,6 +356,12 @@ impl IpfsClient {
         self.request_stream(&request::PubsubSub { topic, discover })
     }
 
+    /// Gets a list of local references.
+    ///
+    pub fn refs_local(&self) -> AsyncStreamResponse<response::RefsLocalResponse> {
+        self.request_stream(&request::RefsLocal)
+    }
+
     /// Returns bitswap stats.
     ///
     pub fn stats_bitswap(&self) -> AsyncResponse<response::StatsBitswapResponse> {
