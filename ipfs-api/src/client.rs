@@ -45,6 +45,12 @@ impl IpfsClient {
         })
     }
 
+    /// Creates an `IpfsClient` connected to `localhost:5001`.
+    ///
+    pub fn default(handle: &Handle) -> IpfsClient {
+        IpfsClient::new(handle, "localhost", 5001).unwrap()
+    }
+
     /// Builds the base url path for the Ipfs api.
     ///
     fn build_base_path(host: &str, port: u16) -> Result<Url, reqwest::UrlError> {

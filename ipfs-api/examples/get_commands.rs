@@ -4,7 +4,6 @@ extern crate tokio_core;
 use ipfs_api::{response, IpfsClient};
 use tokio_core::reactor::Core;
 
-
 fn print_recursive(indent: usize, cmd: &response::CommandsResponse) {
     let cmd_indent = " ".repeat(indent * 4);
     let opt_indent = " ".repeat((indent + 1) * 4);
@@ -26,20 +25,15 @@ fn print_recursive(indent: usize, cmd: &response::CommandsResponse) {
     }
 }
 
-
 // Creates an Ipfs client, and gets a list of available commands from the
 // Ipfs server.
 //
 fn main() {
-    if let Ok(mut core) = Core::new() {
-        println!("connecting to localhost:5001...");
+    println!("connecting to localhost:5001...");
 
-        let client =
-            IpfsClient::new(&core.handle(), "localhost", 5001).expect("expected a valid url");
-        let req = client.commands();
+    let mut core = Core::new().expect("expected event loop");
+    let client = IpfsClient::default(&core.handle());
+    let req = client.commands();
 
-        print_recursive(0, &core.run(req).expect("expected a valid response"));
-    } else {
-        println!("failed to create event loop");
-    }
+    print_recursive(0, &core.run(req).expect("expected a valid response"));
 }

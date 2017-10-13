@@ -4,46 +4,42 @@ extern crate tokio_core;
 use ipfs_api::IpfsClient;
 use tokio_core::reactor::Core;
 
-
 // Lists clients in bootstrap list, then adds the default list, then removes
 // them, and readds them.
 //
 fn main() {
-    if let Ok(mut core) = Core::new() {
-        println!("connecting to localhost:5001...");
+    println!("connecting to localhost:5001...");
 
-        let client =
-            IpfsClient::new(&core.handle(), "localhost", 5001).expect("expected a valid url");
-        let bootstrap = client.bootstrap_list();
-        let bootstrap = core.run(bootstrap).expect("expected a valid response");
+    let mut core = Core::new().expect("expected event loop");
+    let client = IpfsClient::default(&core.handle());
 
-        println!("current bootstrap peers:");
-        for peer in bootstrap.peers {
-            println!("  {}", peer);
-        }
+    let bootstrap = client.bootstrap_list();
+    let bootstrap = core.run(bootstrap).expect("expected a valid response");
 
-        println!("");
-        println!("dropping all bootstrap peers...");
+    println!("current bootstrap peers:");
+    for peer in bootstrap.peers {
+        println!("  {}", peer);
+    }
 
-        let drop = client.bootstrap_rm_all();
-        let drop = core.run(drop).expect("expected a valid response");
+    println!("");
+    println!("dropping all bootstrap peers...");
 
-        println!("dropped:");
-        for peer in drop.peers {
-            println!("  {}", peer);
-        }
+    let drop = client.bootstrap_rm_all();
+    let drop = core.run(drop).expect("expected a valid response");
 
-        println!("");
-        println!("adding default peers...");
+    println!("dropped:");
+    for peer in drop.peers {
+        println!("  {}", peer);
+    }
 
-        let add = client.bootstrap_add_default();
-        let add = core.run(add).expect("expected a valid response");
+    println!("");
+    println!("adding default peers...");
 
-        println!("added:");
-        for peer in add.peers {
-            println!("  {}", peer);
-        }
-    } else {
-        println!("failed to create event loop");
+    let add = client.bootstrap_add_default();
+    let add = core.run(add).expect("expected a valid response");
+
+    println!("added:");
+    for peer in add.peers {
+        println!("  {}", peer);
     }
 }
