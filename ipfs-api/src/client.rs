@@ -350,6 +350,10 @@ impl IpfsClient {
         self.request(&request::ConfigEdit)
     }
 
+    // TODO
+    // pub fn config_replace(&self, ...) -> AsyncResponse<response::ConfigReplaceResponse> {
+    // }
+
     /// Show the current config of the server.
     ///
     /// Returns an unparsed json string, due to an unclear spec.
@@ -362,6 +366,42 @@ impl IpfsClient {
     ///
     pub fn dag_get(&self, path: &str) -> AsyncResponse<response::DagGetResponse> {
         self.request(&request::DagGet { path })
+    }
+
+    // TODO
+    // pub fn dag_put(&self, ...) -> AsyncResponse<response::DagPutResponse> {
+    // }
+
+    /// Query the DHT for all of the multiaddresses associated with a Peer ID.
+    ///
+    #[inline]
+    pub fn dht_findpeer(&self, peer: &str) -> AsyncStreamResponse<response::DhtFindPeerResponse> {
+        self.request_stream(&request::DhtFindPeer { peer })
+    }
+
+    /// Find peers in the DHT that can provide a specific value given a key.
+    ///
+    #[inline]
+    pub fn dht_findprovs(&self, key: &str) -> AsyncStreamResponse<response::DhtFindProvsResponse> {
+        self.request_stream(&request::DhtFindProvs { key })
+    }
+
+    /// Query the DHT for a given key.
+    ///
+    pub fn dht_get(&self, key: &str) -> AsyncStreamResponse<response::DhtGetResponse> {
+        self.request_stream(&request::DhtGet { key })
+    }
+
+    /// Write a key/value pair to the DHT.
+    ///
+    pub fn dht_put(&self, key: &str, value: &str) -> AsyncStreamResponse<response::DhtPutResponse> {
+        self.request_stream(&request::DhtPut { key, value })
+    }
+
+    /// Find the closest peer given the peer ID by querying the DHT.
+    ///
+    pub fn dht_query(&self, peer: &str) -> AsyncStreamResponse<response::DhtQueryResponse> {
+        self.request_stream(&request::DhtQuery { peer })
     }
 
     /// List the contents of an Ipfs multihash.

@@ -1,7 +1,7 @@
 use response::serde;
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct DhtPeerResponse {
     #[serde(rename = "ID")]
@@ -11,9 +11,9 @@ pub struct DhtPeerResponse {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
-pub struct DhtFindPeerResponse {
+pub struct DhtMessage {
     #[serde(rename = "ID")]
     pub id: String,
 
@@ -26,82 +26,12 @@ pub struct DhtFindPeerResponse {
     pub extra: String,
 }
 
+pub type DhtFindPeerResponse = DhtMessage;
 
-#[derive(Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct DhtFindProvsResponse {
-    #[serde(rename = "ID")]
-    pub id: String,
+pub type DhtFindProvsResponse = DhtMessage;
 
-    #[serde(rename = "Type")]
-    pub typ: isize,
+pub type DhtGetResponse = DhtMessage;
 
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub responses: Vec<DhtPeerResponse>,
+pub type DhtPutResponse = DhtMessage;
 
-    pub extra: String,
-}
-
-
-#[derive(Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct DhtGetResponse {
-    #[serde(rename = "ID")]
-    pub id: String,
-
-    #[serde(rename = "Type")]
-    pub typ: isize,
-
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub responses: Vec<DhtPeerResponse>,
-
-    pub extra: String,
-}
-
-
-#[derive(Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct DhtProvideResponse {
-    #[serde(rename = "ID")]
-    pub id: String,
-
-    #[serde(rename = "Type")]
-    pub typ: isize,
-
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub responses: Vec<DhtPeerResponse>,
-
-    pub extra: String,
-}
-
-
-#[derive(Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct DhtPutResponse {
-    #[serde(rename = "ID")]
-    pub id: String,
-
-    #[serde(rename = "Type")]
-    pub typ: isize,
-
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub responses: Vec<DhtPeerResponse>,
-
-    pub extra: String,
-}
-
-
-#[derive(Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct DhtQueryResponse {
-    #[serde(rename = "ID")]
-    pub id: String,
-
-    #[serde(rename = "Type")]
-    pub typ: isize,
-
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub responses: Vec<DhtPeerResponse>,
-
-    pub extra: String,
-}
+pub type DhtQueryResponse = DhtMessage;
