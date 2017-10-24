@@ -103,24 +103,6 @@ impl IpfsClient {
         }
     }
 
-    /// Processes a response that expects an empty body.
-    ///
-    fn process_empty_response(status: StatusCode, chunk: async::Chunk) -> Result<(), Error> {
-        match status {
-            StatusCode::Ok => Ok(()),
-            _ => Err(Self::build_error_from_body(chunk)),
-        }
-    }
-
-    /// Processes a response that expects a raw String.
-    ///
-    fn process_string_response(status: StatusCode, chunk: async::Chunk) -> Result<String, Error> {
-        match status {
-            StatusCode::Ok => String::from_utf8(chunk.to_vec()).map_err(From::from),
-            _ => Err(Self::build_error_from_body(chunk)),
-        }
-    }
-
     /// Sends a request and returns the raw response.
     ///
     /// Methods prefixed with `send_` work on a raw reqwest `RequestBuilder`
@@ -201,6 +183,57 @@ impl IpfsClient {
         Box::new(res)
     }
 
+    /// Generic method for making a request to the Ipfs server, and getting
+    /// back a response with no body.
+    ///
+    fn request_empty<Req>(&self, req: &Req) -> AsyncResponse<()>
+    where
+        Req: ApiRequest + Serialize,
+    {
+        let res = self.request_raw(req).and_then(
+            |(status, chunk)| match status {
+                StatusCode::Ok => Ok(()),
+                _ => Err(Self::build_error_from_body(chunk)),
+            },
+        );
+
+        Box::new(res)
+    }
+
+    /// Generic method for making a request to the Ipfs server, and getting
+    /// back raw bytes.
+    ///
+    fn request_bytes<Req>(&self, req: &Req) -> AsyncResponse<Vec<u8>>
+    where
+        Req: ApiRequest + Serialize,
+    {
+        let res = self.request_raw(req).and_then(
+            |(status, chunk)| match status {
+                StatusCode::Ok => Ok(chunk.to_vec()),
+                _ => Err(Self::build_error_from_body(chunk)),
+            },
+        );
+
+        Box::new(res)
+    }
+
+    /// Generic method for making a request to the Ipfs server, and getting
+    /// back a raw String response.
+    ///
+    fn request_string<Req>(&self, req: &Req) -> AsyncResponse<String>
+    where
+        Req: ApiRequest + Serialize,
+    {
+        let res = self.request_raw(req).and_then(
+            |(status, chunk)| match status {
+                StatusCode::Ok => String::from_utf8(chunk.to_vec()).map_err(From::from),
+                _ => Err(Self::build_error_from_body(chunk)),
+            },
+        );
+
+        Box::new(res)
+    }
+
     /// Generic method to return a streaming response of deserialized json
     /// objects delineated by new line separators.
     ///
@@ -246,11 +279,7 @@ impl IpfsClient {
     /// Remove a given block from your wantlist.
     ///
     pub fn bitswap_unwant(&self, key: &str) -> AsyncResponse<response::BitswapUnwantResponse> {
-        let req = self.request_raw(&request::BitswapUnwant { key }).and_then(
-            |(code, chunk)| Self::process_empty_response(code, chunk),
-        );
-
-        Box::new(req)
+        self.request_empty(&request::BitswapUnwant { key })
     }
 
     /// Shows blocks on the wantlist for you or the specified peer.
@@ -260,6 +289,28 @@ impl IpfsClient {
         peer: Option<&str>,
     ) -> AsyncResponse<response::BitswapWantlistResponse> {
         self.request(&request::BitswapWantlist { peer })
+    }
+
+    /// Gets a raw IPFS block.
+    ///
+    pub fn block_get(&self, hash: &str) -> AsyncResponse<response::BlockGetResponse> {
+        self.request_bytes(&request::BlockGet { hash })
+    }
+
+    // TODO
+    // pub fn block_put(&self, ...) -> AsyncResponse<response::BlockPutResponse> {
+    // }
+
+    /// Removes an IPFS block.
+    ///
+    pub fn block_rm(&self, hash: &str) -> AsyncResponse<response::BlockRmResponse> {
+        self.request(&request::BlockRm { hash })
+    }
+
+    /// Prints information about a raw IPFS block.
+    ///
+    pub fn block_stat(&self, hash: &str) -> AsyncResponse<response::BlockStatResponse> {
+        self.request(&request::BlockStat { hash })
     }
 
     /// Add default peers to the bootstrap list.
@@ -298,13 +349,7 @@ impl IpfsClient {
     /// Returns an unparsed json string, due to an unclear spec.
     ///
     pub fn config_show(&self) -> AsyncResponse<response::ConfigShowResponse> {
-        let req = self.request_raw(&request::ConfigShow).and_then(
-            |(status, chunk)| {
-                Self::process_string_response(status, chunk)
-            },
-        );
-
-        Box::new(req)
+        self.request_string(&request::ConfigShow)
     }
 
     /// Returns information about a dag node in Ipfs.

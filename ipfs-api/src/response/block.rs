@@ -1,7 +1,7 @@
-pub type BlockGetResponse = String;
+pub type BlockGetResponse = Vec<u8>;
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BlockPutResponse {
     pub key: String,
@@ -9,7 +9,7 @@ pub struct BlockPutResponse {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BlockRmResponse {
     pub hash: String,
@@ -17,7 +17,7 @@ pub struct BlockRmResponse {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BlockStatResponse {
     pub key: String,
