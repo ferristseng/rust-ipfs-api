@@ -1,4 +1,5 @@
 pub use self::add::*;
+pub use self::bitswap::*;
 pub use self::bootstrap::*;
 pub use self::commands::*;
 pub use self::config::*;
@@ -49,6 +50,7 @@ macro_rules! impl_skip_serialize {
 
 
 mod add;
+mod bitswap;
 mod bootstrap;
 mod commands;
 mod config;

@@ -75,23 +75,49 @@ impl IpfsClient {
             .map_err(From::from)
     }
 
-    /// Processes a response, returning an error or a deserialized json response.
+    /// Builds an Api error from a response body.
     ///
-    fn process_response<Res>(status: StatusCode, chunk: async::Chunk) -> Result<Res, Error>
+    #[inline]
+    fn build_error_from_body(chunk: async::Chunk) -> Error {
+        match serde_json::from_slice(&chunk) {
+            Ok(e) => Error::Api(e),
+            Err(_) => {
+                match String::from_utf8(chunk.to_vec()) {
+                    Ok(s) => Error::Uncategorized(s),
+                    Err(e) => e.into(),
+                }
+            }
+        }
+    }
+
+    /// Processes a response that expects a json encoded body, returning an
+    /// error or a deserialized json response.
+    ///
+    fn process_json_response<Res>(status: StatusCode, chunk: async::Chunk) -> Result<Res, Error>
     where
         for<'de> Res: 'static + Deserialize<'de>,
     {
         match status {
             StatusCode::Ok => serde_json::from_slice(&chunk).map_err(From::from),
-            _ => {
-                // For error responses, the error can either be a json error,
-                // or can just be a string message.
-                //
-                match serde_json::from_slice(&chunk) {
-                    Ok(e) => Err(Error::Api(e)),
-                    Err(_) => Err(Error::Uncategorized(String::from_utf8(chunk.to_vec())?)),
-                }
-            }
+            _ => Err(Self::build_error_from_body(chunk)),
+        }
+    }
+
+    /// Processes a response that expects an empty body.
+    ///
+    fn process_empty_response(status: StatusCode, chunk: async::Chunk) -> Result<(), Error> {
+        match status {
+            StatusCode::Ok => Ok(()),
+            _ => Err(Self::build_error_from_body(chunk)),
+        }
+    }
+
+    /// Processes a response that expects a raw String.
+    ///
+    fn process_string_response(status: StatusCode, chunk: async::Chunk) -> Result<String, Error> {
+        match status {
+            StatusCode::Ok => String::from_utf8(chunk.to_vec()).map_err(From::from),
+            _ => Err(Self::build_error_from_body(chunk)),
         }
     }
 
@@ -122,7 +148,7 @@ impl IpfsClient {
         for<'de> Res: 'static + Deserialize<'de>,
     {
         let res = IpfsClient::send_request(req).into_future().and_then(
-            move |(status, chunk)| IpfsClient::process_response(status, chunk),
+            move |(status, chunk)| IpfsClient::process_json_response(status, chunk),
         );
 
         Box::new(res)
@@ -205,6 +231,37 @@ impl IpfsClient {
         self.request_with_body(data, &request::Add)
     }
 
+    /// Returns the current ledger for a peer.
+    ///
+    pub fn bitswap_ledger(&self, peer: &str) -> AsyncResponse<response::BitswapLedgerResponse> {
+        self.request(&request::BitswapLedger { peer })
+    }
+
+    /// Returns some stats about the bitswap agent.
+    ///
+    pub fn bitswap_stat(&self) -> AsyncResponse<response::BitswapStatResponse> {
+        self.request(&request::BitswapStat)
+    }
+
+    /// Remove a given block from your wantlist.
+    ///
+    pub fn bitswap_unwant(&self, key: &str) -> AsyncResponse<response::BitswapUnwantResponse> {
+        let req = self.request_raw(&request::BitswapUnwant { key }).and_then(
+            |(code, chunk)| Self::process_empty_response(code, chunk),
+        );
+
+        Box::new(req)
+    }
+
+    /// Shows blocks on the wantlist for you or the specified peer.
+    ///
+    pub fn bitswap_wantlist(
+        &self,
+        peer: Option<&str>,
+    ) -> AsyncResponse<response::BitswapWantlistResponse> {
+        self.request(&request::BitswapWantlist { peer })
+    }
+
     /// Add default peers to the bootstrap list.
     ///
     pub fn bootstrap_add_default(&self) -> AsyncResponse<response::BootstrapAddDefaultResponse> {
@@ -242,8 +299,8 @@ impl IpfsClient {
     ///
     pub fn config_show(&self) -> AsyncResponse<response::ConfigShowResponse> {
         let req = self.request_raw(&request::ConfigShow).and_then(
-            |(_, chunk)| {
-                String::from_utf8(chunk.to_vec()).map_err(From::from)
+            |(status, chunk)| {
+                Self::process_string_response(status, chunk)
             },
         );
 

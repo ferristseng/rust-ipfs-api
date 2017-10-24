@@ -32,7 +32,7 @@ pub struct BitswapStatResponse {
 }
 
 
-pub type BitswapUnwantResponse = String;
+pub type BitswapUnwantResponse = ();
 
 
 #[derive(Deserialize)]

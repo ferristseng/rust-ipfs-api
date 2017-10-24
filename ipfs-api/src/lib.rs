@@ -6,10 +6,9 @@ extern crate serde_derive;
 extern crate serde_json;
 extern crate serde_urlencoded;
 extern crate tokio_core;
-
+extern crate tokio_io;
 
 pub use client::IpfsClient;
-
 
 pub mod request;
 pub mod response;
