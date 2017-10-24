@@ -331,6 +331,12 @@ impl IpfsClient {
         self.request(&request::BootstrapRmAll)
     }
 
+    /// Returns the contents of an IPFS object.
+    ///
+    pub fn cat(&self, path: &str) -> AsyncResponse<response::CatResponse> {
+        self.request_bytes(&request::Cat { path })
+    }
+
     /// List available commands that the server accepts.
     ///
     #[inline]

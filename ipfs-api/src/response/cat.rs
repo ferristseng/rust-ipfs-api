@@ -1,1 +1,1 @@
-pub type CatResponse = String;
+pub type CatResponse = Vec<u8>;
