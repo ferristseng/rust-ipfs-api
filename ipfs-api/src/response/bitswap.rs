@@ -1,7 +1,7 @@
 use response::serde;
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BitswapLedgerResponse {
     pub peer: String,
@@ -35,7 +35,7 @@ pub struct BitswapStatResponse {
 pub type BitswapUnwantResponse = ();
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BitswapWantlistResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
