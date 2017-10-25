@@ -33,7 +33,7 @@ fn main() {
         let publish = timer
             .interval(Duration::from_secs(1))
             .map_err(|_| {
-                response::Error::Uncategorized("timeout error".to_string())
+                response::Error::from("timeout error")
             })
             .for_each(move |_| {
                 println!("");
