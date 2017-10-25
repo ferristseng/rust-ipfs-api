@@ -7,7 +7,8 @@ pub struct DhtPeerResponse {
     #[serde(rename = "ID")]
     pub id: String,
 
-    pub addrs: String,
+    #[serde(deserialize_with = "serde::deserialize_vec")]
+    pub addrs: Vec<String>,
 }
 
 
