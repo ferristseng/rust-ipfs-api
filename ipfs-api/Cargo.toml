@@ -4,6 +4,8 @@ version           = "0.4.0"
 authors           = ["Ferris Tseng <ferristseng@fastmail.fm>"]
 
 [dependencies]
+bytes             = "0.4"
+error-chain       = "0.11"
 futures           = "0.1"
 reqwest           = { version = "0.8", features = ["unstable"] }
 serde             = "1.0"
@@ -11,3 +13,7 @@ serde_derive      = "1.0"
 serde_json        = "1.0"
 serde_urlencoded  = "0.5"
 tokio-core        = "0.1"
+tokio-io          = "0.1"
+
+[dev-dependencies]
+tokio-timer       = "0.1"
