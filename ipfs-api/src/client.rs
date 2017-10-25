@@ -266,24 +266,28 @@ impl IpfsClient {
 
     /// Returns the current ledger for a peer.
     ///
+    #[inline]
     pub fn bitswap_ledger(&self, peer: &str) -> AsyncResponse<response::BitswapLedgerResponse> {
         self.request(&request::BitswapLedger { peer })
     }
 
     /// Returns some stats about the bitswap agent.
     ///
+    #[inline]
     pub fn bitswap_stat(&self) -> AsyncResponse<response::BitswapStatResponse> {
         self.request(&request::BitswapStat)
     }
 
     /// Remove a given block from your wantlist.
     ///
+    #[inline]
     pub fn bitswap_unwant(&self, key: &str) -> AsyncResponse<response::BitswapUnwantResponse> {
         self.request_empty(&request::BitswapUnwant { key })
     }
 
     /// Shows blocks on the wantlist for you or the specified peer.
     ///
+    #[inline]
     pub fn bitswap_wantlist(
         &self,
         peer: Option<&str>,
@@ -293,6 +297,7 @@ impl IpfsClient {
 
     /// Gets a raw IPFS block.
     ///
+    #[inline]
     pub fn block_get(&self, hash: &str) -> AsyncResponse<response::BlockGetResponse> {
         self.request_bytes(&request::BlockGet { hash })
     }
@@ -303,36 +308,42 @@ impl IpfsClient {
 
     /// Removes an IPFS block.
     ///
+    #[inline]
     pub fn block_rm(&self, hash: &str) -> AsyncResponse<response::BlockRmResponse> {
         self.request(&request::BlockRm { hash })
     }
 
     /// Prints information about a raw IPFS block.
     ///
+    #[inline]
     pub fn block_stat(&self, hash: &str) -> AsyncResponse<response::BlockStatResponse> {
         self.request(&request::BlockStat { hash })
     }
 
     /// Add default peers to the bootstrap list.
     ///
+    #[inline]
     pub fn bootstrap_add_default(&self) -> AsyncResponse<response::BootstrapAddDefaultResponse> {
         self.request(&request::BootstrapAddDefault)
     }
 
     /// Lists peers in bootstrap list.
     ///
+    #[inline]
     pub fn bootstrap_list(&self) -> AsyncResponse<response::BootstrapListResponse> {
         self.request(&request::BootstrapList)
     }
 
     /// Removes all peers in bootstrap list.
     ///
+    #[inline]
     pub fn bootstrap_rm_all(&self) -> AsyncResponse<response::BootstrapRmAllResponse> {
         self.request(&request::BootstrapRmAll)
     }
 
     /// Returns the contents of an IPFS object.
     ///
+    #[inline]
     pub fn cat(&self, path: &str) -> AsyncResponse<response::CatResponse> {
         self.request_bytes(&request::Cat { path })
     }
@@ -346,6 +357,7 @@ impl IpfsClient {
 
     /// Opens the config file for editing (on the server).
     ///
+    #[inline]
     pub fn config_edit(&self) -> AsyncResponse<response::ConfigEditResponse> {
         self.request(&request::ConfigEdit)
     }
@@ -358,12 +370,14 @@ impl IpfsClient {
     ///
     /// Returns an unparsed json string, due to an unclear spec.
     ///
+    #[inline]
     pub fn config_show(&self) -> AsyncResponse<response::ConfigShowResponse> {
         self.request_string(&request::ConfigShow)
     }
 
     /// Returns information about a dag node in Ipfs.
     ///
+    #[inline]
     pub fn dag_get(&self, path: &str) -> AsyncResponse<response::DagGetResponse> {
         self.request(&request::DagGet { path })
     }
@@ -388,18 +402,21 @@ impl IpfsClient {
 
     /// Query the DHT for a given key.
     ///
+    #[inline]
     pub fn dht_get(&self, key: &str) -> AsyncStreamResponse<response::DhtGetResponse> {
         self.request_stream(&request::DhtGet { key })
     }
 
     /// Write a key/value pair to the DHT.
     ///
+    #[inline]
     pub fn dht_put(&self, key: &str, value: &str) -> AsyncStreamResponse<response::DhtPutResponse> {
         self.request_stream(&request::DhtPut { key, value })
     }
 
     /// Find the closest peer given the peer ID by querying the DHT.
     ///
+    #[inline]
     pub fn dht_query(&self, peer: &str) -> AsyncStreamResponse<response::DhtQueryResponse> {
         self.request_stream(&request::DhtQuery { peer })
     }
@@ -413,6 +430,7 @@ impl IpfsClient {
 
     /// Returns the diff of two Ipfs objects.
     ///
+    #[inline]
     pub fn object_diff(
         &self,
         key0: &str,
@@ -423,24 +441,28 @@ impl IpfsClient {
 
     /// Returns the data in an object.
     ///
+    #[inline]
     pub fn object_get(&self, key: &str) -> AsyncResponse<response::ObjectGetResponse> {
         self.request(&request::ObjectGet { key })
     }
 
     /// Returns the links that an object points to.
     ///
+    #[inline]
     pub fn object_links(&self, key: &str) -> AsyncResponse<response::ObjectLinksResponse> {
         self.request(&request::ObjectLinks { key })
     }
 
     /// Returns the stats for an object.
     ///
+    #[inline]
     pub fn object_stat(&self, key: &str) -> AsyncResponse<response::ObjectStatResponse> {
         self.request(&request::ObjectStat { key })
     }
 
     /// Returns a list of pinned objects in local storage.
     ///
+    #[inline]
     pub fn pin_ls(
         &self,
         key: Option<&str>,
@@ -451,6 +473,7 @@ impl IpfsClient {
 
     /// Removes a pinned object from local storage.
     ///
+    #[inline]
     pub fn pin_rm(
         &self,
         key: &str,
@@ -461,6 +484,7 @@ impl IpfsClient {
 
     /// Pings a peer.
     ///
+    #[inline]
     pub fn ping(
         &self,
         peer: &str,
@@ -471,12 +495,14 @@ impl IpfsClient {
 
     /// List subscribed pubsub topics.
     ///
+    #[inline]
     pub fn pubsub_ls(&self) -> AsyncResponse<response::PubsubLsResponse> {
         self.request(&request::PubsubLs)
     }
 
     /// List peers that are being published to.
     ///
+    #[inline]
     pub fn pubsub_peers(
         &self,
         topic: Option<&str>,
@@ -486,6 +512,7 @@ impl IpfsClient {
 
     /// Publish a message to a topic.
     ///
+    #[inline]
     pub fn pubsub_pub(
         &self,
         topic: &str,
@@ -496,6 +523,7 @@ impl IpfsClient {
 
     /// Subscribes to a pubsub topic.
     ///
+    #[inline]
     pub fn pubsub_sub(
         &self,
         topic: &str,
@@ -506,36 +534,42 @@ impl IpfsClient {
 
     /// Gets a list of local references.
     ///
+    #[inline]
     pub fn refs_local(&self) -> AsyncStreamResponse<response::RefsLocalResponse> {
         self.request_stream(&request::RefsLocal)
     }
 
     /// Returns bitswap stats.
     ///
+    #[inline]
     pub fn stats_bitswap(&self) -> AsyncResponse<response::StatsBitswapResponse> {
         self.request(&request::StatsBitswap)
     }
 
     /// Returns bandwidth stats.
     ///
+    #[inline]
     pub fn stats_bw(&self) -> AsyncResponse<response::StatsBwResponse> {
         self.request(&request::StatsBw)
     }
 
     /// Returns repo stats.
     ///
+    #[inline]
     pub fn stats_repo(&self) -> AsyncResponse<response::StatsRepoResponse> {
         self.request(&request::StatsRepo)
     }
 
     /// Return a list of local addresses.
     ///
+    #[inline]
     pub fn swarm_addrs_local(&self) -> AsyncResponse<response::SwarmAddrsLocalResponse> {
         self.request(&request::SwarmAddrsLocal)
     }
 
     /// Return a list of peers with open connections.
     ///
+    #[inline]
     pub fn swarm_peers(&self) -> AsyncResponse<response::SwarmPeersResponse> {
         self.request(&request::SwarmPeers)
     }
