@@ -98,7 +98,6 @@ impl IpfsClient {
     where
         for<'de> Res: 'static + Deserialize<'de>,
     {
-        println!("received '{}'", String::from_utf8_lossy(&chunk));
         match status {
             StatusCode::Ok => serde_json::from_slice(&chunk).map_err(From::from),
             _ => Err(Self::build_error_from_body(chunk)),
@@ -453,6 +452,13 @@ impl IpfsClient {
     #[inline]
     pub fn diag_sys(&self) -> AsyncResponse<response::DiagSysResponse> {
         self.request_string(&request::DiagSys)
+    }
+
+    /// Resolve DNS link.
+    ///
+    #[inline]
+    pub fn dns(&self, link: &str, recursive: bool) -> AsyncResponse<response::DnsResponse> {
+        self.request(&request::Dns { link, recursive })
     }
 
     /// List the contents of an Ipfs multihash.
