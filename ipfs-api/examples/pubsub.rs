@@ -32,17 +32,12 @@ fn main() {
         let timer = Timer::default();
         let publish = timer
             .interval(Duration::from_secs(1))
-            .map_err(|_| {
-                response::Error::from("timeout error")
-            })
+            .map_err(|_| response::Error::from("timeout error"))
             .for_each(move |_| {
                 println!("");
                 println!("publishing message...");
 
-                client.pubsub_pub(TOPIC, "Hello World!").then(|_| {
-                    println!("success");
-                    Ok(())
-                })
+                client.pubsub_pub(TOPIC, "Hello World!")
             });
 
         println!("");
@@ -63,7 +58,7 @@ fn main() {
         println!("");
         println!("waiting for messages on ({})...", TOPIC);
         event_loop
-            .run(req.for_each(|msg| {
+            .run(req.take(5).for_each(|msg| {
                 println!("");
                 println!("received ({:?})", msg);
 
