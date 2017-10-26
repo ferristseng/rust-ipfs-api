@@ -2,7 +2,7 @@ use response::{serde, IpfsHeader};
 use std::collections::HashMap;
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct IpfsDetailedFile {
     pub hash: String,
@@ -16,7 +16,7 @@ pub struct IpfsDetailedFile {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct FileLsResponse {
     #[serde(deserialize_with = "serde::deserialize_hashmap")]

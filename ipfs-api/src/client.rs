@@ -461,6 +461,13 @@ impl IpfsClient {
         self.request(&request::Dns { link, recursive })
     }
 
+    /// List directory for Unix filesystem objects.
+    ///
+    #[inline]
+    pub fn file_ls(&self, path: &str) -> AsyncResponse<response::FileLsResponse> {
+        self.request(&request::FileLs { path })
+    }
+
     /// List the contents of an Ipfs multihash.
     ///
     #[inline]
