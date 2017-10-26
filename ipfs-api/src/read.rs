@@ -120,7 +120,7 @@ where
                         }
                         // Polling stream yielded EOF.
                         //
-                        Ok(Async::Ready(None)) => continue,
+                        Ok(Async::Ready(None)) => return Ok(0),
                         // Stream could not be read from.
                         //
                         Ok(Async::NotReady) => return Err(io::ErrorKind::WouldBlock.into()),
