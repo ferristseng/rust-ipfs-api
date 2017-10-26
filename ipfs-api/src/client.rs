@@ -427,6 +427,34 @@ impl IpfsClient {
         self.request_stream(&request::DhtQuery { peer })
     }
 
+    /// Clear inactive requests from the log.
+    ///
+    #[inline]
+    pub fn diag_cmds_clear(&self) -> AsyncResponse<response::DiagCmdsClearResponse> {
+        self.request_empty(&request::DiagCmdsClear)
+    }
+
+    /// Set how long to keep inactive requests in the log.
+    ///
+    #[inline]
+    pub fn diag_cmds_set_time(
+        &self,
+        time: &str,
+    ) -> AsyncResponse<response::DiagCmdsSetTimeResponse> {
+        self.request_empty(&request::DiagCmdsSetTime { time })
+    }
+
+    /// Print system diagnostic information.
+    ///
+    /// Note: There isn't good documentation on what this call is supposed to return.
+    /// It might be platform dependent, but if it isn't, this can be fixed to return
+    /// an actual object.
+    ///
+    #[inline]
+    pub fn diag_sys(&self) -> AsyncResponse<response::DiagSysResponse> {
+        self.request_string(&request::DiagSys)
+    }
+
     /// List the contents of an Ipfs multihash.
     ///
     #[inline]
