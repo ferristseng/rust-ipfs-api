@@ -8,7 +8,7 @@
 
 use bytes::BytesMut;
 use futures::{Async, Stream};
-use reqwest::unstable::async;
+use hyper::Chunk;
 use response::Error;
 use serde::Deserialize;
 use serde_json;
@@ -62,7 +62,7 @@ where
 enum ReadState {
     /// A chunk is ready to be read from.
     ///
-    Ready(async::Chunk, usize),
+    Ready(Chunk, usize),
 
     /// The next chunk isn't ready yet.
     ///
@@ -79,7 +79,7 @@ pub struct StreamReader<S> {
 
 impl<S> StreamReader<S>
 where
-    S: Stream<Item = async::Chunk, Error = Error>,
+    S: Stream<Item = Chunk, Error = Error>,
 {
     #[inline]
     pub fn new(stream: S) -> StreamReader<S> {
@@ -92,7 +92,7 @@ where
 
 impl<S> Read for StreamReader<S>
 where
-    S: Stream<Item = async::Chunk, Error = Error>,
+    S: Stream<Item = Chunk, Error = Error>,
 {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         loop {
@@ -146,6 +146,6 @@ where
 
 impl<S> AsyncRead for StreamReader<S>
 where
-    S: Stream<Item = async::Chunk, Error = Error>,
+    S: Stream<Item = Chunk, Error = Error>,
 {
 }

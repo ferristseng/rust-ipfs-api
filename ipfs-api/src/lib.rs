@@ -10,7 +10,7 @@ extern crate bytes;
 #[macro_use]
 extern crate error_chain;
 extern crate futures;
-extern crate reqwest;
+extern crate hyper;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;

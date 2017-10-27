@@ -6,7 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use reqwest;
+use hyper;
 use serde_json;
 use serde_urlencoded;
 use std::string::FromUtf8Error;
@@ -22,10 +22,10 @@ pub struct ApiError {
 
 error_chain! {
     foreign_links {
-        Http(reqwest::Error);
+        Http(hyper::error::Error);
         Parse(serde_json::Error);
         ParseUtf8(FromUtf8Error);
-        Url(reqwest::UrlError);
+        Url(hyper::error::UriError);
         Io(::std::io::Error);
         EncodeUrl(serde_urlencoded::ser::Error);
     }
