@@ -11,7 +11,6 @@ extern crate ipfs_api;
 extern crate tokio_core;
 extern crate tokio_timer;
 
-use futures::Future;
 use futures::stream::Stream;
 use ipfs_api::{response, IpfsClient};
 use std::thread;
