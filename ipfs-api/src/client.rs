@@ -481,6 +481,74 @@ impl IpfsClient {
         self.request(&request::FileLs { path })
     }
 
+    /// Copy files into MFS.
+    ///
+    #[inline]
+    pub fn files_cp(&self, path: &str, dest: &str) -> AsyncResponse<response::FilesCpResponse> {
+        self.request_empty(&request::FilesCp { path, dest })
+    }
+
+    /// Flush a path's data to disk.
+    ///
+    #[inline]
+    pub fn files_flush(&self, path: Option<&str>) -> AsyncResponse<response::FilesFlushResponse> {
+        self.request_empty(&request::FilesFlush { path })
+    }
+
+    /// List directories in MFS.
+    ///
+    #[inline]
+    pub fn files_ls(&self, path: Option<&str>) -> AsyncResponse<response::FilesLsResponse> {
+        self.request(&request::FilesLs { path })
+    }
+
+    /// Make directories in MFS.
+    ///
+    #[inline]
+    pub fn files_mkdir(
+        &self,
+        path: &str,
+        parents: bool,
+    ) -> AsyncResponse<response::FilesMkdirResponse> {
+        self.request_empty(&request::FilesMkdir { path, parents })
+    }
+
+    /// Copy files into MFS.
+    ///
+    #[inline]
+    pub fn files_mv(&self, path: &str, dest: &str) -> AsyncResponse<response::FilesMvResponse> {
+        self.request_empty(&request::FilesMv { path, dest })
+    }
+
+    /// Read a file in MFS.
+    ///
+    #[inline]
+    pub fn files_read(&self, path: &str) -> AsyncResponse<response::FilesReadResponse> {
+        self.request_bytes(&request::FilesRead { path })
+    }
+
+    /// Remove a file in MFS.
+    ///
+    #[inline]
+    pub fn files_rm(
+        &self,
+        path: &str,
+        recursive: bool,
+    ) -> AsyncResponse<response::FilesRmResponse> {
+        self.request_empty(&request::FilesRm { path, recursive })
+    }
+
+    /// Display a file's status in MDFS.
+    ///
+    #[inline]
+    pub fn files_stat(&self, path: &str) -> AsyncResponse<response::FilesStatResponse> {
+        self.request(&request::FilesStat { path })
+    }
+
+    // TODO
+    // pub fn files_write(&self, ...) -> AsyncResponse<response::FilesWriteResponse> {
+    // }
+
     /// List the contents of an Ipfs multihash.
     ///
     #[inline]
