@@ -6,12 +6,13 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use futures::Stream;
+use futures::{stream, Stream};
 use futures::future::{Future, IntoFuture};
+use header::Trailer;
 use read::{JsonLineDecoder, StreamReader};
 use request::{self, ApiRequest};
 use response::{self, Error, ErrorKind};
-use hyper::{self, Body, Chunk, Request, Uri, Method, StatusCode};
+use hyper::{self, Body, Chunk, Request, Response, Uri, Method, StatusCode};
 use hyper::client::{Client, HttpConnector};
 use serde::{Deserialize, Serialize};
 use serde_json;
@@ -112,6 +113,40 @@ impl IpfsClient {
         }
     }
 
+    /// Processes a response that returns a stream of json deserializable
+    /// results.
+    ///
+    fn process_stream_response<Res>(res: Response) -> Box<Stream<Item = Res, Error = Error>>
+    where
+        for<'de> Res: 'static + Deserialize<'de>,
+    {
+        let err: Option<Error> = if let Some(trailer) = res.headers().get() {
+            // Response has the Trailer header set, which is used
+            // by Ipfs to indicate an error when preparing an output
+            // stream.
+            //
+            match trailer {
+                &Trailer::StreamError => Some(ErrorKind::StreamError.into()),
+            }
+        } else {
+            None
+        };
+
+        let stream = FramedRead::new(
+            StreamReader::new(res.body().from_err()),
+            JsonLineDecoder::new(),
+        );
+
+        if let Some(inner) = err {
+            // If there was an error while streaming data back, read
+            // as much as possible from the stream, then return an error.
+            //
+            Box::new(stream.chain(stream::once(Err(inner))))
+        } else {
+            Box::new(stream)
+        }
+    }
+
     /// Sends a request and returns the raw response.
     ///
     /// Methods prefixed with `send_` work on a raw reqwest `RequestBuilder`
@@ -140,8 +175,7 @@ impl IpfsClient {
         for<'de> Res: 'static + Deserialize<'de>,
     {
         let res = self.send_request(req).into_future().and_then(
-            move |(status,
-                   chunk)| {
+            |(status, chunk)| {
                 IpfsClient::process_json_response(status, chunk)
             },
         );
@@ -259,12 +293,7 @@ impl IpfsClient {
             .map(|req| self.client.request(req).from_err())
             .into_future()
             .flatten()
-            .map(|res| {
-                FramedRead::new(
-                    StreamReader::new(res.body().from_err()),
-                    JsonLineDecoder::new(),
-                )
-            })
+            .map(IpfsClient::process_stream_response)
             .flatten_stream();
 
         Box::new(res)
@@ -548,6 +577,27 @@ impl IpfsClient {
     // TODO
     // pub fn files_write(&self, ...) -> AsyncResponse<response::FilesWriteResponse> {
     // }
+
+    /// List blocks that are both in the filestore and standard block storage.
+    ///
+    #[inline]
+    pub fn filestore_dups(&self) -> AsyncStreamResponse<response::FilestoreDupsResponse> {
+        self.request_stream(&request::FilestoreDups)
+    }
+
+    /// List objects in filestore.
+    ///
+    #[inline]
+    pub fn filestore_ls(&self) -> AsyncStreamResponse<response::FilestoreLsResponse> {
+        self.request_stream(&request::FilestoreLs)
+    }
+
+    /// Verify objects in filestore.
+    ///
+    #[inline]
+    pub fn filestore_verify(&self) -> AsyncStreamResponse<response::FilestoreVerifyResponse> {
+        self.request_stream(&request::FilestoreVerify)
+    }
 
     /// List the contents of an Ipfs multihash.
     ///

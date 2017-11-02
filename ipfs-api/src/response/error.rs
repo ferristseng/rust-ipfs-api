@@ -38,6 +38,13 @@ error_chain! {
             display("api returned '{}'", err.message)
         }
 
+        /// A stream error indicated in the Trailer header.
+        ///
+        StreamError {
+            description("api returned a stream error"),
+            display("api returned a stream error")
+        }
+
         Uncategorized(err: String) {
             description("api returned an unknown error"),
             display("api returned '{}'", err)

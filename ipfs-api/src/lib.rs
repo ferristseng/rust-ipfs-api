@@ -24,4 +24,5 @@ pub use client::IpfsClient;
 pub mod request;
 pub mod response;
 mod client;
+mod header;
 mod read;
