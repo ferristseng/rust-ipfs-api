@@ -599,6 +599,13 @@ impl IpfsClient {
         self.request_stream(&request::FilestoreVerify)
     }
 
+    /// Download Ipfs object.
+    ///
+    #[inline]
+    pub fn get(&self, path: &str) -> AsyncResponse<response::GetResponse> {
+        self.request_bytes(&request::Get { path })
+    }
+
     /// List the contents of an Ipfs multihash.
     ///
     #[inline]
