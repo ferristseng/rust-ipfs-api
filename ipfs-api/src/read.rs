@@ -57,6 +57,35 @@ where
 }
 
 
+/// A decoder that reads a line at a time.
+///
+pub struct LineDecoder;
+
+impl Decoder for LineDecoder {
+    type Item = String;
+
+    type Error = Error;
+
+    /// Attempts to find a new line character, and returns the entire line if
+    /// it finds one.
+    ///
+    fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
+        let nl_index = src.iter().position(|b| *b == b'\n');
+
+        if let Some(pos) = nl_index {
+            let slice = src.split_to(pos + 1);
+
+            Ok(Some(
+                String::from_utf8_lossy(&slice[..slice.len() - 1])
+                    .into_owned(),
+            ))
+        } else {
+            Ok(None)
+        }
+    }
+}
+
+
 /// The state of a stream returning Chunks.
 ///
 enum ReadState {

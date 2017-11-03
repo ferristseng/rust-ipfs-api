@@ -9,7 +9,7 @@
 use futures::{stream, Stream};
 use futures::future::{Future, IntoFuture};
 use header::Trailer;
-use read::{JsonLineDecoder, StreamReader};
+use read::{JsonLineDecoder, LineDecoder, StreamReader};
 use request::{self, ApiRequest};
 use response::{self, Error, ErrorKind};
 use hyper::{self, Body, Chunk, Request, Response, Uri, Method, StatusCode};
@@ -18,7 +18,7 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use std::io::Read;
 use tokio_core::reactor::Handle;
-use tokio_io::codec::FramedRead;
+use tokio_io::codec::{Decoder, FramedRead};
 
 
 /// A future response returned by the reqwest HTTP client.
@@ -116,9 +116,13 @@ impl IpfsClient {
     /// Processes a response that returns a stream of json deserializable
     /// results.
     ///
-    fn process_stream_response<Res>(res: Response) -> Box<Stream<Item = Res, Error = Error>>
+    fn process_stream_response<D, Res>(
+        res: Response,
+        decoder: D,
+    ) -> Box<Stream<Item = Res, Error = Error>>
     where
-        for<'de> Res: 'static + Deserialize<'de>,
+        D: 'static + Decoder<Item = Res, Error = Error>,
+        Res: 'static,
     {
         let err: Option<Error> = if let Some(trailer) = res.headers().get() {
             // Response has the Trailer header set, which is used
@@ -132,10 +136,7 @@ impl IpfsClient {
             None
         };
 
-        let stream = FramedRead::new(
-            StreamReader::new(res.body().from_err()),
-            JsonLineDecoder::new(),
-        );
+        let stream = FramedRead::new(StreamReader::new(res.body().from_err()), decoder);
 
         if let Some(inner) = err {
             // If there was an error while streaming data back, read
@@ -293,7 +294,9 @@ impl IpfsClient {
             .map(|req| self.client.request(req).from_err())
             .into_future()
             .flatten()
-            .map(IpfsClient::process_stream_response)
+            .map(|res| {
+                IpfsClient::process_stream_response(res, JsonLineDecoder::new())
+            })
             .flatten_stream();
 
         Box::new(res)
@@ -454,6 +457,13 @@ impl IpfsClient {
         self.request_stream(&request::DhtGet { key })
     }
 
+    /// Announce to the network that you are providing a given value.
+    ///
+    #[inline]
+    pub fn dht_provide(&self, key: &str) -> AsyncResponse<response::DhtProvideResponse> {
+        self.request(&request::DhtProvide { key })
+    }
+
     /// Write a key/value pair to the DHT.
     ///
     #[inline]
@@ -604,6 +614,65 @@ impl IpfsClient {
     #[inline]
     pub fn get(&self, path: &str) -> AsyncResponse<response::GetResponse> {
         self.request_bytes(&request::Get { path })
+    }
+
+    /// Returns information about a peer.
+    ///
+    /// If `peer` is `None`, returns information about you.
+    ///
+    #[inline]
+    pub fn id(&self, peer: Option<&str>) -> AsyncResponse<response::IdResponse> {
+        self.request(&request::Id { peer })
+    }
+
+    /// Create a new keypair.
+    ///
+    #[inline]
+    pub fn key_gen(
+        &self,
+        name: &str,
+        kind: request::KeyType,
+        size: Option<i32>,
+    ) -> AsyncResponse<response::KeyGenResponse> {
+        self.request(&request::KeyGen { name, kind, size })
+    }
+
+    /// List all local keypairs.
+    ///
+    #[inline]
+    pub fn key_list(&self) -> AsyncResponse<response::KeyListResponse> {
+        self.request(&request::KeyList)
+    }
+
+    /// Change the logging level for a logger.
+    ///
+    #[inline]
+    pub fn log_level(
+        &self,
+        logger: request::Logger,
+        level: request::LoggingLevel,
+    ) -> AsyncResponse<response::LogLevelResponse> {
+        self.request(&request::LogLevel { logger, level })
+    }
+
+    /// List all logging subsystems.
+    ///
+    #[inline]
+    pub fn log_ls(&self) -> AsyncResponse<response::LogLsResponse> {
+        self.request(&request::LogLs)
+    }
+
+    /// Read the event log.
+    ///
+    pub fn log_tail(&self) -> AsyncStreamResponse<String> {
+        let res = self.build_base_request(&request::LogTail)
+            .map(|req| self.client.request(req).from_err())
+            .into_future()
+            .flatten()
+            .map(|res| IpfsClient::process_stream_response(res, LineDecoder))
+            .flatten_stream();
+
+        Box::new(res)
     }
 
     /// List the contents of an Ipfs multihash.

@@ -35,11 +35,14 @@ pub struct DhtMessage {
     pub extra: String,
 }
 
+
 pub type DhtFindPeerResponse = DhtMessage;
 
 pub type DhtFindProvsResponse = DhtMessage;
 
 pub type DhtGetResponse = DhtMessage;
+
+pub type DhtProvideResponse = DhtMessage;
 
 pub type DhtPutResponse = DhtMessage;
 
