@@ -6,6 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+use form::Form;
 use futures::{stream, Stream};
 use futures::future::{Future, IntoFuture};
 use header::Trailer;
@@ -223,6 +224,7 @@ impl IpfsClient {
         for<'de> Res: 'static + Deserialize<'de>,
         R: 'static + Read + Send,
     {
+        let form = Form::default();
         let res = self.build_base_request(req)
             .map(|req| self.send_request_json(req))
             .into_future()
