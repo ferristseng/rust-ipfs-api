@@ -6,15 +6,15 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use form::Form;
 use futures::{stream, Stream};
 use futures::future::{Future, IntoFuture};
 use header::Trailer;
+use multipart;
 use read::{JsonLineDecoder, LineDecoder, StreamReader};
 use request::{self, ApiRequest};
 use response::{self, Error, ErrorKind};
-use hyper::{self, Body, Chunk, Request, Response, Uri, Method, StatusCode};
-use hyper::client::{Client, HttpConnector};
+use hyper::{self, Chunk, Request, Response, Uri, Method, StatusCode};
+use hyper::client::{Client, Config, HttpConnector};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::io::Read;
@@ -36,7 +36,7 @@ type AsyncStreamResponse<T> = Box<Stream<Item = T, Error = Error>>;
 ///
 pub struct IpfsClient {
     base: Uri,
-    client: Client<HttpConnector, Body>,
+    client: Client<HttpConnector, multipart::Body>,
 }
 
 impl IpfsClient {
@@ -52,7 +52,10 @@ impl IpfsClient {
 
         Ok(IpfsClient {
             base: base_path,
-            client: Client::new(handle),
+            client: Config::default()
+                .body::<multipart::Body>()
+                .keep_alive(true)
+                .build(handle),
         })
     }
 
@@ -70,7 +73,7 @@ impl IpfsClient {
 
     /// Builds the url for an api call.
     ///
-    fn build_base_request<Req>(&self, req: &Req) -> Result<Request, Error>
+    fn build_base_request<Req>(&self, req: &Req) -> Result<Request<multipart::Body>, Error>
     where
         Req: ApiRequest + Serialize,
     {
@@ -154,7 +157,7 @@ impl IpfsClient {
     /// Methods prefixed with `send_` work on a raw reqwest `RequestBuilder`
     /// instance.
     ///
-    fn send_request(&self, req: Request) -> AsyncResponse<(StatusCode, Chunk)> {
+    fn send_request(&self, req: Request<multipart::Body>) -> AsyncResponse<(StatusCode, Chunk)> {
         let res = self.client
             .request(req)
             .and_then(|res| {
@@ -172,7 +175,7 @@ impl IpfsClient {
     /// Methods prefixed with `send_` work on a raw reqwest `RequestBuilder`
     /// instance.
     ///
-    fn send_request_json<Res>(&self, req: Request) -> AsyncResponse<Res>
+    fn send_request_json<Res>(&self, req: Request<multipart::Body>) -> AsyncResponse<Res>
     where
         for<'de> Res: 'static + Deserialize<'de>,
     {
@@ -218,15 +221,16 @@ impl IpfsClient {
     /// Generic method for making a request to the Ipfs server, and getting
     /// a deserializable response.
     ///
-    fn request_with_body<Req, Res, R>(&self, data: R, req: &Req) -> AsyncResponse<Res>
+    fn request_with_body<Req, Res>(&self, form: multipart::Form, req: &Req) -> AsyncResponse<Res>
     where
         Req: ApiRequest + Serialize,
         for<'de> Res: 'static + Deserialize<'de>,
-        R: 'static + Read + Send,
     {
-        let form = Form::default();
         let res = self.build_base_request(req)
-            .map(|req| self.send_request_json(req))
+            .map(move |mut req| {
+                form.set_body(&mut req);
+                self.send_request_json(req)
+            })
             .into_future()
             .flatten();
 
@@ -313,7 +317,11 @@ impl IpfsClient {
     where
         R: 'static + Read + Send,
     {
-        self.request_with_body(data, &request::Add)
+        let mut form = multipart::Form::default();
+
+        form.add_reader("path", data);
+
+        self.request_with_body(form, &request::Add)
     }
 
     /// Returns the current ledger for a peer.

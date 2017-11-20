@@ -26,6 +26,6 @@ pub use request::{KeyType, Logger, LoggingLevel};
 mod request;
 pub mod response;
 mod client;
-mod form;
 mod header;
+mod multipart;
 mod read;
