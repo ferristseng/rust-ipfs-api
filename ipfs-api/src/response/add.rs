@@ -11,5 +11,5 @@
 pub struct AddResponse {
     pub name: String,
     pub hash: String,
-    pub bytes: i64,
+    pub size: String,
 }

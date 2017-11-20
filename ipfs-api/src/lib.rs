@@ -11,6 +11,7 @@ extern crate bytes;
 extern crate error_chain;
 extern crate futures;
 extern crate hyper;
+extern crate rand;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -26,4 +27,5 @@ mod request;
 pub mod response;
 mod client;
 mod header;
+mod multipart;
 mod read;
