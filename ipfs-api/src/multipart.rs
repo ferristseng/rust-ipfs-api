@@ -134,10 +134,14 @@ impl Stream for Body {
         }
 
         let num = if let Some(ref mut read) = self.current {
-            // TODO: This should not write more bytes that are remaining in
-            // the buffer.
-            //
-            io::copy(read, &mut writer)?
+            let mut buf = writer.get_mut();
+            unsafe {
+                let num = read.read(&mut buf.bytes_mut())?;
+
+                buf.advance_mut(num);
+
+                num
+            }
         } else {
             0
         };

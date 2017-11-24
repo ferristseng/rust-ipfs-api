@@ -73,7 +73,11 @@ impl IpfsClient {
 
     /// Builds the url for an api call.
     ///
-    fn build_base_request<Req>(&self, req: &Req) -> Result<Request<multipart::Body>, Error>
+    fn build_base_request<Req>(
+        &self,
+        req: &Req,
+        form: Option<multipart::Form>,
+    ) -> Result<Request<multipart::Body>, Error>
     where
         Req: ApiRequest + Serialize,
     {
@@ -85,7 +89,15 @@ impl IpfsClient {
         );
 
         url.parse::<Uri>()
-            .map(|url| Request::new(Method::Get, url))
+            .map(|url| {
+                let mut req = Request::new(Method::Get, url);
+
+                if let Some(mut form) = form {
+                    form.set_body(&mut req);
+                }
+
+                req
+            })
             .map_err(From::from)
     }
 
@@ -190,11 +202,15 @@ impl IpfsClient {
 
     /// Generates a request, and returns the unprocessed response future.
     ///
-    fn request_raw<Req>(&self, req: &Req) -> AsyncResponse<(StatusCode, Chunk)>
+    fn request_raw<Req>(
+        &self,
+        req: &Req,
+        form: Option<multipart::Form>,
+    ) -> AsyncResponse<(StatusCode, Chunk)>
     where
         Req: ApiRequest + Serialize,
     {
-        let res = self.build_base_request(req)
+        let res = self.build_base_request(req, form)
             .map(|req| self.send_request(req))
             .into_future()
             .flatten();
@@ -205,32 +221,13 @@ impl IpfsClient {
     /// Generic method for making a request to the Ipfs server, and getting
     /// a deserializable response.
     ///
-    fn request<Req, Res>(&self, req: &Req) -> AsyncResponse<Res>
+    fn request<Req, Res>(&self, req: &Req, form: Option<multipart::Form>) -> AsyncResponse<Res>
     where
         Req: ApiRequest + Serialize,
         for<'de> Res: 'static + Deserialize<'de>,
     {
-        let res = self.build_base_request(req)
+        let res = self.build_base_request(req, form)
             .map(|req| self.send_request_json(req))
-            .into_future()
-            .flatten();
-
-        Box::new(res)
-    }
-
-    /// Generic method for making a request to the Ipfs server, and getting
-    /// a deserializable response.
-    ///
-    fn request_with_body<Req, Res>(&self, form: multipart::Form, req: &Req) -> AsyncResponse<Res>
-    where
-        Req: ApiRequest + Serialize,
-        for<'de> Res: 'static + Deserialize<'de>,
-    {
-        let res = self.build_base_request(req)
-            .map(move |mut req| {
-                form.set_body(&mut req);
-                self.send_request_json(req)
-            })
             .into_future()
             .flatten();
 
@@ -240,11 +237,11 @@ impl IpfsClient {
     /// Generic method for making a request to the Ipfs server, and getting
     /// back a response with no body.
     ///
-    fn request_empty<Req>(&self, req: &Req) -> AsyncResponse<()>
+    fn request_empty<Req>(&self, req: &Req, form: Option<multipart::Form>) -> AsyncResponse<()>
     where
         Req: ApiRequest + Serialize,
     {
-        let res = self.request_raw(req).and_then(
+        let res = self.request_raw(req, form).and_then(
             |(status, chunk)| match status {
                 StatusCode::Ok => Ok(()),
                 _ => Err(Self::build_error_from_body(chunk)),
@@ -257,11 +254,11 @@ impl IpfsClient {
     /// Generic method for making a request to the Ipfs server, and getting
     /// back raw bytes.
     ///
-    fn request_bytes<Req>(&self, req: &Req) -> AsyncResponse<Vec<u8>>
+    fn request_bytes<Req>(&self, req: &Req, form: Option<multipart::Form>) -> AsyncResponse<Vec<u8>>
     where
         Req: ApiRequest + Serialize,
     {
-        let res = self.request_raw(req).and_then(
+        let res = self.request_raw(req, form).and_then(
             |(status, chunk)| match status {
                 StatusCode::Ok => Ok(chunk.to_vec()),
                 _ => Err(Self::build_error_from_body(chunk)),
@@ -274,11 +271,11 @@ impl IpfsClient {
     /// Generic method for making a request to the Ipfs server, and getting
     /// back a raw String response.
     ///
-    fn request_string<Req>(&self, req: &Req) -> AsyncResponse<String>
+    fn request_string<Req>(&self, req: &Req, form: Option<multipart::Form>) -> AsyncResponse<String>
     where
         Req: ApiRequest + Serialize,
     {
-        let res = self.request_raw(req).and_then(
+        let res = self.request_raw(req, form).and_then(
             |(status, chunk)| match status {
                 StatusCode::Ok => String::from_utf8(chunk.to_vec()).map_err(From::from),
                 _ => Err(Self::build_error_from_body(chunk)),
@@ -291,12 +288,16 @@ impl IpfsClient {
     /// Generic method to return a streaming response of deserialized json
     /// objects delineated by new line separators.
     ///
-    fn request_stream<Req, Res>(&self, req: &Req) -> AsyncStreamResponse<Res>
+    fn request_stream<Req, Res>(
+        &self,
+        req: &Req,
+        form: Option<multipart::Form>,
+    ) -> AsyncStreamResponse<Res>
     where
         Req: ApiRequest + Serialize,
         for<'de> Res: 'static + Deserialize<'de>,
     {
-        let res = self.build_base_request(req)
+        let res = self.build_base_request(req, form)
             .map(|req| self.client.request(req).from_err())
             .into_future()
             .flatten()
@@ -321,28 +322,28 @@ impl IpfsClient {
 
         form.add_reader("path", data);
 
-        self.request_with_body(form, &request::Add)
+        self.request(&request::Add, Some(form))
     }
 
     /// Returns the current ledger for a peer.
     ///
     #[inline]
     pub fn bitswap_ledger(&self, peer: &str) -> AsyncResponse<response::BitswapLedgerResponse> {
-        self.request(&request::BitswapLedger { peer })
+        self.request(&request::BitswapLedger { peer }, None)
     }
 
     /// Returns some stats about the bitswap agent.
     ///
     #[inline]
     pub fn bitswap_stat(&self) -> AsyncResponse<response::BitswapStatResponse> {
-        self.request(&request::BitswapStat)
+        self.request(&request::BitswapStat, None)
     }
 
     /// Remove a given block from your wantlist.
     ///
     #[inline]
     pub fn bitswap_unwant(&self, key: &str) -> AsyncResponse<response::BitswapUnwantResponse> {
-        self.request_empty(&request::BitswapUnwant { key })
+        self.request_empty(&request::BitswapUnwant { key }, None)
     }
 
     /// Shows blocks on the wantlist for you or the specified peer.
@@ -352,14 +353,14 @@ impl IpfsClient {
         &self,
         peer: Option<&str>,
     ) -> AsyncResponse<response::BitswapWantlistResponse> {
-        self.request(&request::BitswapWantlist { peer })
+        self.request(&request::BitswapWantlist { peer }, None)
     }
 
     /// Gets a raw IPFS block.
     ///
     #[inline]
     pub fn block_get(&self, hash: &str) -> AsyncResponse<response::BlockGetResponse> {
-        self.request_bytes(&request::BlockGet { hash })
+        self.request_bytes(&request::BlockGet { hash }, None)
     }
 
     // TODO
@@ -370,61 +371,71 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn block_rm(&self, hash: &str) -> AsyncResponse<response::BlockRmResponse> {
-        self.request(&request::BlockRm { hash })
+        self.request(&request::BlockRm { hash }, None)
     }
 
     /// Prints information about a raw IPFS block.
     ///
     #[inline]
     pub fn block_stat(&self, hash: &str) -> AsyncResponse<response::BlockStatResponse> {
-        self.request(&request::BlockStat { hash })
+        self.request(&request::BlockStat { hash }, None)
     }
 
     /// Add default peers to the bootstrap list.
     ///
     #[inline]
     pub fn bootstrap_add_default(&self) -> AsyncResponse<response::BootstrapAddDefaultResponse> {
-        self.request(&request::BootstrapAddDefault)
+        self.request(&request::BootstrapAddDefault, None)
     }
 
     /// Lists peers in bootstrap list.
     ///
     #[inline]
     pub fn bootstrap_list(&self) -> AsyncResponse<response::BootstrapListResponse> {
-        self.request(&request::BootstrapList)
+        self.request(&request::BootstrapList, None)
     }
 
     /// Removes all peers in bootstrap list.
     ///
     #[inline]
     pub fn bootstrap_rm_all(&self) -> AsyncResponse<response::BootstrapRmAllResponse> {
-        self.request(&request::BootstrapRmAll)
+        self.request(&request::BootstrapRmAll, None)
     }
 
     /// Returns the contents of an Ipfs object.
     ///
     #[inline]
     pub fn cat(&self, path: &str) -> AsyncResponse<response::CatResponse> {
-        self.request_bytes(&request::Cat { path })
+        self.request_bytes(&request::Cat { path }, None)
     }
 
     /// List available commands that the server accepts.
     ///
     #[inline]
     pub fn commands(&self) -> AsyncResponse<response::CommandsResponse> {
-        self.request(&request::Commands)
+        self.request(&request::Commands, None)
     }
 
     /// Opens the config file for editing (on the server).
     ///
     #[inline]
     pub fn config_edit(&self) -> AsyncResponse<response::ConfigEditResponse> {
-        self.request(&request::ConfigEdit)
+        self.request(&request::ConfigEdit, None)
     }
 
-    // TODO
-    // pub fn config_replace(&self, ...) -> AsyncResponse<response::ConfigReplaceResponse> {
-    // }
+    /// Replace the config file.
+    ///
+    #[inline]
+    pub fn config_replace<R>(&self, data: R) -> AsyncResponse<response::ConfigReplaceResponse>
+    where
+        R: 'static + Read + Send,
+    {
+        let mut form = multipart::Form::default();
+
+        form.add_reader("file", data);
+
+        self.request_empty(&request::ConfigReplace, Some(form))
+    }
 
     /// Show the current config of the server.
     ///
@@ -432,14 +443,14 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn config_show(&self) -> AsyncResponse<response::ConfigShowResponse> {
-        self.request_string(&request::ConfigShow)
+        self.request_string(&request::ConfigShow, None)
     }
 
     /// Returns information about a dag node in Ipfs.
     ///
     #[inline]
     pub fn dag_get(&self, path: &str) -> AsyncResponse<response::DagGetResponse> {
-        self.request(&request::DagGet { path })
+        self.request(&request::DagGet { path }, None)
     }
 
     // TODO
@@ -450,49 +461,49 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn dht_findpeer(&self, peer: &str) -> AsyncStreamResponse<response::DhtFindPeerResponse> {
-        self.request_stream(&request::DhtFindPeer { peer })
+        self.request_stream(&request::DhtFindPeer { peer }, None)
     }
 
     /// Find peers in the DHT that can provide a specific value given a key.
     ///
     #[inline]
     pub fn dht_findprovs(&self, key: &str) -> AsyncStreamResponse<response::DhtFindProvsResponse> {
-        self.request_stream(&request::DhtFindProvs { key })
+        self.request_stream(&request::DhtFindProvs { key }, None)
     }
 
     /// Query the DHT for a given key.
     ///
     #[inline]
     pub fn dht_get(&self, key: &str) -> AsyncStreamResponse<response::DhtGetResponse> {
-        self.request_stream(&request::DhtGet { key })
+        self.request_stream(&request::DhtGet { key }, None)
     }
 
     /// Announce to the network that you are providing a given value.
     ///
     #[inline]
     pub fn dht_provide(&self, key: &str) -> AsyncResponse<response::DhtProvideResponse> {
-        self.request(&request::DhtProvide { key })
+        self.request(&request::DhtProvide { key }, None)
     }
 
     /// Write a key/value pair to the DHT.
     ///
     #[inline]
     pub fn dht_put(&self, key: &str, value: &str) -> AsyncStreamResponse<response::DhtPutResponse> {
-        self.request_stream(&request::DhtPut { key, value })
+        self.request_stream(&request::DhtPut { key, value }, None)
     }
 
     /// Find the closest peer given the peer ID by querying the DHT.
     ///
     #[inline]
     pub fn dht_query(&self, peer: &str) -> AsyncStreamResponse<response::DhtQueryResponse> {
-        self.request_stream(&request::DhtQuery { peer })
+        self.request_stream(&request::DhtQuery { peer }, None)
     }
 
     /// Clear inactive requests from the log.
     ///
     #[inline]
     pub fn diag_cmds_clear(&self) -> AsyncResponse<response::DiagCmdsClearResponse> {
-        self.request_empty(&request::DiagCmdsClear)
+        self.request_empty(&request::DiagCmdsClear, None)
     }
 
     /// Set how long to keep inactive requests in the log.
@@ -502,7 +513,7 @@ impl IpfsClient {
         &self,
         time: &str,
     ) -> AsyncResponse<response::DiagCmdsSetTimeResponse> {
-        self.request_empty(&request::DiagCmdsSetTime { time })
+        self.request_empty(&request::DiagCmdsSetTime { time }, None)
     }
 
     /// Print system diagnostic information.
@@ -513,42 +524,42 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn diag_sys(&self) -> AsyncResponse<response::DiagSysResponse> {
-        self.request_string(&request::DiagSys)
+        self.request_string(&request::DiagSys, None)
     }
 
     /// Resolve DNS link.
     ///
     #[inline]
     pub fn dns(&self, link: &str, recursive: bool) -> AsyncResponse<response::DnsResponse> {
-        self.request(&request::Dns { link, recursive })
+        self.request(&request::Dns { link, recursive }, None)
     }
 
     /// List directory for Unix filesystem objects.
     ///
     #[inline]
     pub fn file_ls(&self, path: &str) -> AsyncResponse<response::FileLsResponse> {
-        self.request(&request::FileLs { path })
+        self.request(&request::FileLs { path }, None)
     }
 
     /// Copy files into MFS.
     ///
     #[inline]
     pub fn files_cp(&self, path: &str, dest: &str) -> AsyncResponse<response::FilesCpResponse> {
-        self.request_empty(&request::FilesCp { path, dest })
+        self.request_empty(&request::FilesCp { path, dest }, None)
     }
 
     /// Flush a path's data to disk.
     ///
     #[inline]
     pub fn files_flush(&self, path: Option<&str>) -> AsyncResponse<response::FilesFlushResponse> {
-        self.request_empty(&request::FilesFlush { path })
+        self.request_empty(&request::FilesFlush { path }, None)
     }
 
     /// List directories in MFS.
     ///
     #[inline]
     pub fn files_ls(&self, path: Option<&str>) -> AsyncResponse<response::FilesLsResponse> {
-        self.request(&request::FilesLs { path })
+        self.request(&request::FilesLs { path }, None)
     }
 
     /// Make directories in MFS.
@@ -559,21 +570,21 @@ impl IpfsClient {
         path: &str,
         parents: bool,
     ) -> AsyncResponse<response::FilesMkdirResponse> {
-        self.request_empty(&request::FilesMkdir { path, parents })
+        self.request_empty(&request::FilesMkdir { path, parents }, None)
     }
 
     /// Copy files into MFS.
     ///
     #[inline]
     pub fn files_mv(&self, path: &str, dest: &str) -> AsyncResponse<response::FilesMvResponse> {
-        self.request_empty(&request::FilesMv { path, dest })
+        self.request_empty(&request::FilesMv { path, dest }, None)
     }
 
     /// Read a file in MFS.
     ///
     #[inline]
     pub fn files_read(&self, path: &str) -> AsyncResponse<response::FilesReadResponse> {
-        self.request_bytes(&request::FilesRead { path })
+        self.request_bytes(&request::FilesRead { path }, None)
     }
 
     /// Remove a file in MFS.
@@ -584,14 +595,14 @@ impl IpfsClient {
         path: &str,
         recursive: bool,
     ) -> AsyncResponse<response::FilesRmResponse> {
-        self.request_empty(&request::FilesRm { path, recursive })
+        self.request_empty(&request::FilesRm { path, recursive }, None)
     }
 
     /// Display a file's status in MDFS.
     ///
     #[inline]
     pub fn files_stat(&self, path: &str) -> AsyncResponse<response::FilesStatResponse> {
-        self.request(&request::FilesStat { path })
+        self.request(&request::FilesStat { path }, None)
     }
 
     // TODO
@@ -602,28 +613,28 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn filestore_dups(&self) -> AsyncStreamResponse<response::FilestoreDupsResponse> {
-        self.request_stream(&request::FilestoreDups)
+        self.request_stream(&request::FilestoreDups, None)
     }
 
     /// List objects in filestore.
     ///
     #[inline]
     pub fn filestore_ls(&self) -> AsyncStreamResponse<response::FilestoreLsResponse> {
-        self.request_stream(&request::FilestoreLs)
+        self.request_stream(&request::FilestoreLs, None)
     }
 
     /// Verify objects in filestore.
     ///
     #[inline]
     pub fn filestore_verify(&self) -> AsyncStreamResponse<response::FilestoreVerifyResponse> {
-        self.request_stream(&request::FilestoreVerify)
+        self.request_stream(&request::FilestoreVerify, None)
     }
 
     /// Download Ipfs object.
     ///
     #[inline]
     pub fn get(&self, path: &str) -> AsyncResponse<response::GetResponse> {
-        self.request_bytes(&request::Get { path })
+        self.request_bytes(&request::Get { path }, None)
     }
 
     /// Returns information about a peer.
@@ -632,7 +643,7 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn id(&self, peer: Option<&str>) -> AsyncResponse<response::IdResponse> {
-        self.request(&request::Id { peer })
+        self.request(&request::Id { peer }, None)
     }
 
     /// Create a new keypair.
@@ -644,14 +655,14 @@ impl IpfsClient {
         kind: request::KeyType,
         size: Option<i32>,
     ) -> AsyncResponse<response::KeyGenResponse> {
-        self.request(&request::KeyGen { name, kind, size })
+        self.request(&request::KeyGen { name, kind, size }, None)
     }
 
     /// List all local keypairs.
     ///
     #[inline]
     pub fn key_list(&self) -> AsyncResponse<response::KeyListResponse> {
-        self.request(&request::KeyList)
+        self.request(&request::KeyList, None)
     }
 
     /// Change the logging level for a logger.
@@ -662,20 +673,20 @@ impl IpfsClient {
         logger: request::Logger,
         level: request::LoggingLevel,
     ) -> AsyncResponse<response::LogLevelResponse> {
-        self.request(&request::LogLevel { logger, level })
+        self.request(&request::LogLevel { logger, level }, None)
     }
 
     /// List all logging subsystems.
     ///
     #[inline]
     pub fn log_ls(&self) -> AsyncResponse<response::LogLsResponse> {
-        self.request(&request::LogLs)
+        self.request(&request::LogLs, None)
     }
 
     /// Read the event log.
     ///
     pub fn log_tail(&self) -> AsyncStreamResponse<String> {
-        let res = self.build_base_request(&request::LogTail)
+        let res = self.build_base_request(&request::LogTail, None)
             .map(|req| self.client.request(req).from_err())
             .into_future()
             .flatten()
@@ -689,7 +700,7 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn ls(&self, path: Option<&str>) -> AsyncResponse<response::LsResponse> {
-        self.request(&request::Ls { path })
+        self.request(&request::Ls { path }, None)
     }
 
     /// Returns the diff of two Ipfs objects.
@@ -700,28 +711,28 @@ impl IpfsClient {
         key0: &str,
         key1: &str,
     ) -> AsyncResponse<response::ObjectDiffResponse> {
-        self.request(&request::ObjectDiff { key0, key1 })
+        self.request(&request::ObjectDiff { key0, key1 }, None)
     }
 
     /// Returns the data in an object.
     ///
     #[inline]
     pub fn object_get(&self, key: &str) -> AsyncResponse<response::ObjectGetResponse> {
-        self.request(&request::ObjectGet { key })
+        self.request(&request::ObjectGet { key }, None)
     }
 
     /// Returns the links that an object points to.
     ///
     #[inline]
     pub fn object_links(&self, key: &str) -> AsyncResponse<response::ObjectLinksResponse> {
-        self.request(&request::ObjectLinks { key })
+        self.request(&request::ObjectLinks { key }, None)
     }
 
     /// Returns the stats for an object.
     ///
     #[inline]
     pub fn object_stat(&self, key: &str) -> AsyncResponse<response::ObjectStatResponse> {
-        self.request(&request::ObjectStat { key })
+        self.request(&request::ObjectStat { key }, None)
     }
 
     /// Returns a list of pinned objects in local storage.
@@ -732,7 +743,7 @@ impl IpfsClient {
         key: Option<&str>,
         typ: Option<&str>,
     ) -> AsyncResponse<response::PinLsResponse> {
-        self.request(&request::PinLs { key, typ })
+        self.request(&request::PinLs { key, typ }, None)
     }
 
     /// Removes a pinned object from local storage.
@@ -743,7 +754,7 @@ impl IpfsClient {
         key: &str,
         recursive: Option<bool>,
     ) -> AsyncResponse<response::PinRmResponse> {
-        self.request(&request::PinRm { key, recursive })
+        self.request(&request::PinRm { key, recursive }, None)
     }
 
     /// Pings a peer.
@@ -754,14 +765,14 @@ impl IpfsClient {
         peer: &str,
         count: Option<usize>,
     ) -> AsyncStreamResponse<response::PingResponse> {
-        self.request_stream(&request::Ping { peer, count })
+        self.request_stream(&request::Ping { peer, count }, None)
     }
 
     /// List subscribed pubsub topics.
     ///
     #[inline]
     pub fn pubsub_ls(&self) -> AsyncResponse<response::PubsubLsResponse> {
-        self.request(&request::PubsubLs)
+        self.request(&request::PubsubLs, None)
     }
 
     /// List peers that are being published to.
@@ -771,7 +782,7 @@ impl IpfsClient {
         &self,
         topic: Option<&str>,
     ) -> AsyncResponse<response::PubsubPeersResponse> {
-        self.request(&request::PubsubPeers { topic })
+        self.request(&request::PubsubPeers { topic }, None)
     }
 
     /// Publish a message to a topic.
@@ -782,7 +793,7 @@ impl IpfsClient {
         topic: &str,
         payload: &str,
     ) -> AsyncResponse<response::PubsubPubResponse> {
-        self.request_empty(&request::PubsubPub { topic, payload })
+        self.request_empty(&request::PubsubPub { topic, payload }, None)
     }
 
     /// Subscribes to a pubsub topic.
@@ -793,55 +804,55 @@ impl IpfsClient {
         topic: &str,
         discover: Option<bool>,
     ) -> AsyncStreamResponse<response::PubsubSubResponse> {
-        self.request_stream(&request::PubsubSub { topic, discover })
+        self.request_stream(&request::PubsubSub { topic, discover }, None)
     }
 
     /// Gets a list of local references.
     ///
     #[inline]
     pub fn refs_local(&self) -> AsyncStreamResponse<response::RefsLocalResponse> {
-        self.request_stream(&request::RefsLocal)
+        self.request_stream(&request::RefsLocal, None)
     }
 
     /// Returns bitswap stats.
     ///
     #[inline]
     pub fn stats_bitswap(&self) -> AsyncResponse<response::StatsBitswapResponse> {
-        self.request(&request::StatsBitswap)
+        self.request(&request::StatsBitswap, None)
     }
 
     /// Returns bandwidth stats.
     ///
     #[inline]
     pub fn stats_bw(&self) -> AsyncResponse<response::StatsBwResponse> {
-        self.request(&request::StatsBw)
+        self.request(&request::StatsBw, None)
     }
 
     /// Returns repo stats.
     ///
     #[inline]
     pub fn stats_repo(&self) -> AsyncResponse<response::StatsRepoResponse> {
-        self.request(&request::StatsRepo)
+        self.request(&request::StatsRepo, None)
     }
 
     /// Return a list of local addresses.
     ///
     #[inline]
     pub fn swarm_addrs_local(&self) -> AsyncResponse<response::SwarmAddrsLocalResponse> {
-        self.request(&request::SwarmAddrsLocal)
+        self.request(&request::SwarmAddrsLocal, None)
     }
 
     /// Return a list of peers with open connections.
     ///
     #[inline]
     pub fn swarm_peers(&self) -> AsyncResponse<response::SwarmPeersResponse> {
-        self.request(&request::SwarmPeers)
+        self.request(&request::SwarmPeers, None)
     }
 
     /// Returns information about the Ipfs server version.
     ///
     #[inline]
     pub fn version(&self) -> AsyncResponse<response::VersionResponse> {
-        self.request(&request::Version)
+        self.request(&request::Version, None)
     }
 }
