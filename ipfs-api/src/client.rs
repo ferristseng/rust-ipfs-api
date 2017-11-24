@@ -363,9 +363,19 @@ impl IpfsClient {
         self.request_bytes(&request::BlockGet { hash }, None)
     }
 
-    // TODO
-    // pub fn block_put(&self, ...) -> AsyncResponse<response::BlockPutResponse> {
-    // }
+    /// Store input as an IPFS block.
+    ///
+    #[inline]
+    pub fn block_put<R>(&self, data: R) -> AsyncResponse<response::BlockPutResponse>
+    where
+        R: 'static + Read + Send,
+    {
+        let mut form = multipart::Form::default();
+
+        form.add_reader("data", data);
+
+        self.request(&request::BlockPut, Some(form))
+    }
 
     /// Removes an IPFS block.
     ///

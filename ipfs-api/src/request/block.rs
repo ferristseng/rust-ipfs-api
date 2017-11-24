@@ -23,6 +23,18 @@ impl<'a> ApiRequest for BlockGet<'a> {
 }
 
 
+pub struct BlockPut;
+
+impl_skip_serialize!(BlockPut);
+
+impl ApiRequest for BlockPut {
+    #[inline]
+    fn path() -> &'static str {
+        "/block/put"
+    }
+}
+
+
 #[derive(Serialize)]
 pub struct BlockRm<'a> {
     #[serde(rename = "arg")]
