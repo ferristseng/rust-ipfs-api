@@ -16,7 +16,7 @@ pub struct BitswapLedgerResponse {
     pub value: f64,
     pub sent: u64,
     pub recv: u64,
-    pub exchange: u64,
+    pub exchanged: u64,
 }
 
 
