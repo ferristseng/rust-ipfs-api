@@ -9,12 +9,12 @@
 use futures::{stream, Stream};
 use futures::future::{Future, IntoFuture};
 use header::Trailer;
-use multipart;
 use read::{JsonLineDecoder, LineDecoder, StreamReader};
 use request::{self, ApiRequest};
 use response::{self, Error, ErrorKind};
 use hyper::{self, Chunk, Request, Response, Uri, Method, StatusCode};
 use hyper::client::{Client, Config, HttpConnector};
+use hyper_multipart::client::multipart;
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::io::Read;
@@ -92,7 +92,7 @@ impl IpfsClient {
             .map(|url| {
                 let mut req = Request::new(Method::Get, url);
 
-                if let Some(mut form) = form {
+                if let Some(form) = form {
                     form.set_body(&mut req);
                 }
 

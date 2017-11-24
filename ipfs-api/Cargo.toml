@@ -1,21 +1,21 @@
 [package]
-name              = "ipfs-api"
-version           = "0.4.0"
-license           = "MIT OR Apache-2.0"
-authors           = ["Ferris Tseng <ferristseng@fastmail.fm>"]
+name                      = "ipfs-api"
+version                   = "0.4.0"
+license                   = "MIT OR Apache-2.0"
+authors                   = ["Ferris Tseng <ferristseng@fastmail.fm>"]
 
 [dependencies]
-bytes             = "0.4"
-error-chain       = "0.11"
-futures           = "0.1"
-hyper             = "0.11"
-rand              = "0.3"
-serde             = "1.0"
-serde_derive      = "1.0"
-serde_json        = "1.0"
-serde_urlencoded  = "0.5"
-tokio-core        = "0.1"
-tokio-io          = "0.1"
+bytes                     = "0.4"
+error-chain               = "0.11"
+futures                   = "0.1"
+hyper                     = "0.11"
+hyper-multipart-rfc7578   = { git = "https://github.com/ferristseng/rust-hyper-multipart-rfc7578" }
+serde                     = "1.0"
+serde_derive              = "1.0"
+serde_json                = "1.0"
+serde_urlencoded          = "0.5"
+tokio-core                = "0.1"
+tokio-io                  = "0.1"
 
 [dev-dependencies]
-tokio-timer       = "0.1"
+tokio-timer               = "0.1"
