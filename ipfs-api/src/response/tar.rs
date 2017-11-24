@@ -6,12 +6,11 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct TarAddResponse {
     pub name: String,
     pub hash: String,
-    pub size: String,
 }
 
 

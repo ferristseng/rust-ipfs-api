@@ -19,3 +19,4 @@ tokio-io                  = "0.1"
 
 [dev-dependencies]
 tokio-timer               = "0.1"
+tar                       = "0.4"

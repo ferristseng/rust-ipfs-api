@@ -895,6 +895,30 @@ impl IpfsClient {
         self.request(&request::SwarmPeers, None)
     }
 
+    /// Add a tar file to Ipfs.
+    ///
+    /// Note: `data` should already be a tar file. If it isn't the Api will return
+    /// an error.
+    ///
+    #[inline]
+    pub fn tar_add<R>(&self, data: R) -> AsyncResponse<response::TarAddResponse>
+    where
+        R: 'static + Read + Send,
+    {
+        let mut form = multipart::Form::default();
+
+        form.add_reader("file", data);
+
+        self.request(&request::TarAdd, Some(form))
+    }
+
+    /// Export a tar file from Ipfs.
+    ///
+    #[inline]
+    pub fn tar_cat(&self, path: &str) -> AsyncResponse<response::TarCatResponse> {
+        self.request_bytes(&request::TarCat { path }, None)
+    }
+
     /// Returns information about the Ipfs server version.
     ///
     #[inline]

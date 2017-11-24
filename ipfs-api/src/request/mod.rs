@@ -32,6 +32,7 @@ pub use self::pubsub::*;
 pub use self::refs::*;
 pub use self::stats::*;
 pub use self::swarm::*;
+pub use self::tar::*;
 pub use self::version::*;
 
 
@@ -95,6 +96,7 @@ mod pubsub;
 mod refs;
 mod stats;
 mod swarm;
+mod tar;
 mod version;
 
 
