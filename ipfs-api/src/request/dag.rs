@@ -21,3 +21,15 @@ impl<'a> ApiRequest for DagGet<'a> {
         "/dag/get"
     }
 }
+
+
+pub struct DagPut;
+
+impl_skip_serialize!(DagPut);
+
+impl ApiRequest for DagPut {
+    #[inline]
+    fn path() -> &'static str {
+        "/dag/put"
+    }
+}

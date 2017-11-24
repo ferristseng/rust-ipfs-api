@@ -129,3 +129,21 @@ impl<'a> ApiRequest for FilesStat<'a> {
         "/files/stat"
     }
 }
+
+
+#[derive(Serialize)]
+pub struct FilesWrite<'a> {
+    #[serde(rename = "arg")]
+    pub path: &'a str,
+
+    pub create: bool,
+
+    pub truncate: bool,
+}
+
+impl<'a> ApiRequest for FilesWrite<'a> {
+    #[inline]
+    fn path() -> &'static str {
+        "/files/write"
+    }
+}

@@ -463,8 +463,21 @@ impl IpfsClient {
         self.request(&request::DagGet { path }, None)
     }
 
-    // TODO
-    // pub fn dag_put(&self, ...) -> AsyncResponse<response::DagPutResponse> {
+    // TODO /dag routes are experimental, and there isn't a whole lot of
+    // documentation available for how this route works.
+    //
+    // /// Add a DAG node to Ipfs.
+    // ///
+    // #[inline]
+    // pub fn dag_put<R>(&self, data: R) -> AsyncResponse<response::DagPutResponse>
+    // where
+    //     R: 'static + Read + Send,
+    // {
+    //     let mut form = multipart::Form::default();
+    //
+    //     form.add_reader("arg", data);
+    //
+    //     self.request(&request::DagPut, Some(form))
     // }
 
     /// Query the DHT for all of the multiaddresses associated with a Peer ID.
@@ -615,9 +628,32 @@ impl IpfsClient {
         self.request(&request::FilesStat { path }, None)
     }
 
-    // TODO
-    // pub fn files_write(&self, ...) -> AsyncResponse<response::FilesWriteResponse> {
-    // }
+    /// Write to a mutable file in the filesystem.
+    ///
+    #[inline]
+    pub fn files_write<R>(
+        &self,
+        path: &str,
+        create: bool,
+        truncate: bool,
+        data: R,
+    ) -> AsyncResponse<response::FilesWriteResponse>
+    where
+        R: 'static + Read + Send,
+    {
+        let mut form = multipart::Form::default();
+
+        form.add_reader("data", data);
+
+        self.request_empty(
+            &request::FilesWrite {
+                path,
+                create,
+                truncate,
+            },
+            Some(form),
+        )
+    }
 
     /// List blocks that are both in the filestore and standard block storage.
     ///
