@@ -497,8 +497,8 @@ impl IpfsClient {
     /// Announce to the network that you are providing a given value.
     ///
     #[inline]
-    pub fn dht_provide(&self, key: &str) -> AsyncResponse<response::DhtProvideResponse> {
-        self.request(&request::DhtProvide { key }, None)
+    pub fn dht_provide(&self, key: &str) -> AsyncStreamResponse<response::DhtProvideResponse> {
+        self.request_stream(&request::DhtProvide { key }, None)
     }
 
     /// Write a key/value pair to the DHT.

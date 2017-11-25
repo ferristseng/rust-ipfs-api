@@ -22,6 +22,18 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
                 (about: "Query the DHT for all of the multiaddresses associated with a Peer ID")
                 (@arg PEER: +required "Peer to search for")
             )
+            (@subcommand findprovs =>
+                (about: "Find peers in the DHT that can provide the given key")
+                (@arg KEY: +required "Key to search for")
+            )
+            (@subcommand get =>
+                (about: "Given a key, query the DHT for its best value")
+                (@arg KEY: +required "The key search for")
+            )
+            (@subcommand provide =>
+                (about: "Announce to the network that you are providing the given values")
+                (@arg KEY: +required "The key you are providing")
+            )
     )
 }
 
@@ -29,7 +41,7 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
 fn print_dht_response(res: DhtMessage) {
     println!("");
     println!("  id                     : {}", res.id);
-    println!("  type                   : {}", res.typ);
+    println!("  type                   : {:?}", res.typ);
     println!("  responses              :");
     for peer_res in res.responses {
         println!("    id        : {}", peer_res.id);
@@ -49,6 +61,36 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         ("findpeer", Some(args)) => {
             let peer = args.value_of("PEER").unwrap();
             let req = client.dht_findpeer(&peer).for_each(|peer| {
+                print_dht_response(peer);
+
+                Ok(())
+            });
+
+            core.run(req).expect(EXPECTED_API);
+        }
+        ("findprovs", Some(args)) => {
+            let key = args.value_of("KEY").unwrap();
+            let req = client.dht_findprovs(&key).for_each(|peer| {
+                print_dht_response(peer);
+
+                Ok(())
+            });
+
+            core.run(req).expect(EXPECTED_API);
+        }
+        ("get", Some(args)) => {
+            let key = args.value_of("KEY").unwrap();
+            let req = client.dht_get(&key).for_each(|peer| {
+                print_dht_response(peer);
+
+                Ok(())
+            });
+
+            core.run(req).expect(EXPECTED_API);
+        }
+        ("provide", Some(args)) => {
+            let key = args.value_of("KEY").unwrap();
+            let req = client.dht_provide(&key).for_each(|peer| {
                 print_dht_response(peer);
 
                 Ok(())

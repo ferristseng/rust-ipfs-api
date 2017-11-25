@@ -13,6 +13,59 @@ use std::fmt;
 use std::marker::PhantomData;
 
 
+pub struct IntegerVisitor;
+
+impl<'de> Visitor<'de> for IntegerVisitor {
+    type Value = i64;
+
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        formatter.write_str("integer")
+    }
+
+    fn visit_i8<E>(self, num: i8) -> Result<Self::Value, E>
+    where
+        E: Error,
+    {
+        Ok(num as i64)
+    }
+
+    fn visit_i32<E>(self, num: i32) -> Result<Self::Value, E>
+    where
+        E: Error,
+    {
+        Ok(num as i64)
+    }
+
+    fn visit_i64<E>(self, num: i64) -> Result<Self::Value, E>
+    where
+        E: Error,
+    {
+        Ok(num)
+    }
+
+    fn visit_u8<E>(self, num: u8) -> Result<Self::Value, E>
+    where
+        E: Error,
+    {
+        Ok(num as i64)
+    }
+
+    fn visit_u32<E>(self, num: u32) -> Result<Self::Value, E>
+    where
+        E: Error,
+    {
+        Ok(num as i64)
+    }
+
+    fn visit_u64<E>(self, num: u64) -> Result<Self::Value, E>
+    where
+        E: Error,
+    {
+        Ok(num as i64)
+    }
+}
+
+
 /// Deserializes a sequence or null values as a vec.
 ///
 pub fn deserialize_vec<'de, T, D>(deserializer: D) -> Result<Vec<T>, D::Error>

@@ -7,6 +7,43 @@
 //
 
 use response::serde;
+use serde::de::{Deserialize, Deserializer, Error};
+
+
+/// See
+/// [libp2p](https://github.com/libp2p/go-libp2p-routing/blob/master/notifications/query.go#L16).
+///
+#[derive(Debug)]
+pub enum DhtType {
+    SendingQuery,
+    PeerResponse,
+    FinalPeer,
+    QueryError,
+    Provider,
+    Value,
+    AddingPeer,
+    DialingPeer,
+}
+
+impl<'de> Deserialize<'de> for DhtType {
+    #[inline]
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        match deserializer.deserialize_i64(serde::IntegerVisitor)? {
+            0 => Ok(DhtType::SendingQuery),
+            1 => Ok(DhtType::PeerResponse),
+            2 => Ok(DhtType::FinalPeer),
+            3 => Ok(DhtType::QueryError),
+            4 => Ok(DhtType::Provider),
+            5 => Ok(DhtType::Value),
+            6 => Ok(DhtType::AddingPeer),
+            7 => Ok(DhtType::DialingPeer),
+            i => Err(D::Error::custom(format!("unknown dht type '{}'", i))),
+        }
+    }
+}
 
 
 #[derive(Debug, Deserialize)]
@@ -27,7 +64,7 @@ pub struct DhtMessage {
     pub id: String,
 
     #[serde(rename = "Type")]
-    pub typ: isize,
+    pub typ: DhtType,
 
     #[serde(deserialize_with = "serde::deserialize_vec")]
     pub responses: Vec<DhtPeerResponse>,

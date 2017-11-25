@@ -69,13 +69,20 @@ where
                 //
                 Err(e) => {
                     if self.parse_stream_error {
-                        let raw = Raw::from(slice);
+                        match slice.iter().position(|&x| x == b':') {
+                            Some(colon)
+                                if &slice[..colon] == XStreamError::header_name().as_bytes() => {
+                                let raw = Raw::from(&slice[colon + 2..]);
 
-                        match XStreamError::parse_header(&raw) {
-                            Ok(stream_error) => Err(
-                                ErrorKind::StreamError(stream_error.error).into(),
-                            ),
-                            Err(_) => Err(e.into()),
+                                match XStreamError::parse_header(&raw) {
+                                    Ok(stream_error) => Err(
+                                        ErrorKind::StreamError(stream_error.error)
+                                            .into(),
+                                    ),
+                                    Err(_) => Err(e.into()),
+                                }
+                            }
+                            _ => Err(e.into()),
                         }
                     } else {
                         Err(e.into())
