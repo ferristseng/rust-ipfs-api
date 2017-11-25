@@ -6,7 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use futures::{stream, Stream};
+use futures::Stream;
 use futures::future::{Future, IntoFuture};
 use header::Trailer;
 use read::{JsonLineDecoder, LineDecoder, StreamReader};
@@ -140,28 +140,9 @@ impl IpfsClient {
         D: 'static + Decoder<Item = Res, Error = Error>,
         Res: 'static,
     {
-        let err: Option<Error> = if let Some(trailer) = res.headers().get() {
-            // Response has the Trailer header set, which is used
-            // by Ipfs to indicate an error when preparing an output
-            // stream.
-            //
-            match trailer {
-                &Trailer::StreamError => Some(ErrorKind::StreamError.into()),
-            }
-        } else {
-            None
-        };
-
         let stream = FramedRead::new(StreamReader::new(res.body().from_err()), decoder);
 
-        if let Some(inner) = err {
-            // If there was an error while streaming data back, read
-            // as much as possible from the stream, then return an error.
-            //
-            Box::new(stream.chain(stream::once(Err(inner))))
-        } else {
-            Box::new(stream)
-        }
+        Box::new(stream)
     }
 
     /// Sends a request and returns the raw response.
@@ -302,7 +283,19 @@ impl IpfsClient {
             .into_future()
             .flatten()
             .map(|res| {
-                IpfsClient::process_stream_response(res, JsonLineDecoder::new())
+                let parse_stream_error = if let Some(trailer) = res.headers().get() {
+                    // Response has the Trailer header set. The StreamError trailer
+                    // is used to indicate that there was an error while streaming
+                    // data with Ipfs.
+                    //
+                    match trailer {
+                        &Trailer::StreamError => true,
+                    }
+                } else {
+                    false
+                };
+
+                IpfsClient::process_stream_response(res, JsonLineDecoder::new(parse_stream_error))
             })
             .flatten_stream();
 

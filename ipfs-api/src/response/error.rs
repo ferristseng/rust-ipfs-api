@@ -40,9 +40,9 @@ error_chain! {
 
         /// A stream error indicated in the Trailer header.
         ///
-        StreamError {
+        StreamError(err: String) {
             description("api returned a stream error"),
-            display("api returned a stream error")
+            display("api returned an error while streaming: '{}'", err)
         }
 
         Uncategorized(err: String) {

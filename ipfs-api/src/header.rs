@@ -42,3 +42,29 @@ impl Header for Trailer {
         f.fmt_line(&value)
     }
 }
+
+
+#[derive(Debug, Clone)]
+pub struct XStreamError {
+    pub error: String,
+}
+
+impl Header for XStreamError {
+    fn header_name() -> &'static str {
+        "X-Stream-Error"
+    }
+
+    fn parse_header(raw: &Raw) -> hyper::Result<XStreamError> {
+        if let Some(bytes) = raw.one() {
+            let value = String::from_utf8_lossy(bytes);
+
+            Ok(XStreamError { error: value.into_owned() })
+        } else {
+            Err(hyper::Error::Header)
+        }
+    }
+
+    fn fmt_header(&self, f: &mut header::Formatter) -> fmt::Result {
+        f.fmt_line(&self.error)
+    }
+}
