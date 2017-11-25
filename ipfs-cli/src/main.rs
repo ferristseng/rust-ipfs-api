@@ -8,6 +8,7 @@
 
 #[macro_use]
 extern crate clap;
+extern crate futures;
 extern crate ipfs_api;
 extern crate tokio_core;
 
@@ -30,6 +31,9 @@ fn main() {
             (subcommand: command::bootstrap::signature())
             (subcommand: command::cat::signature())
             (subcommand: command::commands::signature())
+            (subcommand: command::config::signature())
+            (subcommand: command::dag::signature())
+            (subcommand: command::dht::signature())
             (subcommand: command::version::signature())
     ).get_matches();
 
@@ -37,14 +41,15 @@ fn main() {
     let client = IpfsClient::default(&core.handle());
 
     match matches.subcommand() {
-        ("add", Some(args)) => command::add::handle(&mut core, &client, args),
-        ("bitswap", Some(bitswap)) => command::bitswap::handle(&mut core, &client, &bitswap),
-        ("block", Some(block)) => command::block::handle(&mut core, &client, &block),
-        ("bootstrap", Some(bootstrap)) => {
-            command::bootstrap::handle(&mut core, &client, &bootstrap)
-        }
-        ("cat", Some(cat)) => command::cat::handle(&mut core, &client, &cat),
+        ("add", Some(args)) => command::add::handle(&mut core, &client, &args),
+        ("bitswap", Some(args)) => command::bitswap::handle(&mut core, &client, &args),
+        ("block", Some(args)) => command::block::handle(&mut core, &client, &args),
+        ("bootstrap", Some(args)) => command::bootstrap::handle(&mut core, &client, &args),
+        ("cat", Some(args)) => command::cat::handle(&mut core, &client, &args),
         ("commands", _) => command::commands::handle(&mut core, &client),
+        ("config", Some(args)) => command::config::handle(&mut core, &client, &args),
+        ("dag", Some(args)) => command::dag::handle(&mut core, &client, &args),
+        ("dht", Some(args)) => command::dht::handle(&mut core, &client, &args),
         ("version", _) => command::version::handle(&mut core, &client),
         _ => unreachable!(),
     }

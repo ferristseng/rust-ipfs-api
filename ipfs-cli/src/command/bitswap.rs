@@ -34,9 +34,9 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
 }
 
 
-pub fn handle(core: &mut Core, client: &IpfsClient, bitswap: &ArgMatches) {
-    match bitswap.subcommand() {
-        ("ledger", Some(ref args)) => {
+pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
+    match args.subcommand() {
+        ("ledger", Some(args)) => {
             let peer = args.value_of("PEER").unwrap();
             let ledger = core.run(client.bitswap_ledger(&peer)).expect(EXPECTED_API);
 
@@ -69,14 +69,14 @@ pub fn handle(core: &mut Core, client: &IpfsClient, bitswap: &ArgMatches) {
             println!("  dup_data_received      : {}", stat.dup_data_received);
             println!("");
         }
-        ("unwant", Some(ref args)) => {
+        ("unwant", Some(args)) => {
             let key = args.value_of("KEY").unwrap();
 
             core.run(client.bitswap_unwant(&key)).expect(EXPECTED_API);
 
             println!("OK");
         }
-        ("wantlist", Some(ref args)) => {
+        ("wantlist", Some(args)) => {
             let peer = args.value_of("PEER");
             let wantlist = core.run(client.bitswap_wantlist(peer)).expect(EXPECTED_API);
 

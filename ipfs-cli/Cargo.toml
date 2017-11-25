@@ -6,5 +6,6 @@ authors                   = ["Ferris Tseng <ferristseng@fastmail.fm>"]
 
 [dependencies]
 clap                      = "2.27"
+futures                   = "0.1"
 ipfs-api                  = { path = "../ipfs-api" }
 tokio-core                = "0.1"

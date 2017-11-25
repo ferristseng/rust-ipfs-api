@@ -45,8 +45,8 @@ fn print_peers(peers: &Vec<String>) {
 }
 
 
-pub fn handle(core: &mut Core, client: &IpfsClient, bootstrap: &ArgMatches) {
-    match bootstrap.subcommand() {
+pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
+    match args.subcommand() {
         ("add", Some(add)) => {
             match add.subcommand() {
                 ("default", _) => {
