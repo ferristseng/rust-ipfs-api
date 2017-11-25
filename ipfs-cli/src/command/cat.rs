@@ -7,29 +7,23 @@
 //
 
 use clap::{App, ArgMatches};
-use command::{verify_file, EXPECTED_API};
+use command::EXPECTED_API;
 use ipfs_api::IpfsClient;
-use std::fs::File;
 use tokio_core::reactor::Core;
 
 
 pub fn signature<'a, 'b>() -> App<'a, 'b> {
     clap_app!(
-        @subcommand add =>
-            (about: "Add file to IPFS")
-            (@arg INPUT: +required {verify_file} "File to add")
+        @subcommand cat =>
+            (about: "Show IPFS object data")
+            (@arg PATH: +required "The path of the IPFS object to get")
     )
 }
 
 
 pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
-    let path = args.value_of("INPUT").unwrap();
-    let file = File::open(path).expect("expected to read input file");
-    let response = core.run(client.add(file)).expect(EXPECTED_API);
+    let path = args.value_of("PATH").unwrap();
+    let data = core.run(client.cat(&path)).expect(EXPECTED_API);
 
-    println!("");
-    println!("  name    : {}", response.name);
-    println!("  hash    : {}", response.hash);
-    println!("  size    : {}", response.size);
-    println!("");
+    println!("{}", String::from_utf8_lossy(&data));
 }

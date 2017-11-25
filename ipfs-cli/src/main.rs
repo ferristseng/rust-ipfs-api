@@ -28,6 +28,8 @@ fn main() {
             (subcommand: command::bitswap::signature())
             (subcommand: command::block::signature())
             (subcommand: command::bootstrap::signature())
+            (subcommand: command::cat::signature())
+            (subcommand: command::commands::signature())
             (subcommand: command::version::signature())
     ).get_matches();
 
@@ -41,6 +43,8 @@ fn main() {
         ("bootstrap", Some(bootstrap)) => {
             command::bootstrap::handle(&mut core, &client, &bootstrap)
         }
+        ("cat", Some(cat)) => command::cat::handle(&mut core, &client, &cat),
+        ("commands", _) => command::commands::handle(&mut core, &client),
         ("version", _) => command::version::handle(&mut core, &client),
         _ => unreachable!(),
     }
