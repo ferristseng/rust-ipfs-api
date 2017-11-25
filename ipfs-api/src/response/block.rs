@@ -21,7 +21,7 @@ pub struct BlockPutResponse {
 #[serde(rename_all = "PascalCase")]
 pub struct BlockRmResponse {
     pub hash: String,
-    pub error: String,
+    pub error: Option<String>,
 }
 
 

@@ -1,11 +1,20 @@
+// Copyright 2017 rust-ipfs-api Developers
+//
+// Licensed under the Apache License, Version 2.0, <LICENSE-APACHE or
+// http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
+// http://opensource.org/licenses/MIT>, at your option. This file may not be
+// copied, modified, or distributed except according to those terms.
+//
+
 #[macro_use]
 extern crate clap;
 extern crate ipfs_api;
 extern crate tokio_core;
 
 use ipfs_api::IpfsClient;
-use std::fs::File;
 use tokio_core::reactor::Core;
+
+mod command;
 
 fn main() {
     let matches = clap_app!(
@@ -15,77 +24,24 @@ fn main() {
             (version: crate_version!())
             (author: "Ferris T. <ferristseng@fastmail.fm>")
             (@setting SubcommandRequiredElseHelp)
-            (@subcommand add =>
-                (about: "Add file to ipfs")
-                (@arg INPUT: +required "File to add")
-            )
-            (@subcommand bitswap =>
-                (@setting SubcommandRequiredElseHelp)
-                (@subcommand ledger =>
-                    (about: "Show the current ledger for a peer")
-                    (@arg PEER: +required "Peer to inspect")
-                )
-            )
-            (@subcommand version =>
-                (about: "Show ipfs version information")
-            )
+            (subcommand: command::add::signature())
+            (subcommand: command::bitswap::signature())
+            (subcommand: command::block::signature())
+            (subcommand: command::bootstrap::signature())
+            (subcommand: command::version::signature())
     ).get_matches();
 
     let mut core = Core::new().expect("expected event loop");
     let client = IpfsClient::default(&core.handle());
 
     match matches.subcommand() {
-        ("add", Some(args)) => {
-            let path = args.value_of("INPUT").unwrap();
-            let file = File::open(path).expect("expected to read input file");
-            let metadata = file.metadata().expect("expected to read file's metadata");
-
-            if !metadata.is_file() {
-                panic!("input must be a file not directory");
-            }
-
-            let response = core.run(client.add(file)).expect(
-                "expected response from API",
-            );
-
-            println!("");
-            println!("  name    : {}", response.name);
-            println!("  hash    : {}", response.hash);
-            println!("  size    : {}", response.size);
-            println!("");
+        ("add", Some(args)) => command::add::handle(&mut core, &client, args),
+        ("bitswap", Some(bitswap)) => command::bitswap::handle(&mut core, &client, &bitswap),
+        ("block", Some(block)) => command::block::handle(&mut core, &client, &block),
+        ("bootstrap", Some(bootstrap)) => {
+            command::bootstrap::handle(&mut core, &client, &bootstrap)
         }
-        ("bitswap", Some(bitswap)) => {
-            match bitswap.subcommand() {
-                ("ledger", Some(ledger)) => {
-                    let peer = ledger.value_of("PEER").unwrap();
-                    let ledger = core.run(client.bitswap_ledger(&peer)).expect(
-                        "expected response from API",
-                    );
-
-                    println!("");
-                    println!("  peer      : {}", ledger.peer);
-                    println!("  value     : {}", ledger.value);
-                    println!("  sent      : {}", ledger.sent);
-                    println!("  recv      : {}", ledger.recv);
-                    println!("  exchanged : {}", ledger.exchanged);
-                    println!("");
-                }
-                _ => unreachable!(),
-            }
-        }
-        ("version", _) => {
-            let version = core.run(client.version()).expect(
-                "expected response from API",
-            );
-
-            println!("");
-            println!("  version : {}", version.version);
-            println!("  commit  : {}", version.commit);
-            println!("  repo    : {}", version.repo);
-            println!("  system  : {}", version.system);
-            println!("  golang  : {}", version.golang);
-            println!("");
-        }
+        ("version", _) => command::version::handle(&mut core, &client),
         _ => unreachable!(),
     }
 }
