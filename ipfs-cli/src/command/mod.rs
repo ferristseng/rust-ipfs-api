@@ -34,4 +34,5 @@ pub mod commands;
 pub mod config;
 pub mod dag;
 pub mod dht;
+pub mod diag;
 pub mod version;

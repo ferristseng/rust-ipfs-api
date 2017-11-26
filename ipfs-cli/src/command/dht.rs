@@ -104,5 +104,7 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         _ => unreachable!(),
     };
 
-    core.run(req.for_each(print_dht_response)).expect(EXPECTED_API);
+    core.run(req.for_each(print_dht_response)).expect(
+        EXPECTED_API,
+    );
 }

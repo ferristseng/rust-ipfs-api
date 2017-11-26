@@ -74,7 +74,9 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
 
             core.run(client.bitswap_unwant(&key)).expect(EXPECTED_API);
 
-            println!("OK");
+            println!("");
+            println!("  OK");
+            println!("");
         }
         ("wantlist", Some(args)) => {
             let peer = args.value_of("PEER");

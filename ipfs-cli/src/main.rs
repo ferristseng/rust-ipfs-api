@@ -34,6 +34,7 @@ fn main() {
             (subcommand: command::config::signature())
             (subcommand: command::dag::signature())
             (subcommand: command::dht::signature())
+            (subcommand: command::diag::signature())
             (subcommand: command::version::signature())
     ).get_matches();
 
@@ -50,6 +51,7 @@ fn main() {
         ("config", Some(args)) => command::config::handle(&mut core, &client, &args),
         ("dag", Some(args)) => command::dag::handle(&mut core, &client, &args),
         ("dht", Some(args)) => command::dht::handle(&mut core, &client, &args),
+        ("diag", Some(args)) => command::diag::handle(&mut core, &client, &args),
         ("version", _) => command::version::handle(&mut core, &client),
         _ => unreachable!(),
     }
