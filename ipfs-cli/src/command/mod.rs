@@ -35,4 +35,6 @@ pub mod config;
 pub mod dag;
 pub mod dht;
 pub mod diag;
+pub mod dns;
+pub mod file;
 pub mod version;

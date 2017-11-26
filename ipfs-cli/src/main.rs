@@ -35,6 +35,8 @@ fn main() {
             (subcommand: command::dag::signature())
             (subcommand: command::dht::signature())
             (subcommand: command::diag::signature())
+            (subcommand: command::dns::signature())
+            (subcommand: command::file::signature())
             (subcommand: command::version::signature())
     ).get_matches();
 
@@ -52,6 +54,8 @@ fn main() {
         ("dag", Some(args)) => command::dag::handle(&mut core, &client, &args),
         ("dht", Some(args)) => command::dht::handle(&mut core, &client, &args),
         ("diag", Some(args)) => command::diag::handle(&mut core, &client, &args),
+        ("dns", Some(args)) => command::dns::handle(&mut core, &client, &args),
+        ("file", Some(args)) => command::file::handle(&mut core, &client, &args),
         ("version", _) => command::version::handle(&mut core, &client),
         _ => unreachable!(),
     }
