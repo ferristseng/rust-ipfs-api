@@ -567,14 +567,14 @@ impl IpfsClient {
     /// Flush a path's data to disk.
     ///
     #[inline]
-    pub fn files_flush(&self, path: Option<&str>) -> AsyncResponse<response::FilesFlushResponse> {
+    pub fn files_flush(&self, path: &Option<&str>) -> AsyncResponse<response::FilesFlushResponse> {
         self.request_empty(&request::FilesFlush { path }, None)
     }
 
     /// List directories in MFS.
     ///
     #[inline]
-    pub fn files_ls(&self, path: Option<&str>) -> AsyncResponse<response::FilesLsResponse> {
+    pub fn files_ls(&self, path: &Option<&str>) -> AsyncResponse<response::FilesLsResponse> {
         self.request(&request::FilesLs { path }, None)
     }
 
@@ -681,7 +681,7 @@ impl IpfsClient {
     /// If `peer` is `None`, returns information about you.
     ///
     #[inline]
-    pub fn id(&self, peer: Option<&str>) -> AsyncResponse<response::IdResponse> {
+    pub fn id(&self, peer: &Option<&str>) -> AsyncResponse<response::IdResponse> {
         self.request(&request::Id { peer }, None)
     }
 
@@ -692,7 +692,7 @@ impl IpfsClient {
         &self,
         name: &str,
         kind: request::KeyType,
-        size: Option<i32>,
+        size: &Option<i32>,
     ) -> AsyncResponse<response::KeyGenResponse> {
         self.request(&request::KeyGen { name, kind, size }, None)
     }
@@ -738,7 +738,7 @@ impl IpfsClient {
     /// List the contents of an Ipfs multihash.
     ///
     #[inline]
-    pub fn ls(&self, path: Option<&str>) -> AsyncResponse<response::LsResponse> {
+    pub fn ls(&self, path: &Option<&str>) -> AsyncResponse<response::LsResponse> {
         self.request(&request::Ls { path }, None)
     }
 
@@ -779,8 +779,8 @@ impl IpfsClient {
     #[inline]
     pub fn pin_ls(
         &self,
-        key: Option<&str>,
-        typ: Option<&str>,
+        key: &Option<&str>,
+        typ: &Option<&str>,
     ) -> AsyncResponse<response::PinLsResponse> {
         self.request(&request::PinLs { key, typ }, None)
     }
@@ -791,7 +791,7 @@ impl IpfsClient {
     pub fn pin_rm(
         &self,
         key: &str,
-        recursive: Option<bool>,
+        recursive: &Option<bool>,
     ) -> AsyncResponse<response::PinRmResponse> {
         self.request(&request::PinRm { key, recursive }, None)
     }
@@ -802,7 +802,7 @@ impl IpfsClient {
     pub fn ping(
         &self,
         peer: &str,
-        count: Option<usize>,
+        count: &Option<usize>,
     ) -> AsyncStreamResponse<response::PingResponse> {
         self.request_stream(&request::Ping { peer, count }, None)
     }
@@ -819,7 +819,7 @@ impl IpfsClient {
     #[inline]
     pub fn pubsub_peers(
         &self,
-        topic: Option<&str>,
+        topic: &Option<&str>,
     ) -> AsyncResponse<response::PubsubPeersResponse> {
         self.request(&request::PubsubPeers { topic }, None)
     }
@@ -841,7 +841,7 @@ impl IpfsClient {
     pub fn pubsub_sub(
         &self,
         topic: &str,
-        discover: Option<bool>,
+        discover: &Option<bool>,
     ) -> AsyncStreamResponse<response::PubsubSubResponse> {
         self.request_stream(&request::PubsubSub { topic, discover }, None)
     }

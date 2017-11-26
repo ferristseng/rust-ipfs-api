@@ -12,7 +12,7 @@ use request::ApiRequest;
 #[derive(Serialize)]
 pub struct Ls<'a> {
     #[serde(rename = "arg")]
-    pub path: Option<&'a str>,
+    pub path: &'a Option<&'a str>,
 }
 
 impl<'a> ApiRequest for Ls<'a> {

@@ -32,17 +32,17 @@ impl Serialize for KeyType {
 
 
 #[derive(Serialize)]
-pub struct KeyGen<'a> {
+pub struct KeyGen<'a, 'b> {
     #[serde(rename = "arg")]
     pub name: &'a str,
 
     #[serde(rename = "type")]
     pub kind: KeyType,
 
-    pub size: Option<i32>,
+    pub size: &'b Option<i32>,
 }
 
-impl<'a> ApiRequest for KeyGen<'a> {
+impl<'a, 'b> ApiRequest for KeyGen<'a, 'b> {
     #[inline]
     fn path() -> &'static str {
         "/key/gen"

@@ -10,14 +10,14 @@ use request::ApiRequest;
 
 
 #[derive(Serialize)]
-pub struct Ping<'a> {
+pub struct Ping<'a, 'b> {
     #[serde(rename = "arg")]
     pub peer: &'a str,
 
-    pub count: Option<usize>,
+    pub count: &'b Option<usize>,
 }
 
-impl<'a> ApiRequest for Ping<'a> {
+impl<'a, 'b> ApiRequest for Ping<'a, 'b> {
     #[inline]
     fn path() -> &'static str {
         "/ping"

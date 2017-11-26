@@ -12,10 +12,10 @@ use request::ApiRequest;
 #[derive(Serialize)]
 pub struct PinLs<'a> {
     #[serde(rename = "arg")]
-    pub key: Option<&'a str>,
+    pub key: &'a Option<&'a str>,
 
     #[serde(rename = "type")]
-    pub typ: Option<&'a str>,
+    pub typ: &'a Option<&'a str>,
 }
 
 impl<'a> ApiRequest for PinLs<'a> {
@@ -27,14 +27,14 @@ impl<'a> ApiRequest for PinLs<'a> {
 
 
 #[derive(Serialize)]
-pub struct PinRm<'a> {
+pub struct PinRm<'a, 'b> {
     #[serde(rename = "arg")]
     pub key: &'a str,
 
-    pub recursive: Option<bool>,
+    pub recursive: &'b Option<bool>,
 }
 
-impl<'a> ApiRequest for PinRm<'a> {
+impl<'a, 'b> ApiRequest for PinRm<'a, 'b> {
     #[inline]
     fn path() -> &'static str {
         "/pin/rm"
