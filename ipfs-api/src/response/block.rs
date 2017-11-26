@@ -6,9 +6,6 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-pub type BlockGetResponse = Vec<u8>;
-
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BlockPutResponse {

@@ -41,9 +41,6 @@ pub type FilesMkdirResponse = ();
 pub type FilesMvResponse = ();
 
 
-pub type FilesReadResponse = Vec<u8>;
-
-
 pub type FilesRmResponse = ();
 
 

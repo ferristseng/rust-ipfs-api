@@ -256,7 +256,7 @@ impl IpfsClient {
         &self,
         req: &Req,
         form: Option<multipart::Form>,
-    ) -> AsyncStreamResponse<Vec<u8>>
+    ) -> AsyncStreamResponse<Chunk>
     where
         Req: ApiRequest + Serialize,
     {
@@ -265,10 +265,10 @@ impl IpfsClient {
             .into_future()
             .flatten()
             .map(|res| {
-                let stream: Box<Stream<Item = Vec<u8>, Error = _>> = match res.status() {
+                let stream: Box<Stream<Item = Chunk, Error = _>> = match res.status() {
                     // If the server responded OK, the data can be streamed back.
                     //
-                    StatusCode::Ok => Box::new(res.body().map(|chunk| chunk.to_vec()).from_err()),
+                    StatusCode::Ok => Box::new(res.body().map(|chunk| chunk).from_err()),
 
                     // If the server responded with an error status code, the body
                     // still needs to be read so an error can be built. This block will
@@ -377,7 +377,7 @@ impl IpfsClient {
     /// Gets a raw IPFS block.
     ///
     #[inline]
-    pub fn block_get(&self, hash: &str) -> AsyncStreamResponse<response::BlockGetResponse> {
+    pub fn block_get(&self, hash: &str) -> AsyncStreamResponse<Chunk> {
         self.request_stream_bytes(&request::BlockGet { hash }, None)
     }
 
@@ -433,7 +433,7 @@ impl IpfsClient {
     /// Returns the contents of an Ipfs object.
     ///
     #[inline]
-    pub fn cat(&self, path: &str) -> AsyncStreamResponse<response::CatResponse> {
+    pub fn cat(&self, path: &str) -> AsyncStreamResponse<Chunk> {
         self.request_stream_bytes(&request::Cat { path }, None)
     }
 
@@ -624,7 +624,7 @@ impl IpfsClient {
     /// Read a file in MFS.
     ///
     #[inline]
-    pub fn files_read(&self, path: &str) -> AsyncStreamResponse<response::FilesReadResponse> {
+    pub fn files_read(&self, path: &str) -> AsyncStreamResponse<Chunk> {
         self.request_stream_bytes(&request::FilesRead { path }, None)
     }
 
@@ -697,7 +697,7 @@ impl IpfsClient {
     /// Download Ipfs object.
     ///
     #[inline]
-    pub fn get(&self, path: &str) -> AsyncStreamResponse<response::GetResponse> {
+    pub fn get(&self, path: &str) -> AsyncStreamResponse<Chunk> {
         self.request_stream_bytes(&request::Get { path }, None)
     }
 
@@ -933,7 +933,7 @@ impl IpfsClient {
     /// Export a tar file from Ipfs.
     ///
     #[inline]
-    pub fn tar_cat(&self, path: &str) -> AsyncStreamResponse<response::TarCatResponse> {
+    pub fn tar_cat(&self, path: &str) -> AsyncStreamResponse<Chunk> {
         self.request_stream_bytes(&request::TarCat { path }, None)
     }
 
