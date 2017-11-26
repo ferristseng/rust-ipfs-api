@@ -308,19 +308,35 @@ impl IpfsClient {
             .into_future()
             .flatten()
             .map(|res| {
-                let parse_stream_error = if let Some(trailer) = res.headers().get() {
-                    // Response has the Trailer header set. The StreamError trailer
-                    // is used to indicate that there was an error while streaming
-                    // data with Ipfs.
-                    //
-                    match trailer {
-                        &Trailer::StreamError => true,
+                let stream: Box<Stream<Item = Res, Error = _>> = match res.status() {
+                    StatusCode::Ok => {
+                        let parse_stream_error = if let Some(trailer) = res.headers().get() {
+                            // Response has the Trailer header set. The StreamError trailer
+                            // is used to indicate that there was an error while streaming
+                            // data with Ipfs.
+                            //
+                            match trailer {
+                                &Trailer::StreamError => true,
+                            }
+                        } else {
+                            false
+                        };
+
+                        Box::new(IpfsClient::process_stream_response(
+                            res,
+                            JsonLineDecoder::new(parse_stream_error),
+                        ))
                     }
-                } else {
-                    false
+                    _ => Box::new(
+                        res.body()
+                            .concat2()
+                            .from_err()
+                            .and_then(|chunk| Err(Self::build_error_from_body(chunk)))
+                            .into_stream(),
+                    ),
                 };
 
-                IpfsClient::process_stream_response(res, JsonLineDecoder::new(parse_stream_error))
+                stream
             })
             .flatten_stream();
 
