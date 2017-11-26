@@ -32,19 +32,19 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
 
             println!("");
             println!("  arguments              :");
-            for (k, arg) in ls.arguments.iter() {
+            for (k, arg) in ls.arguments {
                 println!("    arg        : {}", k);
                 println!("    value      : {}", arg);
                 println!("");
             }
             println!("  objects                :");
-            for (k, obj) in ls.objects.iter() {
+            for (k, obj) in ls.objects {
                 println!("    key        : {}", k);
                 println!("    hash       : {}", obj.hash);
                 println!("    size       : {}", obj.size);
                 println!("    type       : {}", obj.typ);
                 println!("    links      :");
-                for link in obj.links.iter() {
+                for link in obj.links {
                     println!("      name       : {}", link.name);
                     println!("      hash       : {}", link.hash);
                     println!("      size       : {}", link.size);

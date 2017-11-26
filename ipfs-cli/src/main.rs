@@ -37,6 +37,7 @@ fn main() {
             (subcommand: command::diag::signature())
             (subcommand: command::dns::signature())
             (subcommand: command::file::signature())
+            (subcommand: command::files::signature())
             (subcommand: command::version::signature())
     ).get_matches();
 
@@ -56,6 +57,7 @@ fn main() {
         ("diag", Some(args)) => command::diag::handle(&mut core, &client, &args),
         ("dns", Some(args)) => command::dns::handle(&mut core, &client, &args),
         ("file", Some(args)) => command::file::handle(&mut core, &client, &args),
+        ("files", Some(args)) => command::files::handle(&mut core, &client, &args),
         ("version", _) => command::version::handle(&mut core, &client),
         _ => unreachable!(),
     }
