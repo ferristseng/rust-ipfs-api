@@ -11,6 +11,7 @@ use command::{verify_file, EXPECTED_API, EXPECTED_FILE};
 use futures::stream::Stream;
 use ipfs_api::IpfsClient;
 use std::fs::File;
+use std::io::{self, Write};
 use tokio_core::reactor::Core;
 
 
@@ -125,9 +126,7 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         ("read", Some(args)) => {
             let path = args.value_of("PATH").unwrap();
             let req = client.files_read(&path).for_each(|chunk| {
-                println!("{}", String::from_utf8_lossy(&chunk));
-
-                Ok(())
+                io::stdout().write_all(&chunk).map_err(From::from)
             });
 
             core.run(req).expect(EXPECTED_API);
