@@ -699,15 +699,21 @@ impl IpfsClient {
     /// List objects in filestore.
     ///
     #[inline]
-    pub fn filestore_ls(&self) -> AsyncStreamResponse<response::FilestoreLsResponse> {
-        self.request_stream(&request::FilestoreLs, None)
+    pub fn filestore_ls(
+        &self,
+        cid: &Option<&str>,
+    ) -> AsyncStreamResponse<response::FilestoreLsResponse> {
+        self.request_stream(&request::FilestoreLs { cid }, None)
     }
 
     /// Verify objects in filestore.
     ///
     #[inline]
-    pub fn filestore_verify(&self) -> AsyncStreamResponse<response::FilestoreVerifyResponse> {
-        self.request_stream(&request::FilestoreVerify, None)
+    pub fn filestore_verify(
+        &self,
+        cid: &Option<&str>,
+    ) -> AsyncStreamResponse<response::FilestoreVerifyResponse> {
+        self.request_stream(&request::FilestoreVerify { cid }, None)
     }
 
     /// Download Ipfs object.

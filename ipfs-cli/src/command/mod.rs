@@ -38,4 +38,5 @@ pub mod diag;
 pub mod dns;
 pub mod file;
 pub mod files;
+pub mod filestore;
 pub mod version;

@@ -21,11 +21,13 @@ impl ApiRequest for FilestoreDups {
 }
 
 
-pub struct FilestoreLs;
+#[derive(Serialize)]
+pub struct FilestoreLs<'a> {
+    #[serde(rename = "arg")]
+    pub cid: &'a Option<&'a str>,
+}
 
-impl_skip_serialize!(FilestoreLs);
-
-impl ApiRequest for FilestoreLs {
+impl<'a> ApiRequest for FilestoreLs<'a> {
     #[inline]
     fn path() -> &'static str {
         "/filestore/ls"
@@ -33,11 +35,13 @@ impl ApiRequest for FilestoreLs {
 }
 
 
-pub struct FilestoreVerify;
+#[derive(Serialize)]
+pub struct FilestoreVerify<'a> {
+    #[serde(rename = "arg")]
+    pub cid: &'a Option<&'a str>,
+}
 
-impl_skip_serialize!(FilestoreVerify);
-
-impl ApiRequest for FilestoreVerify {
+impl<'a> ApiRequest for FilestoreVerify<'a> {
     #[inline]
     fn path() -> &'static str {
         "/filestore/verify"

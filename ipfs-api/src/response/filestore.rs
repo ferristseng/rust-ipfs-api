@@ -18,7 +18,7 @@ pub struct FilestoreDupsResponse {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
-pub struct FilestoreLsResponse {
+pub struct FilestoreObject {
     pub status: i32,
     pub error_msg: String,
     pub key: String,
@@ -28,13 +28,7 @@ pub struct FilestoreLsResponse {
 }
 
 
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct FilestoreVerifyResponse {
-    pub status: i32,
-    pub error_msg: String,
-    pub key: String,
-    pub file_path: String,
-    pub offset: u64,
-    pub size: u64,
-}
+pub type FilestoreLsResponse = FilestoreObject;
+
+
+pub type FilestoreVerifyResponse = FilestoreObject;

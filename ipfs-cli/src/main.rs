@@ -38,6 +38,7 @@ fn main() {
             (subcommand: command::dns::signature())
             (subcommand: command::file::signature())
             (subcommand: command::files::signature())
+            (subcommand: command::filestore::signature())
             (subcommand: command::version::signature())
     ).get_matches();
 
@@ -58,6 +59,7 @@ fn main() {
         ("dns", Some(args)) => command::dns::handle(&mut core, &client, &args),
         ("file", Some(args)) => command::file::handle(&mut core, &client, &args),
         ("files", Some(args)) => command::files::handle(&mut core, &client, &args),
+        ("filestore", Some(args)) => command::filestore::handle(&mut core, &client, &args),
         ("version", _) => command::version::handle(&mut core, &client),
         _ => unreachable!(),
     }
