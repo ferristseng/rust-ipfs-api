@@ -7,9 +7,11 @@
 //
 
 extern crate ipfs_api;
+extern crate futures;
 extern crate tar;
 extern crate tokio_core;
 
+use futures::stream::Stream;
 use ipfs_api::IpfsClient;
 use std::io::Cursor;
 use tar::Builder;
@@ -44,7 +46,7 @@ fn main() {
     println!("added tar file: {:?}", add);
     println!("");
 
-    let req = client.tar_cat(&add.hash[..]);
+    let req = client.tar_cat(&add.hash[..]).concat2();
     let cat = core.run(req).expect("expected a valid response");
 
     println!("{}", String::from_utf8_lossy(&cat[..]));
