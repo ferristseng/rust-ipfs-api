@@ -8,6 +8,7 @@
 
 use clap::{App, ArgMatches};
 use command::{verify_file, EXPECTED_API, EXPECTED_FILE};
+use futures::stream::Stream;
 use ipfs_api::IpfsClient;
 use std::fs::File;
 use tokio_core::reactor::Core;
@@ -41,9 +42,12 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
     match args.subcommand() {
         ("get", Some(args)) => {
             let key = args.value_of("KEY").unwrap();
-            let block = core.run(client.block_get(key)).expect(EXPECTED_API);
+            let req = client.block_get(key).for_each(|chunk| {
+                println!("{}", String::from_utf8_lossy(&chunk));
+                Ok(())
+            });
 
-            println!("{}", String::from_utf8_lossy(&block));
+            core.run(req).expect(EXPECTED_API);
         }
         ("put", Some(args)) => {
             let path = args.value_of("INPUT").unwrap();

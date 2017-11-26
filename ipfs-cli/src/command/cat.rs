@@ -8,6 +8,7 @@
 
 use clap::{App, ArgMatches};
 use command::EXPECTED_API;
+use futures::stream::Stream;
 use ipfs_api::IpfsClient;
 use tokio_core::reactor::Core;
 
@@ -23,7 +24,11 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
 
 pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
     let path = args.value_of("PATH").unwrap();
-    let data = core.run(client.cat(&path)).expect(EXPECTED_API);
+    let req = client.cat(&path).for_each(|chunk| {
+        println!("{}", String::from_utf8_lossy(&chunk));
 
-    println!("{}", String::from_utf8_lossy(&data));
+        Ok(())
+    });
+
+    core.run(req).expect(EXPECTED_API);
 }
