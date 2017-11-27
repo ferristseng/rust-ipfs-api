@@ -89,7 +89,7 @@ impl IpfsClient {
         );
 
         url.parse::<Uri>()
-            .map(|url| {
+            .map(move |url| {
                 let mut req = Request::new(Method::Get, url);
 
                 if let Some(form) = form {
