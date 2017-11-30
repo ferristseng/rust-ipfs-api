@@ -821,6 +821,19 @@ impl IpfsClient {
         self.request(&request::ObjectStat { key }, None)
     }
 
+    /// Pins a new object.
+    ///
+    /// Does not yet implement "progress" because reading it is kinda squirrelly.
+    ///
+    #[inline]
+    pub fn pin_add(
+        &self,
+        key: &str,
+        recursive: Option<bool>
+    ) -> AsyncResponse<response::PinLsResponse> {
+        self.request(&request::PinAdd { key, recursive, progress: false }, None)
+    }
+
     /// Returns a list of pinned objects in local storage.
     ///
     #[inline]
