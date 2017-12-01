@@ -332,8 +332,7 @@ impl IpfsClient {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
     /// let data = Cursor::new("Hello World!");
-    ///
-    /// core.run(client.add(data));
+    /// let req = client.add(data);
     /// # }
     /// ```
     ///
@@ -363,8 +362,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.bitswap_ledger("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ"));
+    /// let req = client.bitswap_ledger("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ");
     /// # }
     /// ```
     ///
@@ -387,8 +385,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.bitswap_stat());
+    /// let req = client.bitswap_stat();
     /// # }
     /// ```
     ///
@@ -411,8 +408,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.bitswap_unwant("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA"));
+    /// let req = client.bitswap_unwant("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
     /// # }
     /// ```
     ///
@@ -435,8 +431,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.bitswap_wantlist(Some("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ")));
+    /// let req = client.bitswap_wantlist(Some("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ"));
     /// # }
     /// ```
     ///
@@ -465,8 +460,7 @@ impl IpfsClient {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
     /// let hash = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
-    ///
-    /// core.run(client.block_get(hash).concat2());
+    /// let req = client.block_get(hash).concat2();
     /// # }
     /// ```
     ///
@@ -491,8 +485,7 @@ impl IpfsClient {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
     /// let data = Cursor::new("Hello World!");
-    ///
-    /// core.run(client.block_put(data));
+    /// let req = client.block_put(data);
     /// # }
     /// ```
     ///
@@ -522,8 +515,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.block_rm("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA"));
+    /// let req = client.block_rm("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
     /// # }
     /// ```
     ///
@@ -546,8 +538,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.block_stat("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA"));
+    /// let req = client.block_stat("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
     /// # }
     /// ```
     ///
@@ -570,8 +561,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.bootstrap_add_default());
+    /// let req = client.bootstrap_add_default();
     /// # }
     /// ```
     ///
@@ -594,8 +584,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.bootstrap_list());
+    /// let req = client.bootstrap_list();
     /// # }
     /// ```
     ///
@@ -618,8 +607,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.bootstrap_rm_all());
+    /// let req = client.bootstrap_rm_all();
     /// # }
     /// ```
     ///
@@ -645,8 +633,7 @@ impl IpfsClient {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
     /// let hash = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
-    ///
-    /// core.run(client.cat(hash).concat2());
+    /// let req = client.cat(hash).concat2();
     /// # }
     /// ```
     ///
@@ -667,8 +654,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.commands());
+    /// let req = client.commands();
     /// # }
     /// ```
     ///
@@ -689,8 +675,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.config_edit());
+    /// let req = client.config_edit();
     /// # }
     /// ```
     ///
@@ -713,8 +698,7 @@ impl IpfsClient {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
     /// let config = Cursor::new("{..json..}");
-    ///
-    /// core.run(client.config_replace(config));
+    /// let req = client.config_replace(config);
     /// # }
     /// ```
     ///
@@ -744,8 +728,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.config_show());
+    /// let req = client.config_show();
     /// # }
     /// ```
     ///
@@ -766,8 +749,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.dag_get("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA"));
+    /// let req = client.dag_get("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
     /// # }
     /// ```
     ///
@@ -808,8 +790,7 @@ impl IpfsClient {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
     /// let peer = "QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM";
-    ///
-    /// core.run(client.dht_findpeer(peer).collect());
+    /// let req = client.dht_findpeer(peer).collect();
     /// # }
     /// ```
     ///
@@ -833,8 +814,7 @@ impl IpfsClient {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
     /// let key = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
-    ///
-    /// core.run(client.dht_findprovs(key).collect());
+    /// let req = client.dht_findprovs(key).collect();
     /// # }
     /// ```
     ///
@@ -858,8 +838,7 @@ impl IpfsClient {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
     /// let key = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
-    ///
-    /// core.run(client.dht_get(key).collect());
+    /// let req = client.dht_get(key).collect();
     /// # }
     /// ```
     ///
@@ -883,8 +862,7 @@ impl IpfsClient {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
     /// let key = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
-    ///
-    /// core.run(client.dht_provide(key).collect());
+    /// let req = client.dht_provide(key).collect();
     /// # }
     /// ```
     ///
@@ -907,8 +885,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.dht_put("test", "Hello World!").collect());
+    /// let req = client.dht_put("test", "Hello World!").collect();
     /// # }
     /// ```
     ///
@@ -932,8 +909,7 @@ impl IpfsClient {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
     /// let peer = "QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM";
-    ///
-    /// core.run(client.dht_query(peer).collect());
+    /// let req = client.dht_query(peer).collect();
     /// # }
     /// ```
     ///
@@ -954,8 +930,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.diag_cmds_clear());
+    /// let req = client.diag_cmds_clear();
     /// # }
     /// ```
     ///
@@ -976,8 +951,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.diag_cmds_set_time("1m"));
+    /// let req = client.diag_cmds_set_time("1m");
     /// # }
     /// ```
     ///
@@ -1005,8 +979,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.diag_sys());
+    /// let req = client.diag_sys();
     /// # }
     /// ```
     ///
@@ -1027,8 +1000,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.dns("ipfs.io", true));
+    /// let req = client.dns("ipfs.io", true);
     /// # }
     /// ```
     ///
@@ -1049,8 +1021,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.file_ls("/ipns/ipfs.io"));
+    /// let req = client.file_ls("/ipns/ipfs.io");
     /// # }
     /// ```
     ///
@@ -1071,8 +1042,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    ///
-    /// core.run(client.files_cp("/path/to/file", "/dest"));
+    /// let req = client.files_cp("/path/to/file", "/dest");
     /// # }
     /// ```
     ///
