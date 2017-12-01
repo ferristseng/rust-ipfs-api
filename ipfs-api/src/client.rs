@@ -22,7 +22,7 @@ use tokio_core::reactor::Handle;
 use tokio_io::codec::{Decoder, FramedRead};
 
 
-/// A future response returned by the reqwest HTTP client.
+/// A response returned by the HTTP client.
 ///
 type AsyncResponse<T> = Box<Future<Item = T, Error = Error>>;
 
@@ -347,6 +347,25 @@ impl IpfsClient {
 impl IpfsClient {
     /// Add file to Ipfs.
     ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use std::io::Cursor;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let data = Cursor::new("Hello World!");
+    ///
+    /// core.run(client.add(data));
+    /// # }
+    /// ```
+    ///
     #[inline]
     pub fn add<R>(&self, data: R) -> AsyncResponse<response::AddResponse>
     where
@@ -361,12 +380,46 @@ impl IpfsClient {
 
     /// Returns the current ledger for a peer.
     ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.bitswap_ledger("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ"));
+    /// # }
+    /// ```
+    ///
     #[inline]
     pub fn bitswap_ledger(&self, peer: &str) -> AsyncResponse<response::BitswapLedgerResponse> {
         self.request(&request::BitswapLedger { peer }, None)
     }
 
     /// Returns some stats about the bitswap agent.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.bitswap_stat());
+    /// # }
+    /// ```
     ///
     #[inline]
     pub fn bitswap_stat(&self) -> AsyncResponse<response::BitswapStatResponse> {
@@ -375,12 +428,46 @@ impl IpfsClient {
 
     /// Remove a given block from your wantlist.
     ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.bitswap_unwant("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA"));
+    /// # }
+    /// ```
+    ///
     #[inline]
     pub fn bitswap_unwant(&self, key: &str) -> AsyncResponse<response::BitswapUnwantResponse> {
         self.request_empty(&request::BitswapUnwant { key }, None)
     }
 
     /// Shows blocks on the wantlist for you or the specified peer.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.bitswap_wantlist(Some("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ")));
+    /// # }
+    /// ```
     ///
     #[inline]
     pub fn bitswap_wantlist(
@@ -392,12 +479,51 @@ impl IpfsClient {
 
     /// Gets a raw IPFS block.
     ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate futures;
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use futures::stream::Stream;
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let hash = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
+    ///
+    /// core.run(client.block_get(hash).concat2());
+    /// # }
+    /// ```
+    ///
     #[inline]
     pub fn block_get(&self, hash: &str) -> AsyncStreamResponse<Chunk> {
         self.request_stream_bytes(&request::BlockGet { hash }, None)
     }
 
     /// Store input as an IPFS block.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use std::io::Cursor;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let data = Cursor::new("Hello World!");
+    ///
+    /// core.run(client.block_put(data));
+    /// # }
+    /// ```
     ///
     #[inline]
     pub fn block_put<R>(&self, data: R) -> AsyncResponse<response::BlockPutResponse>
@@ -413,12 +539,46 @@ impl IpfsClient {
 
     /// Removes an IPFS block.
     ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.block_rm("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA"));
+    /// # }
+    /// ```
+    ///
     #[inline]
     pub fn block_rm(&self, hash: &str) -> AsyncResponse<response::BlockRmResponse> {
         self.request(&request::BlockRm { hash }, None)
     }
 
     /// Prints information about a raw IPFS block.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.block_stat("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA"));
+    /// # }
+    /// ```
     ///
     #[inline]
     pub fn block_stat(&self, hash: &str) -> AsyncResponse<response::BlockStatResponse> {
@@ -427,12 +587,46 @@ impl IpfsClient {
 
     /// Add default peers to the bootstrap list.
     ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.bootstrap_add_default());
+    /// # }
+    /// ```
+    ///
     #[inline]
     pub fn bootstrap_add_default(&self) -> AsyncResponse<response::BootstrapAddDefaultResponse> {
         self.request(&request::BootstrapAddDefault, None)
     }
 
     /// Lists peers in bootstrap list.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.bootstrap_list());
+    /// # }
+    /// ```
     ///
     #[inline]
     pub fn bootstrap_list(&self) -> AsyncResponse<response::BootstrapListResponse> {
@@ -441,12 +635,49 @@ impl IpfsClient {
 
     /// Removes all peers in bootstrap list.
     ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.bootstrap_rm_all());
+    /// # }
+    /// ```
+    ///
     #[inline]
     pub fn bootstrap_rm_all(&self) -> AsyncResponse<response::BootstrapRmAllResponse> {
         self.request(&request::BootstrapRmAll, None)
     }
 
     /// Returns the contents of an Ipfs object.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate futures;
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use futures::stream::Stream;
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let hash = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
+    ///
+    /// core.run(client.cat(hash).concat2());
+    /// # }
+    /// ```
     ///
     #[inline]
     pub fn cat(&self, path: &str) -> AsyncStreamResponse<Chunk> {
@@ -455,6 +686,21 @@ impl IpfsClient {
 
     /// List available commands that the server accepts.
     ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.commands());
+    /// # }
+    /// ```
+    ///
     #[inline]
     pub fn commands(&self) -> AsyncResponse<response::CommandsResponse> {
         self.request(&request::Commands, None)
@@ -462,12 +708,44 @@ impl IpfsClient {
 
     /// Opens the config file for editing (on the server).
     ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.config_edit());
+    /// # }
+    /// ```
+    ///
     #[inline]
     pub fn config_edit(&self) -> AsyncResponse<response::ConfigEditResponse> {
         self.request(&request::ConfigEdit, None)
     }
 
     /// Replace the config file.
+    ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use std::io::Cursor;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let config = Cursor::new("{..json..}");
+    ///
+    /// core.run(client.config_replace(config));
+    /// # }
+    /// ```
     ///
     #[inline]
     pub fn config_replace<R>(&self, data: R) -> AsyncResponse<response::ConfigReplaceResponse>
@@ -485,12 +763,42 @@ impl IpfsClient {
     ///
     /// Returns an unparsed json string, due to an unclear spec.
     ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.config_show());
+    /// # }
+    /// ```
+    ///
     #[inline]
     pub fn config_show(&self) -> AsyncResponse<response::ConfigShowResponse> {
         self.request_string(&request::ConfigShow, None)
     }
 
     /// Returns information about a dag node in Ipfs.
+    ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.dag_get("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA"));
+    /// # }
+    /// ```
     ///
     #[inline]
     pub fn dag_get(&self, path: &str) -> AsyncResponse<response::DagGetResponse> {
@@ -516,12 +824,48 @@ impl IpfsClient {
 
     /// Query the DHT for all of the multiaddresses associated with a Peer ID.
     ///
+    /// ```
+    /// # extern crate futures;
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use futures::stream::Stream;
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let peer = "QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM";
+    ///
+    /// core.run(client.dht_findpeer(peer).collect());
+    /// # }
+    /// ```
+    ///
     #[inline]
     pub fn dht_findpeer(&self, peer: &str) -> AsyncStreamResponse<response::DhtFindPeerResponse> {
         self.request_stream(&request::DhtFindPeer { peer }, None)
     }
 
     /// Find peers in the DHT that can provide a specific value given a key.
+    ///
+    /// ```
+    /// # extern crate futures;
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use futures::stream::Stream;
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let key = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
+    ///
+    /// core.run(client.dht_findprovs(key).collect());
+    /// # }
+    /// ```
     ///
     #[inline]
     pub fn dht_findprovs(&self, key: &str) -> AsyncStreamResponse<response::DhtFindProvsResponse> {
@@ -530,12 +874,48 @@ impl IpfsClient {
 
     /// Query the DHT for a given key.
     ///
+    /// ```
+    /// # extern crate futures;
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use futures::stream::Stream;
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let key = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
+    ///
+    /// core.run(client.dht_get(key).collect());
+    /// # }
+    /// ```
+    ///
     #[inline]
     pub fn dht_get(&self, key: &str) -> AsyncStreamResponse<response::DhtGetResponse> {
         self.request_stream(&request::DhtGet { key }, None)
     }
 
     /// Announce to the network that you are providing a given value.
+    ///
+    /// ```
+    /// # extern crate futures;
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use futures::stream::Stream;
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let key = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
+    ///
+    /// core.run(client.dht_provide(key).collect());
+    /// # }
+    /// ```
     ///
     #[inline]
     pub fn dht_provide(&self, key: &str) -> AsyncStreamResponse<response::DhtProvideResponse> {
@@ -544,12 +924,47 @@ impl IpfsClient {
 
     /// Write a key/value pair to the DHT.
     ///
+    /// ```
+    /// # extern crate futures;
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use futures::stream::Stream;
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.dht_put("test", "Hello World!").collect());
+    /// # }
+    /// ```
+    ///
     #[inline]
     pub fn dht_put(&self, key: &str, value: &str) -> AsyncStreamResponse<response::DhtPutResponse> {
         self.request_stream(&request::DhtPut { key, value }, None)
     }
 
     /// Find the closest peer given the peer ID by querying the DHT.
+    ///
+    /// ```
+    /// # extern crate futures;
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use futures::stream::Stream;
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let peer = "QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM";
+    ///
+    /// core.run(client.dht_query(peer).collect());
+    /// # }
+    /// ```
     ///
     #[inline]
     pub fn dht_query(&self, peer: &str) -> AsyncStreamResponse<response::DhtQueryResponse> {
@@ -558,12 +973,42 @@ impl IpfsClient {
 
     /// Clear inactive requests from the log.
     ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.diag_cmds_clear());
+    /// # }
+    /// ```
+    ///
     #[inline]
     pub fn diag_cmds_clear(&self) -> AsyncResponse<response::DiagCmdsClearResponse> {
         self.request_empty(&request::DiagCmdsClear, None)
     }
 
     /// Set how long to keep inactive requests in the log.
+    ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.diag_cmds_set_time("1m"));
+    /// # }
+    /// ```
     ///
     #[inline]
     pub fn diag_cmds_set_time(
@@ -579,12 +1024,42 @@ impl IpfsClient {
     /// It might be platform dependent, but if it isn't, this can be fixed to return
     /// an actual object.
     ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.diag_sys());
+    /// # }
+    /// ```
+    ///
     #[inline]
     pub fn diag_sys(&self) -> AsyncResponse<response::DiagSysResponse> {
         self.request_string(&request::DiagSys, None)
     }
 
     /// Resolve DNS link.
+    ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.dns("ipfs.io", true));
+    /// # }
+    /// ```
     ///
     #[inline]
     pub fn dns(&self, link: &str, recursive: bool) -> AsyncResponse<response::DnsResponse> {
@@ -593,12 +1068,42 @@ impl IpfsClient {
 
     /// List directory for Unix filesystem objects.
     ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.file_ls("/ipns/ipfs.io"));
+    /// # }
+    /// ```
+    ///
     #[inline]
     pub fn file_ls(&self, path: &str) -> AsyncResponse<response::FileLsResponse> {
         self.request(&request::FileLs { path }, None)
     }
 
     /// Copy files into MFS.
+    ///
+    /// ```
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    ///
+    /// core.run(client.files_cp("/path/to/file", "/dest"));
+    /// # }
+    /// ```
     ///
     #[inline]
     pub fn files_cp(&self, path: &str, dest: &str) -> AsyncResponse<response::FilesCpResponse> {

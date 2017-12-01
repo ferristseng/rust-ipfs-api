@@ -11,8 +11,16 @@ use hyper::header::{self, Header, Raw};
 use std::fmt;
 
 
+/// Header that is returned for streaming calls.
+///
+/// A `Trailer` header indicates that after a streaming call, there will
+/// be some additional information in the response.
+///
 #[derive(Debug, Clone, Copy)]
 pub enum Trailer {
+    /// This trailer indicates that an error header will be returned in
+    /// the stream if there is an error while streaming.
+    ///
     StreamError,
 }
 
@@ -44,6 +52,9 @@ impl Header for Trailer {
 }
 
 
+/// This header is included while streaming if an error occured
+/// while streaming the data.
+///
 #[derive(Debug, Clone)]
 pub struct XStreamError {
     pub error: String,
