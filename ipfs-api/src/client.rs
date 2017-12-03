@@ -320,7 +320,7 @@ impl IpfsClient {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -352,7 +352,7 @@ impl IpfsClient {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -375,7 +375,7 @@ impl IpfsClient {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -398,7 +398,7 @@ impl IpfsClient {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -421,7 +421,7 @@ impl IpfsClient {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -447,7 +447,7 @@ impl IpfsClient {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate futures;
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
@@ -473,7 +473,7 @@ impl IpfsClient {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -505,7 +505,7 @@ impl IpfsClient {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -528,7 +528,7 @@ impl IpfsClient {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -551,7 +551,7 @@ impl IpfsClient {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -574,7 +574,7 @@ impl IpfsClient {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -597,7 +597,7 @@ impl IpfsClient {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -620,7 +620,7 @@ impl IpfsClient {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate futures;
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
@@ -644,7 +644,7 @@ impl IpfsClient {
 
     /// List available commands that the server accepts.
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -665,7 +665,7 @@ impl IpfsClient {
 
     /// Opens the config file for editing (on the server).
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -686,7 +686,7 @@ impl IpfsClient {
 
     /// Replace the config file.
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -718,7 +718,7 @@ impl IpfsClient {
     ///
     /// Returns an unparsed json string, due to an unclear spec.
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -739,7 +739,7 @@ impl IpfsClient {
 
     /// Returns information about a dag node in Ipfs.
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -777,7 +777,7 @@ impl IpfsClient {
 
     /// Query the DHT for all of the multiaddresses associated with a Peer ID.
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate futures;
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
@@ -801,7 +801,7 @@ impl IpfsClient {
 
     /// Find peers in the DHT that can provide a specific value given a key.
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate futures;
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
@@ -825,7 +825,7 @@ impl IpfsClient {
 
     /// Query the DHT for a given key.
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate futures;
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
@@ -849,7 +849,7 @@ impl IpfsClient {
 
     /// Announce to the network that you are providing a given value.
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate futures;
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
@@ -873,7 +873,7 @@ impl IpfsClient {
 
     /// Write a key/value pair to the DHT.
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate futures;
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
@@ -896,7 +896,7 @@ impl IpfsClient {
 
     /// Find the closest peer given the peer ID by querying the DHT.
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate futures;
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
@@ -920,7 +920,7 @@ impl IpfsClient {
 
     /// Clear inactive requests from the log.
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -941,7 +941,7 @@ impl IpfsClient {
 
     /// Set how long to keep inactive requests in the log.
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -969,7 +969,7 @@ impl IpfsClient {
     /// It might be platform dependent, but if it isn't, this can be fixed to return
     /// an actual object.
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -990,7 +990,7 @@ impl IpfsClient {
 
     /// Resolve DNS link.
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -1011,7 +1011,7 @@ impl IpfsClient {
 
     /// List directory for Unix filesystem objects.
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
@@ -1032,7 +1032,7 @@ impl IpfsClient {
 
     /// Copy files into MFS.
     ///
-    /// ```
+    /// ```no_run
     /// # extern crate ipfs_api;
     /// # extern crate tokio_core;
     /// #
