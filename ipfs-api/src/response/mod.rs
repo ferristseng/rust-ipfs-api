@@ -6,6 +6,8 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+//! This module contains structures returned by the IPFS API.
+
 pub use self::add::*;
 pub use self::bitswap::*;
 pub use self::block::*;
