@@ -53,14 +53,14 @@ impl<'a> ApiRequest for PubsubPub<'a> {
 
 
 #[derive(Serialize)]
-pub struct PubsubSub<'a, 'b> {
+pub struct PubsubSub<'a> {
     #[serde(rename = "arg")]
     pub topic: &'a str,
 
-    pub discover: &'b Option<bool>,
+    pub discover: bool,
 }
 
-impl<'a, 'b> ApiRequest for PubsubSub<'a, 'b> {
+impl<'a> ApiRequest for PubsubSub<'a> {
     #[inline]
     fn path() -> &'static str {
         "/pubsub/sub"

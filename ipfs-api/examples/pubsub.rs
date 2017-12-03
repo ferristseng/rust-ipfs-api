@@ -60,7 +60,7 @@ fn main() {
     {
         let mut event_loop = Core::new().expect("expected event loop");
         let client = get_client(&event_loop.handle());
-        let req = client.pubsub_sub(TOPIC, &None);
+        let req = client.pubsub_sub(TOPIC, false);
 
         println!("");
         println!("waiting for messages on ({})...", TOPIC);
