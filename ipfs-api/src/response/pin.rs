@@ -28,6 +28,7 @@ pub struct PinType {
 }
 
 
+
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct PinLsResponse {
@@ -47,4 +48,5 @@ pub struct PinRmResponse {
 #[cfg(test)]
 mod tests {
     deserialize_test!(v0_pin_ls_0, PinLsResponse);
+    deserialize_test!(v0_pin_add_0, PinAddResponse);
 }
