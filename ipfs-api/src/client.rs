@@ -1632,7 +1632,7 @@ impl IpfsClient {
         &self,
         key: &str,
         recursive: bool
-    ) -> AsyncResponse<response::PinLsResponse> {
+    ) -> AsyncResponse<response::PinAddResponse> {
         self.request(&request::PinAdd { key, recursive: Some(recursive), progress: false }, None)
     }
 
