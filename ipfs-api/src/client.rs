@@ -823,15 +823,35 @@ impl IpfsClient {
 
     /// Pins a new object.
     ///
-    /// Does not yet implement "progress" because reading it is kinda squirrelly.
+    /// The "recursive" option tells the server whether to 
+    /// pin just the top-level object, or all sub-objects 
+    /// it depends on.  For most cases you want it to be `true`.
     ///
+    /// Does not yet implement the "progress" agument because 
+    /// reading it is kinda squirrelly.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let req = client.pin_add("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ", true);
+    /// # }
+    /// ```
     #[inline]
     pub fn pin_add(
         &self,
         key: &str,
-        recursive: Option<bool>
+        recursive: bool
     ) -> AsyncResponse<response::PinAddResponse> {
-        self.request(&request::PinAdd { key, recursive, progress: false }, None)
+        self.request(&request::PinAdd { key, recursive: Some(recursive), progress: false }, None)
     }
 
     /// Returns a list of pinned objects in local storage.
