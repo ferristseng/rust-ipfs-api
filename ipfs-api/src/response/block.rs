@@ -10,7 +10,7 @@
 #[serde(rename_all = "PascalCase")]
 pub struct BlockPutResponse {
     pub key: String,
-    pub size: usize,
+    pub size: u64,
 }
 
 
@@ -26,7 +26,7 @@ pub struct BlockRmResponse {
 #[serde(rename_all = "PascalCase")]
 pub struct BlockStatResponse {
     pub key: String,
-    pub size: usize,
+    pub size: u64,
 }
 
 

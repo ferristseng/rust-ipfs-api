@@ -1712,7 +1712,7 @@ impl IpfsClient {
     pub fn ping(
         &self,
         peer: &str,
-        count: &Option<usize>,
+        count: &Option<i32>,
     ) -> AsyncStreamResponse<response::PingResponse> {
         self.request_stream_json(&request::Ping { peer, count }, None)
     }

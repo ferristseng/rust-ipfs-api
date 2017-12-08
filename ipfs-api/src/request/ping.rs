@@ -14,7 +14,7 @@ pub struct Ping<'a, 'b> {
     #[serde(rename = "arg")]
     pub peer: &'a str,
 
-    pub count: &'b Option<usize>,
+    pub count: &'b Option<i32>,
 }
 
 impl<'a, 'b> ApiRequest for Ping<'a, 'b> {

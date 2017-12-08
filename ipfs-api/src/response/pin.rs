@@ -16,7 +16,7 @@ pub struct PinAddResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
     pub pins: Vec<String>,
 
-    pub progress: Option<isize>,
+    pub progress: Option<i32>,
 }
 
 

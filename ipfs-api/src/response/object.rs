@@ -17,7 +17,7 @@ pub type ObjectDataResponse = Vec<u8>;
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectDiff {
     #[serde(rename = "Type")]
-    pub typ: isize,
+    pub typ: u64,
 
     pub path: String,
 
@@ -121,11 +121,11 @@ pub struct ObjectPutResponse {
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectStatResponse {
     pub hash: String,
-    pub num_links: isize,
-    pub block_size: isize,
-    pub links_size: isize,
-    pub data_size: isize,
-    pub cumulative_size: isize,
+    pub num_links: u64,
+    pub block_size: u64,
+    pub links_size: u64,
+    pub data_size: u64,
+    pub cumulative_size: u64,
 }
 
 
