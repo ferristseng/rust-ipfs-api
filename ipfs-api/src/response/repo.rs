@@ -36,11 +36,13 @@ pub struct RepoStatResponse {
 }
 
 
+// Defined in go-ipfs:master core/commands/repo.go
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct RepoVerifyResponse {
     pub message: String,
-    pub progress: isize,
+    // Could technically be an i64 but this is probably safest?
+    pub progress: i32,
 }
 
 

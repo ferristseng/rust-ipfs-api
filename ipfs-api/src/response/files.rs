@@ -20,9 +20,11 @@ pub type FilesFlushResponse = ();
 pub struct FilesEntry {
     pub name: String,
 
+    // This is a protocol buffer enum type defined in https://github.com/ipfs/go-ipfs/blob/master/unixfs/pb/unixfs.proto ...
+    // So it might be some other type than u64, but certainly shouldn't be *bigger* than u64.
     #[serde(rename = "Type")]
-    pub typ: isize,
-    pub size: i64,
+    pub typ: u64,
+    pub size: u64,
     pub hash: String,
 }
 
@@ -50,7 +52,7 @@ pub struct FilesStatResponse {
     pub hash: String,
     pub size: u64,
     pub cumulative_size: u64,
-    pub blocks: isize,
+    pub blocks: u64,
 
     #[serde(rename = "Type")]
     pub typ: String,
