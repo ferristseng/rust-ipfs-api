@@ -9,7 +9,7 @@
 use request::ApiRequest;
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Dns<'a> {
     #[serde(rename = "arg")]
     pub link: &'a str,

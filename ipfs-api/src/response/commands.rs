@@ -9,7 +9,7 @@
 use response::serde;
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "PascalCase")]
 pub struct CommandsResponseOptions {
     #[serde(deserialize_with = "serde::deserialize_vec")]
@@ -17,7 +17,7 @@ pub struct CommandsResponseOptions {
 }
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "PascalCase")]
 pub struct CommandsResponse {
     pub name: String,

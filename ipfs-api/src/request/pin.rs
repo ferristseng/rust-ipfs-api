@@ -9,7 +9,7 @@
 use request::ApiRequest;
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct PinAdd<'a> {
     #[serde(rename = "arg")]
     pub key: &'a str,
@@ -25,7 +25,7 @@ impl<'a> ApiRequest for PinAdd<'a> {
 }
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct PinLs<'a> {
     #[serde(rename = "arg")]
     pub key: &'a Option<&'a str>,
@@ -42,7 +42,7 @@ impl<'a> ApiRequest for PinLs<'a> {
 }
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct PinRm<'a> {
     #[serde(rename = "arg")]
     pub key: &'a str,

@@ -9,7 +9,7 @@
 use request::ApiRequest;
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct DagGet<'a> {
     #[serde(rename = "arg")]
     pub path: &'a str,
@@ -22,7 +22,7 @@ impl<'a> ApiRequest for DagGet<'a> {
     }
 }
 
-
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct DagPut;
 
 impl_skip_serialize!(DagPut);

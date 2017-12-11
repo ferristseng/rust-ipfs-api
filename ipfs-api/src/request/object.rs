@@ -9,7 +9,7 @@
 use request::ApiRequest;
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct ObjectDiff<'a> {
     #[serde(rename = "arg")]
     pub key0: &'a str,
@@ -26,7 +26,7 @@ impl<'a> ApiRequest for ObjectDiff<'a> {
 }
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct ObjectGet<'a> {
     #[serde(rename = "arg")]
     pub key: &'a str,
@@ -40,7 +40,7 @@ impl<'a> ApiRequest for ObjectGet<'a> {
 }
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct ObjectLinks<'a> {
     #[serde(rename = "arg")]
     pub key: &'a str,
@@ -54,7 +54,7 @@ impl<'a> ApiRequest for ObjectLinks<'a> {
 }
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct ObjectStat<'a> {
     #[serde(rename = "arg")]
     pub key: &'a str,

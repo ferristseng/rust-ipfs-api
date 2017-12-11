@@ -8,7 +8,7 @@
 
 use request::ApiRequest;
 
-
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct ConfigEdit;
 
 impl_skip_serialize!(ConfigEdit);
@@ -20,7 +20,7 @@ impl ApiRequest for ConfigEdit {
     }
 }
 
-
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct ConfigReplace;
 
 impl_skip_serialize!(ConfigReplace);
@@ -32,7 +32,7 @@ impl ApiRequest for ConfigReplace {
     }
 }
 
-
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct ConfigShow;
 
 impl_skip_serialize!(ConfigShow);

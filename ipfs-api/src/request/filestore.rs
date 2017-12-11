@@ -8,7 +8,7 @@
 
 use request::ApiRequest;
 
-
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct FilestoreDups;
 
 impl_skip_serialize!(FilestoreDups);
@@ -21,7 +21,7 @@ impl ApiRequest for FilestoreDups {
 }
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct FilestoreLs<'a> {
     #[serde(rename = "arg")]
     pub cid: &'a Option<&'a str>,
@@ -35,7 +35,7 @@ impl<'a> ApiRequest for FilestoreLs<'a> {
 }
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct FilestoreVerify<'a> {
     #[serde(rename = "arg")]
     pub cid: &'a Option<&'a str>,

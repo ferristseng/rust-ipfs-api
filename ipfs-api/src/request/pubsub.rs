@@ -8,7 +8,7 @@
 
 use request::ApiRequest;
 
-
+#[derive(Deserialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct PubsubLs;
 
 impl_skip_serialize!(PubsubLs);
@@ -21,7 +21,7 @@ impl ApiRequest for PubsubLs {
 }
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct PubsubPeers<'a> {
     #[serde(rename = "arg")]
     pub topic: &'a Option<&'a str>,
@@ -35,7 +35,7 @@ impl<'a> ApiRequest for PubsubPeers<'a> {
 }
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct PubsubPub<'a> {
     #[serde(rename = "arg")]
     pub topic: &'a str,
@@ -52,7 +52,7 @@ impl<'a> ApiRequest for PubsubPub<'a> {
 }
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct PubsubSub<'a> {
     #[serde(rename = "arg")]
     pub topic: &'a str,

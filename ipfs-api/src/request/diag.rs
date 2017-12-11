@@ -8,7 +8,7 @@
 
 use request::ApiRequest;
 
-
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct DiagCmdsClear;
 
 impl_skip_serialize!(DiagCmdsClear);
@@ -21,7 +21,7 @@ impl ApiRequest for DiagCmdsClear {
 }
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct DiagCmdsSetTime<'a> {
     #[serde(rename = "arg")]
     pub time: &'a str,
@@ -34,7 +34,7 @@ impl<'a> ApiRequest for DiagCmdsSetTime<'a> {
     }
 }
 
-
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct DiagSys;
 
 impl_skip_serialize!(DiagSys);

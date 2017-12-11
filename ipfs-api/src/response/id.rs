@@ -9,7 +9,7 @@
 use response::serde;
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "PascalCase")]
 pub struct IdResponse {
     #[serde(rename = "ID")]

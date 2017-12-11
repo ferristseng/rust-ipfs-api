@@ -11,7 +11,7 @@ use serde::ser::{Serialize, Serializer};
 use std::borrow::Cow;
 
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum LoggingLevel {
     Debug,
     Info,
@@ -37,7 +37,7 @@ impl Serialize for LoggingLevel {
     }
 }
 
-
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Logger<'a> {
     All,
     Specific(Cow<'a, str>),
@@ -58,7 +58,7 @@ impl<'a> Serialize for Logger<'a> {
 }
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct LogLevel<'a> {
     #[serde(rename = "arg")]
     pub logger: Logger<'a>,
@@ -75,6 +75,7 @@ impl<'a> ApiRequest for LogLevel<'a> {
 }
 
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct LogLs;
 
 impl_skip_serialize!(LogLs);
@@ -87,6 +88,7 @@ impl ApiRequest for LogLs {
 }
 
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct LogTail;
 
 impl_skip_serialize!(LogTail);

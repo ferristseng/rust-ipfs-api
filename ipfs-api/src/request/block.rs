@@ -9,7 +9,7 @@
 use request::ApiRequest;
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct BlockGet<'a> {
     #[serde(rename = "arg")]
     pub hash: &'a str,
@@ -22,7 +22,7 @@ impl<'a> ApiRequest for BlockGet<'a> {
     }
 }
 
-
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct BlockPut;
 
 impl_skip_serialize!(BlockPut);
@@ -35,7 +35,7 @@ impl ApiRequest for BlockPut {
 }
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct BlockRm<'a> {
     #[serde(rename = "arg")]
     pub hash: &'a str,
@@ -49,7 +49,7 @@ impl<'a> ApiRequest for BlockRm<'a> {
 }
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct BlockStat<'a> {
     #[serde(rename = "arg")]
     pub hash: &'a str,

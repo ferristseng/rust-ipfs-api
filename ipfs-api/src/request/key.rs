@@ -10,7 +10,7 @@ use request::ApiRequest;
 use serde::ser::{Serialize, Serializer};
 
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum KeyType {
     Rsa,
     Ed25519,
@@ -31,7 +31,7 @@ impl Serialize for KeyType {
 }
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct KeyGen<'a, 'b> {
     #[serde(rename = "arg")]
     pub name: &'a str,
@@ -49,7 +49,7 @@ impl<'a, 'b> ApiRequest for KeyGen<'a, 'b> {
     }
 }
 
-
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct KeyList;
 
 impl_skip_serialize!(KeyList);

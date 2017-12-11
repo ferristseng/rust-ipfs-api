@@ -10,7 +10,7 @@ use response::serde;
 use std::collections::HashMap;
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "PascalCase")]
 pub struct DagIpfsHeader {
     pub name: String,
@@ -21,7 +21,7 @@ pub struct DagIpfsHeader {
 }
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct DagGetResponse {
     pub data: Option<String>,
 
@@ -30,7 +30,7 @@ pub struct DagGetResponse {
 }
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "PascalCase")]
 pub struct DagPutResponse {
     pub cid: String,

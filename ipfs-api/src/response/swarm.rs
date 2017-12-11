@@ -9,7 +9,7 @@
 use response::serde;
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmAddrsLocalResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
@@ -17,7 +17,7 @@ pub struct SwarmAddrsLocalResponse {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmAddrsConnectResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
@@ -25,7 +25,7 @@ pub struct SwarmAddrsConnectResponse {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmAddrsDisconnectResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
@@ -33,7 +33,7 @@ pub struct SwarmAddrsDisconnectResponse {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmFiltersAddResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
@@ -41,7 +41,7 @@ pub struct SwarmFiltersAddResponse {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmFiltersRmResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
@@ -49,14 +49,14 @@ pub struct SwarmFiltersRmResponse {
 }
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmPeerStream {
     pub protocol: String,
 }
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmPeer {
     pub addr: String,
@@ -69,7 +69,7 @@ pub struct SwarmPeer {
 }
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmPeersResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]

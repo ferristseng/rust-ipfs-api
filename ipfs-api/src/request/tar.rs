@@ -8,7 +8,7 @@
 
 use request::ApiRequest;
 
-
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TarAdd;
 
 impl_skip_serialize!(TarAdd);
@@ -21,7 +21,7 @@ impl ApiRequest for TarAdd {
 }
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TarCat<'a> {
     #[serde(rename = "arg")]
     pub path: &'a str,

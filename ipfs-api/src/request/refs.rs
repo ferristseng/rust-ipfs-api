@@ -8,7 +8,7 @@
 
 use request::ApiRequest;
 
-
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct RefsLocal;
 
 impl_skip_serialize!(RefsLocal);

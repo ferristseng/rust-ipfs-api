@@ -15,7 +15,7 @@ pub type FilesCpResponse = ();
 pub type FilesFlushResponse = ();
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "PascalCase")]
 pub struct FilesEntry {
     pub name: String,
@@ -29,7 +29,7 @@ pub struct FilesEntry {
 }
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "PascalCase")]
 pub struct FilesLsResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
@@ -46,7 +46,7 @@ pub type FilesMvResponse = ();
 pub type FilesRmResponse = ();
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "PascalCase")]
 pub struct FilesStatResponse {
     pub hash: String,

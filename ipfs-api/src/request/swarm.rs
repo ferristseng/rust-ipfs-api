@@ -8,7 +8,7 @@
 
 use request::ApiRequest;
 
-
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct SwarmAddrsLocal;
 
 impl_skip_serialize!(SwarmAddrsLocal);
@@ -20,7 +20,7 @@ impl ApiRequest for SwarmAddrsLocal {
     }
 }
 
-
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct SwarmPeers;
 
 impl_skip_serialize!(SwarmPeers);

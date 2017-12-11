@@ -8,7 +8,7 @@
 
 use request::ApiRequest;
 
-
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct BootstrapAddDefault;
 
 impl_skip_serialize!(BootstrapAddDefault);
@@ -20,7 +20,7 @@ impl ApiRequest for BootstrapAddDefault {
     }
 }
 
-
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct BootstrapList;
 
 impl_skip_serialize!(BootstrapList);
@@ -32,7 +32,7 @@ impl ApiRequest for BootstrapList {
     }
 }
 
-
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct BootstrapRmAll;
 
 impl_skip_serialize!(BootstrapRmAll);

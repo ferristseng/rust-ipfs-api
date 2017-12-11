@@ -8,7 +8,7 @@
 
 use request::ApiRequest;
 
-
+#[derive(Deserialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct StatsBitswap;
 
 impl_skip_serialize!(StatsBitswap);
@@ -20,7 +20,7 @@ impl ApiRequest for StatsBitswap {
     }
 }
 
-
+#[derive(Deserialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct StatsBw;
 
 impl_skip_serialize!(StatsBw);
@@ -32,7 +32,7 @@ impl ApiRequest for StatsBw {
     }
 }
 
-
+#[derive(Deserialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct StatsRepo;
 
 impl_skip_serialize!(StatsRepo);

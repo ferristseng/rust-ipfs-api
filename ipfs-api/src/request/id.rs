@@ -9,7 +9,7 @@
 use request::ApiRequest;
 
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Id<'a> {
     #[serde(rename = "arg")]
     pub peer: &'a Option<&'a str>,

@@ -8,7 +8,7 @@
 
 use request::ApiRequest;
 
-
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Version;
 
 impl_skip_serialize!(Version);

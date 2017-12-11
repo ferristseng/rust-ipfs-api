@@ -9,7 +9,7 @@
 use response::serde;
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "PascalCase")]
 pub struct KeyGenResponse {
     pub name: String,
@@ -17,7 +17,7 @@ pub struct KeyGenResponse {
 }
 
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "PascalCase")]
 pub struct KeyListResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]

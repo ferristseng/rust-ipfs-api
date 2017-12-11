@@ -8,7 +8,7 @@
 
 use request::ApiRequest;
 
-
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Add;
 
 impl_skip_serialize!(Add);
