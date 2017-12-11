@@ -14,10 +14,7 @@ pub struct BootstrapAddDefault;
 impl_skip_serialize!(BootstrapAddDefault);
 
 impl ApiRequest for BootstrapAddDefault {
-    #[inline]
-    fn path() -> &'static str {
-        "/bootstrap/add/default"
-    }
+    const path: &'static str = "/bootstrap/add/default";
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -26,10 +23,7 @@ pub struct BootstrapList;
 impl_skip_serialize!(BootstrapList);
 
 impl ApiRequest for BootstrapList {
-    #[inline]
-    fn path() -> &'static str {
-        "/bootstrap/list"
-    }
+    const path: &'static str = "/bootstrap/list";
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -38,8 +32,5 @@ pub struct BootstrapRmAll;
 impl_skip_serialize!(BootstrapRmAll);
 
 impl ApiRequest for BootstrapRmAll {
-    #[inline]
-    fn path() -> &'static str {
-        "/bootstrap/rm/all"
-    }
+    const path: &'static str = "/bootstrap/rm/all";
 }

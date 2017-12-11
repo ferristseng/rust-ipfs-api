@@ -18,8 +18,5 @@ pub struct Dns<'a> {
 }
 
 impl<'a> ApiRequest for Dns<'a> {
-    #[inline]
-    fn path() -> &'static str {
-        "/dns"
-    }
+    const path: &'static str = "/dns";
 }

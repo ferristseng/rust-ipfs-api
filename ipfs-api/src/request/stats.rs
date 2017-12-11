@@ -14,10 +14,7 @@ pub struct StatsBitswap;
 impl_skip_serialize!(StatsBitswap);
 
 impl ApiRequest for StatsBitswap {
-    #[inline]
-    fn path() -> &'static str {
-        "/stats/bitswap"
-    }
+    const path: &'static str = "/stats/bitswap";
 }
 
 #[derive(Deserialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -26,10 +23,7 @@ pub struct StatsBw;
 impl_skip_serialize!(StatsBw);
 
 impl ApiRequest for StatsBw {
-    #[inline]
-    fn path() -> &'static str {
-        "/stats/bw"
-    }
+    const path: &'static str = "/stats/bw";
 }
 
 #[derive(Deserialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -38,8 +32,5 @@ pub struct StatsRepo;
 impl_skip_serialize!(StatsRepo);
 
 impl ApiRequest for StatsRepo {
-    #[inline]
-    fn path() -> &'static str {
-        "/stats/repo"
-    }
+    const path: &'static str = "/stats/repo";
 }

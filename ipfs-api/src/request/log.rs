@@ -68,10 +68,7 @@ pub struct LogLevel<'a> {
 }
 
 impl<'a> ApiRequest for LogLevel<'a> {
-    #[inline]
-    fn path() -> &'static str {
-        "/log/level"
-    }
+    const path: &'static str = "/log/level";
 }
 
 
@@ -81,10 +78,7 @@ pub struct LogLs;
 impl_skip_serialize!(LogLs);
 
 impl ApiRequest for LogLs {
-    #[inline]
-    fn path() -> &'static str {
-        "/log/ls"
-    }
+    const path: &'static str = "/log/ls";
 }
 
 
@@ -94,8 +88,5 @@ pub struct LogTail;
 impl_skip_serialize!(LogTail);
 
 impl ApiRequest for LogTail {
-    #[inline]
-    fn path() -> &'static str {
-        "/log/tail"
-    }
+    const path: &'static str = "/log/tail";
 }

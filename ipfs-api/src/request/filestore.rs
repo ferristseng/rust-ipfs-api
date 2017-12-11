@@ -14,10 +14,7 @@ pub struct FilestoreDups;
 impl_skip_serialize!(FilestoreDups);
 
 impl ApiRequest for FilestoreDups {
-    #[inline]
-    fn path() -> &'static str {
-        "/filestore/dups"
-    }
+    const path: &'static str = "/filestore/dups";
 }
 
 
@@ -28,10 +25,7 @@ pub struct FilestoreLs<'a> {
 }
 
 impl<'a> ApiRequest for FilestoreLs<'a> {
-    #[inline]
-    fn path() -> &'static str {
-        "/filestore/ls"
-    }
+    const path: &'static str = "/filestore/ls";
 }
 
 
@@ -42,8 +36,5 @@ pub struct FilestoreVerify<'a> {
 }
 
 impl<'a> ApiRequest for FilestoreVerify<'a> {
-    #[inline]
-    fn path() -> &'static str {
-        "/filestore/verify"
-    }
+    const path: &'static str = "/filestore/verify";
 }
