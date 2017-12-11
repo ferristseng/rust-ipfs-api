@@ -82,7 +82,7 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         ("flush", Some(args)) => {
             let path = args.value_of("PATH");
 
-            core.run(client.files_flush(&path)).expect(EXPECTED_API);
+            core.run(client.files_flush(path)).expect(EXPECTED_API);
 
             println!("");
             println!("  OK");
@@ -90,7 +90,7 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         }
         ("ls", Some(args)) => {
             let path = args.value_of("PATH");
-            let ls = core.run(client.files_ls(&path)).expect(EXPECTED_API);
+            let ls = core.run(client.files_ls(path)).expect(EXPECTED_API);
 
             println!("");
             println!("  entries                :");
@@ -106,7 +106,7 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         ("mkdir", Some(args)) => {
             let path = args.value_of("PATH").unwrap();
 
-            core.run(client.files_mkdir(&path, args.is_present("parents")))
+            core.run(client.files_mkdir(path, args.is_present("parents")))
                 .expect(EXPECTED_API);
 
             println!("");
@@ -125,7 +125,7 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         }
         ("read", Some(args)) => {
             let path = args.value_of("PATH").unwrap();
-            let req = client.files_read(&path).for_each(|chunk| {
+            let req = client.files_read(path).for_each(|chunk| {
                 io::stdout().write_all(&chunk).map_err(From::from)
             });
 
@@ -133,7 +133,7 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         }
         ("rm", Some(args)) => {
             let path = args.value_of("PATH").unwrap();
-            let req = client.files_rm(&path, args.is_present("recursive"));
+            let req = client.files_rm(path, args.is_present("recursive"));
 
             core.run(req).expect(EXPECTED_API);
 
@@ -143,7 +143,7 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         }
         ("stat", Some(args)) => {
             let path = args.value_of("PATH").unwrap();
-            let stat = core.run(client.files_stat(&path)).expect(EXPECTED_API);
+            let stat = core.run(client.files_stat(path)).expect(EXPECTED_API);
 
             println!("");
             println!("  hash                   : {}", stat.hash);
