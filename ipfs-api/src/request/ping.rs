@@ -17,5 +17,5 @@ pub struct Ping<'a, 'b> {
 }
 
 impl<'a, 'b> ApiRequest for Ping<'a, 'b> {
-    const path: &'static str = "/ping";
+    const PATH: &'static str = "/ping";
 }

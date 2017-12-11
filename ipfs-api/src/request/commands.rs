@@ -14,5 +14,5 @@ pub struct Commands;
 impl_skip_serialize!(Commands);
 
 impl ApiRequest for Commands {
-    const path: &'static str = "/commands";
+    const PATH: &'static str = "/commands";
 }

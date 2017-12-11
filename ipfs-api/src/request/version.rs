@@ -14,5 +14,5 @@ pub struct Version;
 impl_skip_serialize!(Version);
 
 impl ApiRequest for Version {
-    const path: &'static str = "/version";
+    const PATH: &'static str = "/version";
 }

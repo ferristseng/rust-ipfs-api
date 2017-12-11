@@ -14,7 +14,7 @@ pub struct TarAdd;
 impl_skip_serialize!(TarAdd);
 
 impl ApiRequest for TarAdd {
-    const path: &'static str = "/tar/add";
+    const PATH: &'static str = "/tar/add";
 }
 
 
@@ -25,5 +25,5 @@ pub struct TarCat<'a> {
 }
 
 impl<'a> ApiRequest for TarCat<'a> {
-    const path: &'static str = "/tar/cat";
+    const PATH: &'static str = "/tar/cat";
 }

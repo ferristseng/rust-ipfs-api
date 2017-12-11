@@ -18,7 +18,7 @@ pub struct PinAdd<'a> {
 }
 
 impl<'a> ApiRequest for PinAdd<'a> {
-    const path: &'static str = "/pin/add";
+    const PATH: &'static str = "/pin/add";
 }
 
 
@@ -32,7 +32,7 @@ pub struct PinLs<'a> {
 }
 
 impl<'a> ApiRequest for PinLs<'a> {
-    const path: &'static str = "/pin/ls";
+    const PATH: &'static str = "/pin/ls";
 }
 
 
@@ -45,5 +45,5 @@ pub struct PinRm<'a> {
 }
 
 impl<'a> ApiRequest for PinRm<'a> {
-    const path: &'static str = "/pin/rm";
+    const PATH: &'static str = "/pin/rm";
 }

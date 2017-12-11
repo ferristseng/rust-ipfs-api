@@ -14,7 +14,7 @@ pub struct ConfigEdit;
 impl_skip_serialize!(ConfigEdit);
 
 impl ApiRequest for ConfigEdit {
-    const path: &'static str = "/config/edit";
+    const PATH: &'static str = "/config/edit";
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -23,7 +23,7 @@ pub struct ConfigReplace;
 impl_skip_serialize!(ConfigReplace);
 
 impl ApiRequest for ConfigReplace {
-    const path: &'static str = "/config/replace";
+    const PATH: &'static str = "/config/replace";
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -32,5 +32,5 @@ pub struct ConfigShow;
 impl_skip_serialize!(ConfigShow);
 
 impl ApiRequest for ConfigShow {
-    const path: &'static str = "/config/show";
+    const PATH: &'static str = "/config/show";
 }

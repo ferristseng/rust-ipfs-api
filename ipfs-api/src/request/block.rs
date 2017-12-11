@@ -16,7 +16,7 @@ pub struct BlockGet<'a> {
 }
 
 impl<'a> ApiRequest for BlockGet<'a> {
-    const path: &'static str = "/block/get";
+    const PATH: &'static str = "/block/get";
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -25,7 +25,7 @@ pub struct BlockPut;
 impl_skip_serialize!(BlockPut);
 
 impl ApiRequest for BlockPut {
-    const path: &'static str = "/block/put";
+    const PATH: &'static str = "/block/put";
 }
 
 
@@ -36,7 +36,7 @@ pub struct BlockRm<'a> {
 }
 
 impl<'a> ApiRequest for BlockRm<'a> {
-    const path: &'static str = "/block/rm";
+    const PATH: &'static str = "/block/rm";
 }
 
 
@@ -47,5 +47,5 @@ pub struct BlockStat<'a> {
 }
 
 impl<'a> ApiRequest for BlockStat<'a> {
-    const path: &'static str = "/block/stat";
+    const PATH: &'static str = "/block/stat";
 }

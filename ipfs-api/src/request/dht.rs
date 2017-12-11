@@ -16,7 +16,7 @@ pub struct DhtFindPeer<'a> {
 }
 
 impl<'a> ApiRequest for DhtFindPeer<'a> {
-    const path: &'static str = "/dht/findpeer";
+    const PATH: &'static str = "/dht/findpeer";
 }
 
 
@@ -27,7 +27,7 @@ pub struct DhtFindProvs<'a> {
 }
 
 impl<'a> ApiRequest for DhtFindProvs<'a> {
-    const path: &'static str = "/dht/findprovs";
+    const PATH: &'static str = "/dht/findprovs";
 }
 
 
@@ -38,7 +38,7 @@ pub struct DhtGet<'a> {
 }
 
 impl<'a> ApiRequest for DhtGet<'a> {
-    const path: &'static str = "/dht/get";
+    const PATH: &'static str = "/dht/get";
 }
 
 
@@ -49,7 +49,7 @@ pub struct DhtProvide<'a> {
 }
 
 impl<'a> ApiRequest for DhtProvide<'a> {
-    const path: &'static str = "/dht/provide";
+    const PATH: &'static str = "/dht/provide";
 }
 
 
@@ -63,7 +63,7 @@ pub struct DhtPut<'a> {
 }
 
 impl<'a> ApiRequest for DhtPut<'a> {
-    const path: &'static str = "/dht/put";
+    const PATH: &'static str = "/dht/put";
 }
 
 
@@ -74,5 +74,5 @@ pub struct DhtQuery<'a> {
 }
 
 impl<'a> ApiRequest for DhtQuery<'a> {
-    const path: &'static str = "/dht/query";
+    const PATH: &'static str = "/dht/query";
 }

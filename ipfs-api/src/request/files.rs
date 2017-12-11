@@ -19,7 +19,7 @@ pub struct FilesCp<'a> {
 }
 
 impl<'a> ApiRequest for FilesCp<'a> {
-    const path: &'static str = "/files/cp";
+    const PATH: &'static str = "/files/cp";
 }
 
 
@@ -30,7 +30,7 @@ pub struct FilesFlush<'a> {
 }
 
 impl<'a> ApiRequest for FilesFlush<'a> {
-    const path: &'static str = "/files/flush";
+    const PATH: &'static str = "/files/flush";
 }
 
 
@@ -41,7 +41,7 @@ pub struct FilesLs<'a> {
 }
 
 impl<'a> ApiRequest for FilesLs<'a> {
-    const path: &'static str = "/files/ls";
+    const PATH: &'static str = "/files/ls";
 }
 
 
@@ -54,7 +54,7 @@ pub struct FilesMkdir<'a> {
 }
 
 impl<'a> ApiRequest for FilesMkdir<'a> {
-    const path: &'static str = "/files/mkdir";
+    const PATH: &'static str = "/files/mkdir";
 }
 
 
@@ -68,7 +68,7 @@ pub struct FilesMv<'a> {
 }
 
 impl<'a> ApiRequest for FilesMv<'a> {
-    const path: &'static str = "/files/mv";
+    const PATH: &'static str = "/files/mv";
 }
 
 
@@ -79,7 +79,7 @@ pub struct FilesRead<'a> {
 }
 
 impl<'a> ApiRequest for FilesRead<'a> {
-    const path: &'static str = "/files/read";
+    const PATH: &'static str = "/files/read";
 }
 
 
@@ -92,7 +92,7 @@ pub struct FilesRm<'a> {
 }
 
 impl<'a> ApiRequest for FilesRm<'a> {
-    const path: &'static str = "/files/rm";
+    const PATH: &'static str = "/files/rm";
 }
 
 
@@ -103,7 +103,7 @@ pub struct FilesStat<'a> {
 }
 
 impl<'a> ApiRequest for FilesStat<'a> {
-    const path: &'static str = "/files/stat";
+    const PATH: &'static str = "/files/stat";
 }
 
 
@@ -118,5 +118,5 @@ pub struct FilesWrite<'a> {
 }
 
 impl<'a> ApiRequest for FilesWrite<'a> {
-    const path: &'static str = "/files/write";
+    const PATH: &'static str = "/files/write";
 }

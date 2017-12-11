@@ -16,7 +16,7 @@ pub struct DagGet<'a> {
 }
 
 impl<'a> ApiRequest for DagGet<'a> {
-    const path: &'static str = "/dag/get";
+    const PATH: &'static str = "/dag/get";
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -25,5 +25,5 @@ pub struct DagPut;
 impl_skip_serialize!(DagPut);
 
 impl ApiRequest for DagPut {
-    const path: &'static str = "/dag/put";
+    const PATH: &'static str = "/dag/put";
 }

@@ -14,7 +14,7 @@ pub struct SwarmAddrsLocal;
 impl_skip_serialize!(SwarmAddrsLocal);
 
 impl ApiRequest for SwarmAddrsLocal {
-    const path: &'static str = "/swarm/addrs/local";
+    const PATH: &'static str = "/swarm/addrs/local";
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -23,5 +23,5 @@ pub struct SwarmPeers;
 impl_skip_serialize!(SwarmPeers);
 
 impl ApiRequest for SwarmPeers {
-        const path: &'static str = "/swarm/peers";
+        const PATH: &'static str = "/swarm/peers";
 }

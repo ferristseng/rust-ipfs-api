@@ -16,5 +16,5 @@ pub struct FileLs<'a> {
 }
 
 impl<'a> ApiRequest for FileLs<'a> {
-    const path: &'static str = "/file/ls";
+    const PATH: &'static str = "/file/ls";
 }

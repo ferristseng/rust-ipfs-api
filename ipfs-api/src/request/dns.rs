@@ -18,5 +18,5 @@ pub struct Dns<'a> {
 }
 
 impl<'a> ApiRequest for Dns<'a> {
-    const path: &'static str = "/dns";
+    const PATH: &'static str = "/dns";
 }
