@@ -5,7 +5,7 @@ authors                   = ["Ferris Tseng <ferristseng@fastmail.fm>"]
 documentation             = "https://docs.rs/ipfs-api"
 keywords                  = ["ipfs"]
 categories                = ["filesystem", "web-programming"]
-version                   = "0.4.0-alpha"
+version                   = "0.4.0"
 readme                    = "../README.md"
 license                   = "MIT OR Apache-2.0"
 

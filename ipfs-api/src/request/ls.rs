@@ -12,7 +12,7 @@ use request::ApiRequest;
 #[derive(Serialize)]
 pub struct Ls<'a> {
     #[serde(rename = "arg")]
-    pub path: &'a Option<&'a str>,
+    pub path: Option<&'a str>,
 }
 
 impl<'a> ApiRequest for Ls<'a> {
@@ -27,6 +27,6 @@ impl<'a> ApiRequest for Ls<'a> {
 mod tests {
     use super::Ls;
 
-    serialize_url_test!(test_serializes_0, Ls { path: &Some("test") }, "arg=test");
-    serialize_url_test!(test_serializes_1, Ls { path: &None }, "");
+    serialize_url_test!(test_serializes_0, Ls { path: Some("test") }, "arg=test");
+    serialize_url_test!(test_serializes_1, Ls { path: None }, "");
 }

@@ -28,10 +28,10 @@ impl<'a> ApiRequest for PinAdd<'a> {
 #[derive(Serialize)]
 pub struct PinLs<'a> {
     #[serde(rename = "arg")]
-    pub key: &'a Option<&'a str>,
+    pub key: Option<&'a str>,
 
     #[serde(rename = "type")]
-    pub typ: &'a Option<&'a str>,
+    pub typ: Option<&'a str>,
 }
 
 impl<'a> ApiRequest for PinLs<'a> {

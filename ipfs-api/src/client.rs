@@ -1063,13 +1063,13 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    /// let req = client.files_flush(&None);
-    /// let req = client.files_flush(&Some("/tmp"));
+    /// let req = client.files_flush(None);
+    /// let req = client.files_flush(Some("/tmp"));
     /// # }
     /// ```
     ///
     #[inline]
-    pub fn files_flush(&self, path: &Option<&str>) -> AsyncResponse<response::FilesFlushResponse> {
+    pub fn files_flush(&self, path: Option<&str>) -> AsyncResponse<response::FilesFlushResponse> {
         self.request_empty(&request::FilesFlush { path }, None)
     }
 
@@ -1085,13 +1085,13 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    /// let req = client.files_ls(&None);
-    /// let req = client.files_ls(&Some("/tmp"));
+    /// let req = client.files_ls(None);
+    /// let req = client.files_ls(Some("/tmp"));
     /// # }
     /// ```
     ///
     #[inline]
-    pub fn files_ls(&self, path: &Option<&str>) -> AsyncResponse<response::FilesLsResponse> {
+    pub fn files_ls(&self, path: Option<&str>) -> AsyncResponse<response::FilesLsResponse> {
         self.request(&request::FilesLs { path }, None)
     }
 
@@ -1286,14 +1286,14 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    /// let req = client.filestore_ls(&Some("QmYPP3BovR2m8UqCZxFbdXSit6SKgExxDkFAPLqiGsap4X"));
+    /// let req = client.filestore_ls(Some("QmYPP3BovR2m8UqCZxFbdXSit6SKgExxDkFAPLqiGsap4X"));
     /// # }
     /// ```
     ///
     #[inline]
     pub fn filestore_ls(
         &self,
-        cid: &Option<&str>,
+        cid: Option<&str>,
     ) -> AsyncStreamResponse<response::FilestoreLsResponse> {
         self.request_stream_json(&request::FilestoreLs { cid }, None)
     }
@@ -1310,14 +1310,14 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    /// let req = client.filestore_verify(&None);
+    /// let req = client.filestore_verify(None);
     /// # }
     /// ```
     ///
     #[inline]
     pub fn filestore_verify(
         &self,
-        cid: &Option<&str>,
+        cid: Option<&str>,
     ) -> AsyncStreamResponse<response::FilestoreVerifyResponse> {
         self.request_stream_json(&request::FilestoreVerify { cid }, None)
     }
@@ -1357,13 +1357,13 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    /// let req = client.id(&None);
-    /// let req = client.id(&Some("QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM"));
+    /// let req = client.id(None);
+    /// let req = client.id(Some("QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM"));
     /// # }
     /// ```
     ///
     #[inline]
-    pub fn id(&self, peer: &Option<&str>) -> AsyncResponse<response::IdResponse> {
+    pub fn id(&self, peer: Option<&str>) -> AsyncResponse<response::IdResponse> {
         self.request(&request::Id { peer }, None)
     }
 
@@ -1379,7 +1379,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    /// let req = client.key_gen("test", KeyType::Rsa, &Some(64));
+    /// let req = client.key_gen("test", KeyType::Rsa, Some(64));
     /// # }
     /// ```
     ///
@@ -1388,7 +1388,7 @@ impl IpfsClient {
         &self,
         name: &str,
         kind: request::KeyType,
-        size: &Option<i32>,
+        size: Option<i32>,
     ) -> AsyncResponse<response::KeyGenResponse> {
         self.request(&request::KeyGen { name, kind, size }, None)
     }
@@ -1503,13 +1503,13 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    /// let req = client.ls(&None);
-    /// let req = client.ls(&Some("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY"));
+    /// let req = client.ls(None);
+    /// let req = client.ls(Some("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY"));
     /// # }
     /// ```
     ///
     #[inline]
-    pub fn ls(&self, path: &Option<&str>) -> AsyncResponse<response::LsResponse> {
+    pub fn ls(&self, path: Option<&str>) -> AsyncResponse<response::LsResponse> {
         self.request(&request::Ls { path }, None)
     }
 
@@ -1648,19 +1648,19 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    /// let req = client.pin_ls(&None, &None);
+    /// let req = client.pin_ls(None, None);
     /// let req = client.pin_ls(
-    ///     &Some("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY"),
-    ///     &None);
-    /// let req = client.pin_ls(&None, &Some("direct"));
+    ///     Some("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY"),
+    ///     None);
+    /// let req = client.pin_ls(None, Some("direct"));
     /// # }
     /// ```
     ///
     #[inline]
     pub fn pin_ls(
         &self,
-        key: &Option<&str>,
-        typ: &Option<&str>,
+        key: Option<&str>,
+        typ: Option<&str>,
     ) -> AsyncResponse<response::PinLsResponse> {
         self.request(&request::PinLs { key, typ }, None)
     }
@@ -1703,8 +1703,8 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    /// let req = client.ping("QmSoLV4Bbm51jM9C4gDYZQ9Cy3U6aXMJDAbzgu2fzaDs64", &None);
-    /// let req = client.ping("QmSoLV4Bbm51jM9C4gDYZQ9Cy3U6aXMJDAbzgu2fzaDs64", &Some(15));
+    /// let req = client.ping("QmSoLV4Bbm51jM9C4gDYZQ9Cy3U6aXMJDAbzgu2fzaDs64", None);
+    /// let req = client.ping("QmSoLV4Bbm51jM9C4gDYZQ9Cy3U6aXMJDAbzgu2fzaDs64", Some(15));
     /// # }
     /// ```
     ///
@@ -1712,7 +1712,7 @@ impl IpfsClient {
     pub fn ping(
         &self,
         peer: &str,
-        count: &Option<i32>,
+        count: Option<i32>,
     ) -> AsyncStreamResponse<response::PingResponse> {
         self.request_stream_json(&request::Ping { peer, count }, None)
     }
@@ -1750,15 +1750,15 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    /// let req = client.pubsub_peers(&None);
-    /// let req = client.pubsub_peers(&Some("feed"));
+    /// let req = client.pubsub_peers(None);
+    /// let req = client.pubsub_peers(Some("feed"));
     /// # }
     /// ```
     ///
     #[inline]
     pub fn pubsub_peers(
         &self,
-        topic: &Option<&str>,
+        topic: Option<&str>,
     ) -> AsyncResponse<response::PubsubPeersResponse> {
         self.request(&request::PubsubPeers { topic }, None)
     }

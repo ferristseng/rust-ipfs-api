@@ -37,7 +37,7 @@ fn main() {
     println!("discovered peer ({})", peer.peer);
     println!("");
     println!("streaming 10 pings...");
-    let req = client.ping(&peer.peer[..], &Some(10));
+    let req = client.ping(&peer.peer[..], Some(10));
 
     core.run(req.for_each(|ping| {
         println!("{:?}", ping);
@@ -47,7 +47,7 @@ fn main() {
     println!("");
     println!("gathering 15 pings...");
 
-    let req = client.ping(&peer.peer[..], &Some(15));
+    let req = client.ping(&peer.peer[..], Some(15));
     let pings: Vec<_> = core.run(req.collect()).expect("expected a valid response");
 
     for ping in pings.iter() {

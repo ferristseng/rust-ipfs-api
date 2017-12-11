@@ -24,7 +24,7 @@ impl ApiRequest for PubsubLs {
 #[derive(Serialize)]
 pub struct PubsubPeers<'a> {
     #[serde(rename = "arg")]
-    pub topic: &'a Option<&'a str>,
+    pub topic: Option<&'a str>,
 }
 
 impl<'a> ApiRequest for PubsubPeers<'a> {
