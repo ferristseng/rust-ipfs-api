@@ -9,14 +9,14 @@
 use response::serde;
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct LogLevelResponse {
     pub message: String,
 }
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct LogLsResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]

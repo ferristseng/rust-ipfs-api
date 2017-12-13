@@ -8,7 +8,7 @@
 
 use request::ApiRequest;
 
-#[derive(Deserialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+
 pub struct StatsBitswap;
 
 impl_skip_serialize!(StatsBitswap);
@@ -17,7 +17,7 @@ impl ApiRequest for StatsBitswap {
     const PATH: &'static str = "/stats/bitswap";
 }
 
-#[derive(Deserialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+
 pub struct StatsBw;
 
 impl_skip_serialize!(StatsBw);
@@ -26,7 +26,7 @@ impl ApiRequest for StatsBw {
     const PATH: &'static str = "/stats/bw";
 }
 
-#[derive(Deserialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+
 pub struct StatsRepo;
 
 impl_skip_serialize!(StatsRepo);

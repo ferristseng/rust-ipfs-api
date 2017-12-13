@@ -8,7 +8,7 @@
 
 use request::ApiRequest;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+
 pub struct BootstrapAddDefault;
 
 impl_skip_serialize!(BootstrapAddDefault);
@@ -17,7 +17,7 @@ impl ApiRequest for BootstrapAddDefault {
     const PATH: &'static str = "/bootstrap/add/default";
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+
 pub struct BootstrapList;
 
 impl_skip_serialize!(BootstrapList);
@@ -26,7 +26,7 @@ impl ApiRequest for BootstrapList {
     const PATH: &'static str = "/bootstrap/list";
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+
 pub struct BootstrapRmAll;
 
 impl_skip_serialize!(BootstrapRmAll);

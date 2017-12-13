@@ -9,7 +9,7 @@
 use request::ApiRequest;
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct FilesCp<'a> {
     #[serde(rename = "arg")]
     pub path: &'a str,
@@ -23,7 +23,7 @@ impl<'a> ApiRequest for FilesCp<'a> {
 }
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct FilesFlush<'a> {
     #[serde(rename = "arg")]
     pub path: &'a Option<&'a str>,
@@ -34,7 +34,7 @@ impl<'a> ApiRequest for FilesFlush<'a> {
 }
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct FilesLs<'a> {
     #[serde(rename = "arg")]
     pub path: &'a Option<&'a str>,
@@ -45,7 +45,7 @@ impl<'a> ApiRequest for FilesLs<'a> {
 }
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct FilesMkdir<'a> {
     #[serde(rename = "arg")]
     pub path: &'a str,
@@ -58,7 +58,7 @@ impl<'a> ApiRequest for FilesMkdir<'a> {
 }
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct FilesMv<'a> {
     #[serde(rename = "arg")]
     pub path: &'a str,
@@ -72,7 +72,7 @@ impl<'a> ApiRequest for FilesMv<'a> {
 }
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct FilesRead<'a> {
     #[serde(rename = "arg")]
     pub path: &'a str,
@@ -83,7 +83,7 @@ impl<'a> ApiRequest for FilesRead<'a> {
 }
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct FilesRm<'a> {
     #[serde(rename = "arg")]
     pub path: &'a str,
@@ -96,7 +96,7 @@ impl<'a> ApiRequest for FilesRm<'a> {
 }
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct FilesStat<'a> {
     #[serde(rename = "arg")]
     pub path: &'a str,
@@ -107,7 +107,7 @@ impl<'a> ApiRequest for FilesStat<'a> {
 }
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct FilesWrite<'a> {
     #[serde(rename = "arg")]
     pub path: &'a str,

@@ -9,7 +9,7 @@
 use request::ApiRequest;
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct Ls<'a> {
     #[serde(rename = "arg")]
     pub path: &'a Option<&'a str>,

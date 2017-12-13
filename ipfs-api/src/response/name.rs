@@ -6,7 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct NamePublishResponse {
     pub name: String,
@@ -14,7 +14,7 @@ pub struct NamePublishResponse {
 }
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct NameResolveResponse {
     pub path: String,

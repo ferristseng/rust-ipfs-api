@@ -13,7 +13,7 @@ use std::collections::HashMap;
 pub type ObjectDataResponse = Vec<u8>;
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectDiff {
     #[serde(rename = "Type")]
@@ -29,7 +29,7 @@ pub struct ObjectDiff {
 }
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectDiffResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
@@ -37,7 +37,7 @@ pub struct ObjectDiffResponse {
 }
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectGetResponse {
     pub data: String,
@@ -47,7 +47,7 @@ pub struct ObjectGetResponse {
 }
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectLinksResponse {
     pub hash: String,
@@ -57,7 +57,7 @@ pub struct ObjectLinksResponse {
 }
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectNewResponse {
     pub hash: String,
@@ -67,7 +67,7 @@ pub struct ObjectNewResponse {
 }
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectPatchAddLinkResponse {
     pub hash: String,
@@ -77,7 +77,7 @@ pub struct ObjectPatchAddLinkResponse {
 }
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectPatchAppendDataResponse {
     pub hash: String,
@@ -87,7 +87,7 @@ pub struct ObjectPatchAppendDataResponse {
 }
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectPatchRmLinkResponse {
     pub hash: String,
@@ -97,7 +97,7 @@ pub struct ObjectPatchRmLinkResponse {
 }
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectPatchSetDataResponse {
     pub hash: String,
@@ -107,7 +107,7 @@ pub struct ObjectPatchSetDataResponse {
 }
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectPutResponse {
     pub hash: String,
@@ -117,7 +117,7 @@ pub struct ObjectPutResponse {
 }
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectStatResponse {
     pub hash: String,

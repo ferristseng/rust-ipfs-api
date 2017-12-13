@@ -9,7 +9,7 @@
 use response::serde;
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct PubsubLsResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
@@ -17,17 +17,18 @@ pub struct PubsubLsResponse {
 }
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct PubsubPeersResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
     pub strings: Vec<String>,
 }
 
+
 pub type PubsubPubResponse = ();
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Deserialize)]
 pub struct PubsubSubResponse {
     pub from: Option<String>,
     pub data: Option<String>,

@@ -9,7 +9,7 @@
 use response::serde;
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct IpfsFile {
     pub hash: String,
@@ -19,7 +19,7 @@ pub struct IpfsFile {
 }
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct IpfsFileHeader {
     pub name: String,
@@ -31,7 +31,7 @@ pub struct IpfsFileHeader {
 }
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct LsResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]

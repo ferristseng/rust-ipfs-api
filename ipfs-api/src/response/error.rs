@@ -12,7 +12,7 @@ use serde_urlencoded;
 use std::string::FromUtf8Error;
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ApiError {
     pub message: String,

@@ -6,7 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ResolveResponse {
     pub path: String,

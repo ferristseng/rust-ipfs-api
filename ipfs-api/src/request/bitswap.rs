@@ -9,7 +9,7 @@
 use request::ApiRequest;
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct BitswapLedger<'a> {
     #[serde(rename = "arg")]
     pub peer: &'a str,
@@ -19,7 +19,7 @@ impl<'a> ApiRequest for BitswapLedger<'a> {
     const PATH: &'static str = "/bitswap/ledger";
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+
 pub struct BitswapStat;
 
 impl_skip_serialize!(BitswapStat);
@@ -29,7 +29,7 @@ impl ApiRequest for BitswapStat {
 }
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct BitswapUnwant<'a> {
     #[serde(rename = "arg")]
     pub key: &'a str,
@@ -40,7 +40,7 @@ impl<'a> ApiRequest for BitswapUnwant<'a> {
 }
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct BitswapWantlist<'a> {
     pub peer: Option<&'a str>,
 }

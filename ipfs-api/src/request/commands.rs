@@ -8,7 +8,7 @@
 
 use request::ApiRequest;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+
 pub struct Commands;
 
 impl_skip_serialize!(Commands);

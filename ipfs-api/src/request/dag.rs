@@ -9,7 +9,7 @@
 use request::ApiRequest;
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct DagGet<'a> {
     #[serde(rename = "arg")]
     pub path: &'a str,
@@ -19,7 +19,7 @@ impl<'a> ApiRequest for DagGet<'a> {
     const PATH: &'static str = "/dag/get";
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+
 pub struct DagPut;
 
 impl_skip_serialize!(DagPut);

@@ -6,7 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BlockPutResponse {
     pub key: String,
@@ -14,7 +14,7 @@ pub struct BlockPutResponse {
 }
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BlockRmResponse {
     pub hash: String,
@@ -22,7 +22,7 @@ pub struct BlockRmResponse {
 }
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BlockStatResponse {
     pub key: String,

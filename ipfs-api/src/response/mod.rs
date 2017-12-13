@@ -92,7 +92,8 @@ mod swarm;
 mod tar;
 mod version;
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct IpfsHeader {
     pub name: String,

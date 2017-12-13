@@ -6,7 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct FilestoreDupsResponse {
     #[serde(rename = "Ref")]
@@ -16,7 +16,7 @@ pub struct FilestoreDupsResponse {
 }
 
 
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct FilestoreObject {
     pub status: i32,

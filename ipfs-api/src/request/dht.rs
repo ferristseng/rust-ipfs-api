@@ -9,7 +9,7 @@
 use request::ApiRequest;
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct DhtFindPeer<'a> {
     #[serde(rename = "arg")]
     pub peer: &'a str,
@@ -20,7 +20,7 @@ impl<'a> ApiRequest for DhtFindPeer<'a> {
 }
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct DhtFindProvs<'a> {
     #[serde(rename = "arg")]
     pub key: &'a str,
@@ -31,7 +31,7 @@ impl<'a> ApiRequest for DhtFindProvs<'a> {
 }
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct DhtGet<'a> {
     #[serde(rename = "arg")]
     pub key: &'a str,
@@ -42,7 +42,7 @@ impl<'a> ApiRequest for DhtGet<'a> {
 }
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct DhtProvide<'a> {
     #[serde(rename = "arg")]
     pub key: &'a str,
@@ -53,7 +53,7 @@ impl<'a> ApiRequest for DhtProvide<'a> {
 }
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct DhtPut<'a> {
     #[serde(rename = "arg")]
     pub key: &'a str,
@@ -67,7 +67,7 @@ impl<'a> ApiRequest for DhtPut<'a> {
 }
 
 
-#[derive(Serialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize)]
 pub struct DhtQuery<'a> {
     #[serde(rename = "arg")]
     pub peer: &'a str,
