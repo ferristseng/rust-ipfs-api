@@ -14,10 +14,7 @@ pub struct PubsubLs;
 impl_skip_serialize!(PubsubLs);
 
 impl ApiRequest for PubsubLs {
-    #[inline]
-    fn path() -> &'static str {
-        "/pubsub/ls"
-    }
+    const PATH: &'static str = "/pubsub/ls";
 }
 
 
@@ -28,10 +25,7 @@ pub struct PubsubPeers<'a> {
 }
 
 impl<'a> ApiRequest for PubsubPeers<'a> {
-    #[inline]
-    fn path() -> &'static str {
-        "/pubsub/peers"
-    }
+    const PATH: &'static str = "/pubsub/peers";
 }
 
 
@@ -45,10 +39,7 @@ pub struct PubsubPub<'a> {
 }
 
 impl<'a> ApiRequest for PubsubPub<'a> {
-    #[inline]
-    fn path() -> &'static str {
-        "/pubsub/pub"
-    }
+    const PATH: &'static str = "/pubsub/pub";
 }
 
 
@@ -61,8 +52,5 @@ pub struct PubsubSub<'a> {
 }
 
 impl<'a> ApiRequest for PubsubSub<'a> {
-    #[inline]
-    fn path() -> &'static str {
-        "/pubsub/sub"
-    }
+    const PATH: &'static str = "/pubsub/sub";
 }

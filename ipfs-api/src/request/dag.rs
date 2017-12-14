@@ -16,10 +16,7 @@ pub struct DagGet<'a> {
 }
 
 impl<'a> ApiRequest for DagGet<'a> {
-    #[inline]
-    fn path() -> &'static str {
-        "/dag/get"
-    }
+    const PATH: &'static str = "/dag/get";
 }
 
 
@@ -28,8 +25,5 @@ pub struct DagPut;
 impl_skip_serialize!(DagPut);
 
 impl ApiRequest for DagPut {
-    #[inline]
-    fn path() -> &'static str {
-        "/dag/put"
-    }
+    const PATH: &'static str = "/dag/put";
 }

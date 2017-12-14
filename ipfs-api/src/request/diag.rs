@@ -14,10 +14,7 @@ pub struct DiagCmdsClear;
 impl_skip_serialize!(DiagCmdsClear);
 
 impl ApiRequest for DiagCmdsClear {
-    #[inline]
-    fn path() -> &'static str {
-        "/diag/cmds/clear"
-    }
+    const PATH: &'static str = "/diag/cmds/clear";
 }
 
 
@@ -28,10 +25,7 @@ pub struct DiagCmdsSetTime<'a> {
 }
 
 impl<'a> ApiRequest for DiagCmdsSetTime<'a> {
-    #[inline]
-    fn path() -> &'static str {
-        "/diag/cmds/set-time"
-    }
+    const PATH: &'static str = "/diag/cmds/set-time";
 }
 
 
@@ -40,8 +34,5 @@ pub struct DiagSys;
 impl_skip_serialize!(DiagSys);
 
 impl ApiRequest for DiagSys {
-    #[inline]
-    fn path() -> &'static str {
-        "/diag/sys"
-    }
+    const PATH: &'static str = "/diag/sys";
 }

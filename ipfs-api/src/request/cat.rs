@@ -16,8 +16,5 @@ pub struct Cat<'a> {
 }
 
 impl<'a> ApiRequest for Cat<'a> {
-    #[inline]
-    fn path() -> &'static str {
-        "/cat"
-    }
+    const PATH: &'static str = "/cat";
 }

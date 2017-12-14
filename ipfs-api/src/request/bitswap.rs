@@ -16,10 +16,7 @@ pub struct BitswapLedger<'a> {
 }
 
 impl<'a> ApiRequest for BitswapLedger<'a> {
-    #[inline]
-    fn path() -> &'static str {
-        "/bitswap/ledger"
-    }
+    const PATH: &'static str = "/bitswap/ledger";
 }
 
 
@@ -28,10 +25,7 @@ pub struct BitswapStat;
 impl_skip_serialize!(BitswapStat);
 
 impl ApiRequest for BitswapStat {
-    #[inline]
-    fn path() -> &'static str {
-        "/bitswap/stat"
-    }
+    const PATH: &'static str = "/bitswap/stat";
 }
 
 
@@ -42,10 +36,7 @@ pub struct BitswapUnwant<'a> {
 }
 
 impl<'a> ApiRequest for BitswapUnwant<'a> {
-    #[inline]
-    fn path() -> &'static str {
-        "/bitswap/stat"
-    }
+    const PATH: &'static str = "/bitswap/stat";
 }
 
 
@@ -55,8 +46,5 @@ pub struct BitswapWantlist<'a> {
 }
 
 impl<'a> ApiRequest for BitswapWantlist<'a> {
-    #[inline]
-    fn path() -> &'static str {
-        "/bitswap/wantlist"
-    }
+    const PATH: &'static str = "/bitswap/wantlist";
 }

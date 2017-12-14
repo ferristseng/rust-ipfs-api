@@ -19,10 +19,7 @@ pub struct ObjectDiff<'a> {
 }
 
 impl<'a> ApiRequest for ObjectDiff<'a> {
-    #[inline]
-    fn path() -> &'static str {
-        "/object/diff"
-    }
+    const PATH: &'static str = "/object/diff";
 }
 
 
@@ -33,10 +30,7 @@ pub struct ObjectGet<'a> {
 }
 
 impl<'a> ApiRequest for ObjectGet<'a> {
-    #[inline]
-    fn path() -> &'static str {
-        "/object/get"
-    }
+    const PATH: &'static str = "/object/get";
 }
 
 
@@ -47,10 +41,7 @@ pub struct ObjectLinks<'a> {
 }
 
 impl<'a> ApiRequest for ObjectLinks<'a> {
-    #[inline]
-    fn path() -> &'static str {
-        "/object/links"
-    }
+        const PATH: &'static str = "/object/links";
 }
 
 
@@ -61,10 +52,7 @@ pub struct ObjectStat<'a> {
 }
 
 impl<'a> ApiRequest for ObjectStat<'a> {
-    #[inline]
-    fn path() -> &'static str {
-        "/object/stat"
-    }
+    const PATH: &'static str = "/object/stat";
 }
 
 

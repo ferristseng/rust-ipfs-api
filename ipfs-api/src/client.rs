@@ -84,7 +84,7 @@ impl IpfsClient {
         let url = format!(
             "{}{}?{}",
             self.base,
-            Req::path(),
+            Req::PATH,
             ::serde_urlencoded::to_string(req)?
         );
 

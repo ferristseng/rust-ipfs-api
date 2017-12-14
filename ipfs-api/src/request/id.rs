@@ -16,8 +16,5 @@ pub struct Id<'a> {
 }
 
 impl<'a> ApiRequest for Id<'a> {
-    #[inline]
-    fn path() -> &'static str {
-        "/id"
-    }
+    const PATH: &'static str = "/id";
 }

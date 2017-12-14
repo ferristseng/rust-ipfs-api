@@ -43,10 +43,7 @@ pub struct KeyGen<'a, 'b> {
 }
 
 impl<'a, 'b> ApiRequest for KeyGen<'a, 'b> {
-    #[inline]
-    fn path() -> &'static str {
-        "/key/gen"
-    }
+    const PATH: &'static str = "/key/gen";
 }
 
 
@@ -55,8 +52,5 @@ pub struct KeyList;
 impl_skip_serialize!(KeyList);
 
 impl ApiRequest for KeyList {
-    #[inline]
-    fn path() -> &'static str {
-        "/key/list"
-    }
+    const PATH: &'static str = "/key/list";
 }

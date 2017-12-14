@@ -107,5 +107,5 @@ pub trait ApiRequest {
     ///
     /// All paths should begin with '/'.
     ///
-    fn path() -> &'static str;
+    const PATH: &'static str;
 }
