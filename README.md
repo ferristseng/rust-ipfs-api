@@ -52,6 +52,7 @@ let mut out = out.lock();
 
 out.write_all(&res).unwrap();
 ```
+
 There are also a bunch of examples included in the project, which
 I used for testing
 
