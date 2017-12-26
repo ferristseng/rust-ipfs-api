@@ -3,9 +3,10 @@ name                      = "ipfs-api"
 description               = "Implementation of an IPFS HTTP API client"
 authors                   = ["Ferris Tseng <ferristseng@fastmail.fm>"]
 documentation             = "https://docs.rs/ipfs-api"
+repository                = "https://github.com/ferristseng/rust-ipfs-api"
 keywords                  = ["ipfs"]
 categories                = ["filesystem", "web-programming"]
-version                   = "0.4.0-alpha"
+version                   = "0.4.0-alpha.1"
 readme                    = "../README.md"
 license                   = "MIT OR Apache-2.0"
 

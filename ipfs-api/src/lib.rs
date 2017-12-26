@@ -12,7 +12,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = "0.4.0-alpha"
+//! ipfs-api = "0.4.0-alpha.1"
 //! ```
 //!
 //! ## Examples
