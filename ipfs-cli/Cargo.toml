@@ -1,6 +1,6 @@
 [package]
 name                      = "ipfs-cli"
-description               + "A CLI to interact with IPFS"
+description               = "A CLI to interact with IPFS"
 authors                   = ["Ferris Tseng <ferristseng@fastmail.fm>"]
 repository                = "https://github.com/ferristseng/rust-ipfs-api"
 version                   = "0.4.0"
