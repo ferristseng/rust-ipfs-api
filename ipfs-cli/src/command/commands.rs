@@ -41,7 +41,7 @@ fn recursive_print_commands(cmd: CommandsResponse, stack: &mut Vec<String>) {
 pub fn handle(core: &mut Core, client: &IpfsClient) {
     let commands = core.run(client.commands()).expect(EXPECTED_API);
 
-    println!("");
+    println!();
     recursive_print_commands(commands, &mut Vec::new());
-    println!("");
+    println!();
 }

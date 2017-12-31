@@ -23,5 +23,5 @@ pub struct SwarmPeers;
 impl_skip_serialize!(SwarmPeers);
 
 impl ApiRequest for SwarmPeers {
-        const PATH: &'static str = "/swarm/peers";
+    const PATH: &'static str = "/swarm/peers";
 }

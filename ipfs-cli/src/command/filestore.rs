@@ -32,14 +32,14 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
 }
 
 
-fn print_filestore_object<E>(obj: response::FilestoreObject) -> Result<(), E> {
+fn print_filestore_object<E>(obj: &response::FilestoreObject) -> Result<(), E> {
     println!("  status                 : {}", obj.status);
     println!("  error_msg              : {}", obj.error_msg);
     println!("  key                    : {}", obj.key);
     println!("  file_path              : {}", obj.file_path);
     println!("  offset                 : {}", obj.offset);
     println!("  size                   : {}", obj.size);
-    println!("");
+    println!();
 
     Ok(())
 }
@@ -51,32 +51,34 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
             let req = client.filestore_dups().for_each(|dup| {
                 println!("  ref     : {}", dup.reference);
                 println!("  err     : {}", dup.err);
-                println!("");
+                println!();
 
                 Ok(())
             });
 
-            println!("");
+            println!();
             core.run(req).expect(EXPECTED_API);
-            println!("");
+            println!();
         }
         ("ls", Some(args)) => {
             let cid = args.value_of("CID");
-            let req = client.filestore_ls(&cid).for_each(print_filestore_object);
+            let req = client.filestore_ls(&cid).for_each(
+                |res| print_filestore_object(&res),
+            );
 
-            println!("");
+            println!();
             core.run(req).expect(EXPECTED_API);
-            println!("");
+            println!();
         }
         ("verify", Some(args)) => {
             let cid = args.value_of("CID");
-            let req = client.filestore_verify(&cid).for_each(
-                print_filestore_object,
-            );
+            let req = client.filestore_verify(&cid).for_each(|res| {
+                print_filestore_object(&res)
+            });
 
-            println!("");
+            println!();
             core.run(req).expect(EXPECTED_API);
-            println!("");
+            println!();
         }
         _ => unreachable!(),
     }

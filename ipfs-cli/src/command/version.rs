@@ -24,11 +24,11 @@ pub fn handle(core: &mut Core, client: &IpfsClient) {
         "expected response from API",
     );
 
-    println!("");
+    println!();
     println!("  version : {}", version.version);
     println!("  commit  : {}", version.commit);
     println!("  repo    : {}", version.repo);
     println!("  system  : {}", version.system);
     println!("  golang  : {}", version.golang);
-    println!("");
+    println!();
 }

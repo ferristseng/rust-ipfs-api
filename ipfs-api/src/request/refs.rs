@@ -14,5 +14,5 @@ pub struct RefsLocal;
 impl_skip_serialize!(RefsLocal);
 
 impl ApiRequest for RefsLocal {
-        const PATH: &'static str = "/refs/local";
+    const PATH: &'static str = "/refs/local";
 }

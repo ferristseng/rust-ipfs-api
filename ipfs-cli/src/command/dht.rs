@@ -48,7 +48,7 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
 
 
 fn print_dht_response<E>(res: DhtMessage) -> Result<(), E> {
-    println!("");
+    println!();
     println!("  id                     : {}", res.id);
     println!("  type                   : {:?}", res.typ);
     println!("  responses              :");
@@ -58,10 +58,10 @@ fn print_dht_response<E>(res: DhtMessage) -> Result<(), E> {
         for addr in peer_res.addrs {
             println!("      {}", addr);
         }
-        println!("");
+        println!();
     }
     println!("  extra                  : {}", res.extra);
-    println!("");
+    println!();
 
     Ok(())
 }
@@ -72,34 +72,33 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         ("findpeer", Some(args)) => {
             let peer = args.value_of("PEER").unwrap();
 
-            client.dht_findpeer(&peer)
+            client.dht_findpeer(peer)
         }
         ("findprovs", Some(args)) => {
             let key = args.value_of("KEY").unwrap();
 
-            client.dht_findprovs(&key)
+            client.dht_findprovs(key)
         }
         ("get", Some(args)) => {
             let key = args.value_of("KEY").unwrap();
 
-            client.dht_get(&key)
+            client.dht_get(key)
         }
         ("provide", Some(args)) => {
             let key = args.value_of("KEY").unwrap();
 
-            client.dht_provide(&key)
-
+            client.dht_provide(key)
         }
         ("put", Some(args)) => {
             let key = args.value_of("KEY").unwrap();
             let val = args.value_of("VALUE").unwrap();
 
-            client.dht_put(&key, &val)
+            client.dht_put(key, val)
         }
         ("query", Some(args)) => {
             let peer = args.value_of("PEER").unwrap();
 
-            client.dht_query(&peer)
+            client.dht_query(peer)
         }
         _ => unreachable!(),
     };

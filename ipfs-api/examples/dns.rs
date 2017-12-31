@@ -24,7 +24,7 @@ fn main() {
     let dns = core.run(req).expect("dns should resolve");
 
     println!("dns resolves to ({})", &dns.path);
-    println!("");
+    println!();
 
     let req = client.file_ls(&dns.path[..]);
     let contents = core.run(req).expect("api should return path contents");

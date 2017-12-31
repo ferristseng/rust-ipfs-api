@@ -38,20 +38,20 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
     match args.subcommand() {
         ("ledger", Some(args)) => {
             let peer = args.value_of("PEER").unwrap();
-            let ledger = core.run(client.bitswap_ledger(&peer)).expect(EXPECTED_API);
+            let ledger = core.run(client.bitswap_ledger(peer)).expect(EXPECTED_API);
 
-            println!("");
+            println!();
             println!("  peer      : {}", ledger.peer);
             println!("  value     : {}", ledger.value);
             println!("  sent      : {}", ledger.sent);
             println!("  recv      : {}", ledger.recv);
             println!("  exchanged : {}", ledger.exchanged);
-            println!("");
+            println!();
         }
         ("stat", _) => {
             let stat = core.run(client.bitswap_stat()).expect(EXPECTED_API);
 
-            println!("");
+            println!();
             println!("  provide_buf_len        : {}", stat.provide_buf_len);
             println!("  wantlist               :");
             for want in stat.wantlist {
@@ -67,27 +67,27 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
             println!("  data_sent              : {}", stat.data_sent);
             println!("  dup_blks_received      : {}", stat.dup_blks_received);
             println!("  dup_data_received      : {}", stat.dup_data_received);
-            println!("");
+            println!();
         }
         ("unwant", Some(args)) => {
             let key = args.value_of("KEY").unwrap();
 
-            core.run(client.bitswap_unwant(&key)).expect(EXPECTED_API);
+            core.run(client.bitswap_unwant(key)).expect(EXPECTED_API);
 
-            println!("");
+            println!();
             println!("  OK");
-            println!("");
+            println!();
         }
         ("wantlist", Some(args)) => {
             let peer = args.value_of("PEER");
             let wantlist = core.run(client.bitswap_wantlist(peer)).expect(EXPECTED_API);
 
-            println!("");
+            println!();
             println!("  wantlist               :");
             for key in wantlist.keys {
                 println!("    {}", key);
             }
-            println!("");
+            println!();
         }
         _ => unreachable!(),
     }

@@ -28,14 +28,14 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
     match args.subcommand() {
         ("ls", Some(args)) => {
             let path = args.value_of("PATH").unwrap();
-            let ls = core.run(client.file_ls(&path)).expect(EXPECTED_API);
+            let ls = core.run(client.file_ls(path)).expect(EXPECTED_API);
 
-            println!("");
+            println!();
             println!("  arguments              :");
             for (k, arg) in ls.arguments {
                 println!("    arg        : {}", k);
                 println!("    value      : {}", arg);
-                println!("");
+                println!();
             }
             println!("  objects                :");
             for (k, obj) in ls.objects {
@@ -51,10 +51,10 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
                     if let Some(ref typ) = link.typ {
                         println!("      type       : {}", typ);
                     }
-                    println!("");
+                    println!();
                 }
             }
-            println!("");
+            println!();
         }
         _ => unreachable!(),
     }

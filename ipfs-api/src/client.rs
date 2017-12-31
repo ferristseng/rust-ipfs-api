@@ -1605,11 +1605,11 @@ impl IpfsClient {
 
     /// Pins a new object.
     ///
-    /// The "recursive" option tells the server whether to 
-    /// pin just the top-level object, or all sub-objects 
+    /// The "recursive" option tells the server whether to
+    /// pin just the top-level object, or all sub-objects
     /// it depends on.  For most cases you want it to be `true`.
     ///
-    /// Does not yet implement the "progress" agument because 
+    /// Does not yet implement the "progress" agument because
     /// reading it is kinda squirrelly.
     ///
     /// # Examples
@@ -1628,12 +1628,15 @@ impl IpfsClient {
     /// # }
     /// ```
     #[inline]
-    pub fn pin_add(
-        &self,
-        key: &str,
-        recursive: bool
-    ) -> AsyncResponse<response::PinAddResponse> {
-        self.request(&request::PinAdd { key, recursive: Some(recursive), progress: false }, None)
+    pub fn pin_add(&self, key: &str, recursive: bool) -> AsyncResponse<response::PinAddResponse> {
+        self.request(
+            &request::PinAdd {
+                key,
+                recursive: Some(recursive),
+                progress: false,
+            },
+            None,
+        )
     }
 
     /// Returns a list of pinned objects in local storage.

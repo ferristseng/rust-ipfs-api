@@ -54,30 +54,30 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
             let file = File::open(path).expect(EXPECTED_FILE);
             let block = core.run(client.block_put(file)).expect(EXPECTED_API);
 
-            println!("");
+            println!();
             println!("  key     : {}", block.key);
             println!("  size    : {}", block.size);
-            println!("");
+            println!();
         }
         ("rm", Some(args)) => {
             let key = args.value_of("KEY").unwrap();
             let rm = core.run(client.block_rm(key)).expect(EXPECTED_API);
 
-            println!("");
+            println!();
             println!("  hash    : {}", rm.hash);
             if let Some(error) = rm.error {
                 println!("  error   : {}", error);
             }
-            println!("");
+            println!();
         }
         ("stat", Some(args)) => {
             let key = args.value_of("KEY").unwrap();
             let stat = core.run(client.block_stat(key)).expect(EXPECTED_API);
 
-            println!("");
+            println!();
             println!("  key     : {}", stat.key);
             println!("  size    : {}", stat.size);
-            println!("");
+            println!();
         }
         _ => unreachable!(),
     }

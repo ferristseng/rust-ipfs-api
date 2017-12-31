@@ -29,7 +29,7 @@ fn main() {
         println!("  {}", peer);
     }
 
-    println!("");
+    println!();
     println!("dropping all bootstrap peers...");
 
     let drop = client.bootstrap_rm_all();
@@ -40,7 +40,7 @@ fn main() {
         println!("  {}", peer);
     }
 
-    println!("");
+    println!();
     println!("adding default peers...");
 
     let add = client.bootstrap_add_default();

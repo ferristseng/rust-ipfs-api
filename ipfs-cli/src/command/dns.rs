@@ -24,10 +24,10 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
 
 pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
     let path = args.value_of("PATH").unwrap();
-    let req = client.dns(&path, args.is_present("recursive"));
+    let req = client.dns(path, args.is_present("recursive"));
     let res = core.run(req).expect(EXPECTED_API);
 
-    println!("");
+    println!();
     println!("  path    : {}", res.path);
-    println!("");
+    println!();
 }

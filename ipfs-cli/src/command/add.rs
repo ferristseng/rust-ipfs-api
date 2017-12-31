@@ -27,9 +27,9 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
     let file = File::open(path).expect(EXPECTED_FILE);
     let response = core.run(client.add(file)).expect(EXPECTED_API);
 
-    println!("");
+    println!();
     println!("  name    : {}", response.name);
     println!("  hash    : {}", response.hash);
     println!("  size    : {}", response.size);
-    println!("");
+    println!();
 }

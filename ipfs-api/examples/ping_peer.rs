@@ -23,7 +23,7 @@ fn main() {
     let mut core = Core::new().expect("expected event loop");
     let client = IpfsClient::default(&core.handle());
 
-    println!("");
+    println!();
     println!("discovering connected peers...");
 
     let connected = client.swarm_peers();
@@ -33,9 +33,9 @@ fn main() {
         "expected at least one peer",
     );
 
-    println!("");
+    println!();
     println!("discovered peer ({})", peer.peer);
-    println!("");
+    println!();
     println!("streaming 10 pings...");
     let req = client.ping(&peer.peer[..], &Some(10));
 
@@ -44,7 +44,7 @@ fn main() {
         Ok(())
     })).expect("expected a valid response");
 
-    println!("");
+    println!();
     println!("gathering 15 pings...");
 
     let req = client.ping(&peer.peer[..], &Some(15));

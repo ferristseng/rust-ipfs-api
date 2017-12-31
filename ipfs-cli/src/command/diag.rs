@@ -46,20 +46,20 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
                 ("clear", _) => {
                     core.run(client.diag_cmds_clear()).expect(EXPECTED_API);
 
-                    println!("");
+                    println!();
                     println!("  OK");
-                    println!("");
+                    println!();
                 }
                 ("set-time", Some(args)) => {
                     let time = args.value_of("TIME").unwrap();
 
-                    core.run(client.diag_cmds_set_time(&time)).expect(
+                    core.run(client.diag_cmds_set_time(time)).expect(
                         EXPECTED_API,
                     );
 
-                    println!("");
+                    println!();
                     println!("  OK");
-                    println!("");
+                    println!();
                 }
                 _ => unreachable!(),
             }
@@ -67,9 +67,9 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         ("sys", _) => {
             let sys = core.run(client.diag_sys()).expect(EXPECTED_API);
 
-            println!("");
+            println!();
             println!("  {}", sys);
-            println!("");
+            println!();
         }
         _ => unreachable!(),
     }

@@ -35,13 +35,13 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
 }
 
 
-fn print_peers(peers: &Vec<String>) {
-    println!("");
+fn print_peers(peers: &[String]) {
+    println!();
     println!("  peers                  :");
     for peer in peers {
         println!("    {}", peer);
     }
-    println!("");
+    println!();
 }
 
 

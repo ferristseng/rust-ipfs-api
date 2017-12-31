@@ -19,7 +19,7 @@ fn print_stat(stat: response::FilesStatResponse) {
     println!("  size     : {}", stat.size);
     println!("  cum. size: {}", stat.cumulative_size);
     println!("  blocks   : {}", stat.blocks);
-    println!("");
+    println!();
 }
 
 // Creates an Ipfs client, and makes some calls to the Mfs Api.
@@ -32,19 +32,19 @@ fn main() {
     let client = IpfsClient::default(&core.handle());
 
     println!("making /test...");
-    println!("");
+    println!();
 
     let req = client.files_mkdir("/test", false);
     core.run(req).expect("expected mkdir to succeed");
 
     println!("making dirs /test/does/not/exist/yet...");
-    println!("");
+    println!();
 
     let req = client.files_mkdir("/test/does/not/exist/yet", true);
     core.run(req).expect("expected mkdir -p to succeed");
 
     println!("getting status of /test/does...");
-    println!("");
+    println!();
 
     let req = client.files_stat("/test/does");
     let stat = core.run(req).expect("expected stat to succeed");
@@ -52,7 +52,7 @@ fn main() {
     print_stat(stat);
 
     println!("writing source file to /test/mfs.rs");
-    println!("");
+    println!();
 
     let src = File::open(file!()).expect("could not read source file");
     let req = client.files_write("/test/mfs.rs", true, true, src);
@@ -65,7 +65,7 @@ fn main() {
     print_stat(stat);
 
     println!("removing /test...");
-    println!("");
+    println!();
 
     let req = client.files_rm("/test", true);
     core.run(req).expect("expected rm to succeed");

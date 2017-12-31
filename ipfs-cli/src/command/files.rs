@@ -73,59 +73,59 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
             let src = args.value_of("SRC").unwrap();
             let dest = args.value_of("DEST").unwrap();
 
-            core.run(client.files_cp(&src, &dest)).expect(EXPECTED_API);
+            core.run(client.files_cp(src, dest)).expect(EXPECTED_API);
 
-            println!("");
+            println!();
             println!("  OK");
-            println!("");
+            println!();
         }
         ("flush", Some(args)) => {
             let path = args.value_of("PATH");
 
             core.run(client.files_flush(&path)).expect(EXPECTED_API);
 
-            println!("");
+            println!();
             println!("  OK");
-            println!("");
+            println!();
         }
         ("ls", Some(args)) => {
             let path = args.value_of("PATH");
             let ls = core.run(client.files_ls(&path)).expect(EXPECTED_API);
 
-            println!("");
+            println!();
             println!("  entries                :");
             for entry in ls.entries {
                 println!("    name       : {}", entry.name);
                 println!("    type       : {}", entry.typ);
                 println!("    size       : {}", entry.size);
                 println!("    hash       : {}", entry.hash);
-                println!("");
+                println!();
             }
-            println!("");
+            println!();
         }
         ("mkdir", Some(args)) => {
             let path = args.value_of("PATH").unwrap();
 
-            core.run(client.files_mkdir(&path, args.is_present("parents")))
+            core.run(client.files_mkdir(path, args.is_present("parents")))
                 .expect(EXPECTED_API);
 
-            println!("");
+            println!();
             println!("  OK");
-            println!("");
+            println!();
         }
         ("mv", Some(args)) => {
             let src = args.value_of("SRC").unwrap();
             let dest = args.value_of("DEST").unwrap();
 
-            core.run(client.files_mv(&src, &dest)).expect(EXPECTED_API);
+            core.run(client.files_mv(src, dest)).expect(EXPECTED_API);
 
-            println!("");
+            println!();
             println!("  OK");
-            println!("");
+            println!();
         }
         ("read", Some(args)) => {
             let path = args.value_of("PATH").unwrap();
-            let req = client.files_read(&path).for_each(|chunk| {
+            let req = client.files_read(path).for_each(|chunk| {
                 io::stdout().write_all(&chunk).map_err(From::from)
             });
 
@@ -133,32 +133,32 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         }
         ("rm", Some(args)) => {
             let path = args.value_of("PATH").unwrap();
-            let req = client.files_rm(&path, args.is_present("recursive"));
+            let req = client.files_rm(path, args.is_present("recursive"));
 
             core.run(req).expect(EXPECTED_API);
 
-            println!("");
+            println!();
             println!("  OK");
-            println!("");
+            println!();
         }
         ("stat", Some(args)) => {
             let path = args.value_of("PATH").unwrap();
-            let stat = core.run(client.files_stat(&path)).expect(EXPECTED_API);
+            let stat = core.run(client.files_stat(path)).expect(EXPECTED_API);
 
-            println!("");
+            println!();
             println!("  hash                   : {}", stat.hash);
             println!("  size                   : {}", stat.size);
             println!("  cumulative_size        : {}", stat.cumulative_size);
             println!("  blocks                 : {}", stat.blocks);
             println!("  type                   : {}", stat.typ);
-            println!("");
+            println!();
         }
         ("write", Some(args)) => {
             let dest = args.value_of("DEST").unwrap();
             let path = args.value_of("INPUT").unwrap();
             let file = File::open(path).expect(EXPECTED_FILE);
             let req = client.files_write(
-                &dest,
+                dest,
                 args.is_present("create"),
                 args.is_present("truncate"),
                 file,
@@ -166,9 +166,9 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
 
             core.run(req).expect(EXPECTED_API);
 
-            println!("");
+            println!();
             println!("  OK");
-            println!("");
+            println!();
         }
         _ => unreachable!(),
     }

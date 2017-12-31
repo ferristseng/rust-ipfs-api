@@ -30,7 +30,7 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
             let key = args.value_of("KEY").unwrap();
             let dag = core.run(client.dag_get(key)).expect(EXPECTED_API);
 
-            println!("");
+            println!();
             if let Some(data) = dag.data {
                 println!("  data                   :");
                 println!("{}", data);
@@ -39,7 +39,7 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
             for link in dag.links {
                 println!("    {} ({}) ({:?})", link.name, link.size, link.cid);
             }
-            println!("");
+            println!();
         }
         _ => unreachable!(),
     }

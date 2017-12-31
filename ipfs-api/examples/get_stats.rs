@@ -42,13 +42,13 @@ fn main() {
         "  wantlist:    {}",
         bitswap_stats.wantlist.join("\n               ")
     );
-    println!("");
+    println!();
     println!("bandwidth stats:");
     println!("  total    in: {}", bw_stats.total_in);
     println!("  total   out: {}", bw_stats.total_out);
     println!("  rate     in: {}", bw_stats.rate_in);
     println!("  rate    out: {}", bw_stats.rate_out);
-    println!("");
+    println!();
     println!("repo stats:");
     println!("  num    objs: {}", repo_stats.num_objects);
     println!("  repo   size: {}", repo_stats.repo_size);

@@ -25,7 +25,7 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
 
 pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
     let path = args.value_of("PATH").unwrap();
-    let req = client.cat(&path).for_each(|chunk| {
+    let req = client.cat(path).for_each(|chunk| {
         io::stdout().write_all(&chunk).map_err(From::from)
     });
 

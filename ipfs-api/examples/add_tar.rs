@@ -44,11 +44,11 @@ fn main() {
     let add = core.run(req).expect("expected a valid response");
 
     println!("added tar file: {:?}", add);
-    println!("");
+    println!();
 
     let req = client.tar_cat(&add.hash[..]).concat2();
     let cat = core.run(req).expect("expected a valid response");
 
     println!("{}", String::from_utf8_lossy(&cat[..]));
-    println!("");
+    println!();
 }

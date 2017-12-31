@@ -41,7 +41,7 @@ pub struct ObjectLinks<'a> {
 }
 
 impl<'a> ApiRequest for ObjectLinks<'a> {
-        const PATH: &'static str = "/object/links";
+    const PATH: &'static str = "/object/links";
 }
 
 

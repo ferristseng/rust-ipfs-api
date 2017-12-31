@@ -41,13 +41,13 @@ fn main() {
             .interval(Duration::from_secs(1))
             .map_err(|_| response::Error::from("timeout error"))
             .for_each(move |_| {
-                println!("");
+                println!();
                 println!("publishing message...");
 
                 client.pubsub_pub(TOPIC, "Hello World!")
             });
 
-        println!("");
+        println!();
         println!("starting task to publish messages to ({})...", TOPIC);
         event_loop.run(publish).expect(
             "expected the publish task to start",
@@ -62,11 +62,11 @@ fn main() {
         let client = get_client(&event_loop.handle());
         let req = client.pubsub_sub(TOPIC, false);
 
-        println!("");
+        println!();
         println!("waiting for messages on ({})...", TOPIC);
         event_loop
             .run(req.take(5).for_each(|msg| {
-                println!("");
+                println!();
                 println!("received ({:?})", msg);
 
                 Ok(())

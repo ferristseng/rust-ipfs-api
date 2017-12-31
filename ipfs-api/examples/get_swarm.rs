@@ -24,7 +24,7 @@ fn main() {
     let local = client.swarm_addrs_local();
     let local = core.run(local).expect("expected a valid response");
 
-    println!("");
+    println!();
     println!("your addrs:");
     for addr in local.strings {
         println!("  {}", addr);
@@ -33,7 +33,7 @@ fn main() {
     let connected = client.swarm_peers();
     let connected = core.run(connected).expect("expected a valid response");
 
-    println!("");
+    println!();
     println!("connected:");
     for peer in connected.peers {
         let streams: Vec<&str> = peer.streams.iter().map(|s| &s.protocol[..]).collect();
@@ -42,6 +42,6 @@ fn main() {
         println!("  latency:  {}", peer.latency);
         println!("  muxer:    {}", peer.muxer);
         println!("  streams:  {}", streams.join(", "));
-        println!("");
+        println!();
     }
 }
