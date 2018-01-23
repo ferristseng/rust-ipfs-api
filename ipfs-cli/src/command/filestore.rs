@@ -60,7 +60,7 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         ("ls", Some(args)) => {
             let cid = args.value_of("CID");
             let req = client
-                .filestore_ls(&cid)
+                .filestore_ls(cid)
                 .for_each(|res| print_filestore_object(&res));
 
             println!();
@@ -70,8 +70,8 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         ("verify", Some(args)) => {
             let cid = args.value_of("CID");
             let req = client
-                .filestore_verify(&cid)
-                .for_each(print_filestore_object);
+                .filestore_verify(cid)
+                .for_each(|obj| print_filestore_object(&obj));
 
             println!();
             core.run(req).expect(EXPECTED_API);

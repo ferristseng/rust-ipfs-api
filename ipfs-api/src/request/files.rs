@@ -21,7 +21,7 @@ impl<'a> ApiRequest for FilesCp<'a> {
 
 #[derive(Serialize)]
 pub struct FilesFlush<'a> {
-    #[serde(rename = "arg")] pub path: &'a Option<&'a str>,
+    #[serde(rename = "arg")] pub path: Option<&'a str>,
 }
 
 impl<'a> ApiRequest for FilesFlush<'a> {
@@ -30,7 +30,7 @@ impl<'a> ApiRequest for FilesFlush<'a> {
 
 #[derive(Serialize)]
 pub struct FilesLs<'a> {
-    #[serde(rename = "arg")] pub path: &'a Option<&'a str>,
+    #[serde(rename = "arg")] pub path: Option<&'a str>,
 }
 
 impl<'a> ApiRequest for FilesLs<'a> {

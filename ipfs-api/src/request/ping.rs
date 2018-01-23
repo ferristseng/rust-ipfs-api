@@ -9,12 +9,12 @@
 use request::ApiRequest;
 
 #[derive(Serialize)]
-pub struct Ping<'a, 'b> {
+pub struct Ping<'a> {
     #[serde(rename = "arg")] pub peer: &'a str,
 
-    pub count: &'b Option<i32>,
+    pub count: Option<i32>,
 }
 
-impl<'a, 'b> ApiRequest for Ping<'a, 'b> {
+impl<'a> ApiRequest for Ping<'a> {
     const PATH: &'static str = "/ping";
 }

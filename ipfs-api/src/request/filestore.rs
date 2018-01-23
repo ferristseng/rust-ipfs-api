@@ -18,7 +18,7 @@ impl ApiRequest for FilestoreDups {
 
 #[derive(Serialize)]
 pub struct FilestoreLs<'a> {
-    #[serde(rename = "arg")] pub cid: &'a Option<&'a str>,
+    #[serde(rename = "arg")] pub cid: Option<&'a str>,
 }
 
 impl<'a> ApiRequest for FilestoreLs<'a> {
@@ -27,7 +27,7 @@ impl<'a> ApiRequest for FilestoreLs<'a> {
 
 #[derive(Serialize)]
 pub struct FilestoreVerify<'a> {
-    #[serde(rename = "arg")] pub cid: &'a Option<&'a str>,
+    #[serde(rename = "arg")] pub cid: Option<&'a str>,
 }
 
 impl<'a> ApiRequest for FilestoreVerify<'a> {

@@ -11,6 +11,7 @@ use request::ApiRequest;
 #[derive(Serialize)]
 pub struct PinAdd<'a> {
     #[serde(rename = "arg")] pub key: &'a str,
+
     pub recursive: Option<bool>,
     pub progress: bool,
 }
@@ -21,9 +22,9 @@ impl<'a> ApiRequest for PinAdd<'a> {
 
 #[derive(Serialize)]
 pub struct PinLs<'a> {
-    #[serde(rename = "arg")] pub key: &'a Option<&'a str>,
+    #[serde(rename = "arg")] pub key: Option<&'a str>,
 
-    #[serde(rename = "type")] pub typ: &'a Option<&'a str>,
+    #[serde(rename = "type")] pub typ: Option<&'a str>,
 }
 
 impl<'a> ApiRequest for PinLs<'a> {
