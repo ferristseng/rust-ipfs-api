@@ -8,7 +8,6 @@
 
 use request::ApiRequest;
 
-
 pub struct RefsLocal;
 
 impl_skip_serialize!(RefsLocal);

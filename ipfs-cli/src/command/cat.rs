@@ -13,7 +13,6 @@ use ipfs_api::IpfsClient;
 use std::io::{self, Write};
 use tokio_core::reactor::Core;
 
-
 pub fn signature<'a, 'b>() -> App<'a, 'b> {
     clap_app!(
         @subcommand cat =>
@@ -22,12 +21,11 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
     )
 }
 
-
 pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
     let path = args.value_of("PATH").unwrap();
-    let req = client.cat(path).for_each(|chunk| {
-        io::stdout().write_all(&chunk).map_err(From::from)
-    });
+    let req = client
+        .cat(&path)
+        .for_each(|chunk| io::stdout().write_all(&chunk).map_err(From::from));
 
     core.run(req).expect(EXPECTED_API);
 }

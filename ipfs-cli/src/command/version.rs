@@ -10,7 +10,6 @@ use clap::App;
 use ipfs_api::IpfsClient;
 use tokio_core::reactor::Core;
 
-
 pub fn signature<'a, 'b>() -> App<'a, 'b> {
     clap_app!(
         @subcommand version =>
@@ -18,11 +17,9 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
     )
 }
 
-
 pub fn handle(core: &mut Core, client: &IpfsClient) {
-    let version = core.run(client.version()).expect(
-        "expected response from API",
-    );
+    let version = core.run(client.version())
+        .expect("expected response from API");
 
     println!();
     println!("  version : {}", version.version);

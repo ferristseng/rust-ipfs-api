@@ -49,9 +49,9 @@ fn main() {
 
         println!();
         println!("starting task to publish messages to ({})...", TOPIC);
-        event_loop.run(publish).expect(
-            "expected the publish task to start",
-        );
+        event_loop
+            .run(publish)
+            .expect("expected the publish task to start");
     });
 
     // This block will execute a future that suscribes to a topic,

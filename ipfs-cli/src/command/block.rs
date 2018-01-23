@@ -14,7 +14,6 @@ use std::fs::File;
 use std::io::{self, Write};
 use tokio_core::reactor::Core;
 
-
 pub fn signature<'a, 'b>() -> App<'a, 'b> {
     clap_app!(
         @subcommand block =>
@@ -38,14 +37,13 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
     )
 }
 
-
 pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
     match args.subcommand() {
         ("get", Some(args)) => {
             let key = args.value_of("KEY").unwrap();
-            let req = client.block_get(key).for_each(|chunk| {
-                io::stdout().write_all(&chunk).map_err(From::from)
-            });
+            let req = client
+                .block_get(key)
+                .for_each(|chunk| io::stdout().write_all(&chunk).map_err(From::from));
 
             core.run(req).expect(EXPECTED_API);
         }
@@ -81,5 +79,4 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         }
         _ => unreachable!(),
     }
-
 }

@@ -8,7 +8,6 @@
 
 use request::ApiRequest;
 
-
 pub struct Commands;
 
 impl_skip_serialize!(Commands);

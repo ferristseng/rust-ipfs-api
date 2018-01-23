@@ -8,7 +8,6 @@
 
 use request::ApiRequest;
 
-
 pub struct BootstrapAddDefault;
 
 impl_skip_serialize!(BootstrapAddDefault);
@@ -17,7 +16,6 @@ impl ApiRequest for BootstrapAddDefault {
     const PATH: &'static str = "/bootstrap/add/default";
 }
 
-
 pub struct BootstrapList;
 
 impl_skip_serialize!(BootstrapList);
@@ -25,7 +23,6 @@ impl_skip_serialize!(BootstrapList);
 impl ApiRequest for BootstrapList {
     const PATH: &'static str = "/bootstrap/list";
 }
-
 
 pub struct BootstrapRmAll;
 

@@ -35,7 +35,6 @@ pub use self::swarm::*;
 pub use self::tar::*;
 pub use self::version::*;
 
-
 /// Create a test to verify that serializing a `ApiRequest` returns the expected
 /// url encoded string.
 ///
@@ -52,7 +51,6 @@ macro_rules! serialize_url_test {
     )
 }
 
-
 /// Implements the `Serialize` trait for types that do not require
 /// serialization. This provides a workaround for a limitation in
 /// `serde_urlencoded`, that prevents unit structs from being serialized.
@@ -68,7 +66,6 @@ macro_rules! impl_skip_serialize {
         }
     )
 }
-
 
 mod add;
 mod bitswap;
@@ -98,7 +95,6 @@ mod stats;
 mod swarm;
 mod tar;
 mod version;
-
 
 /// A request that can be made against the Ipfs API.
 ///

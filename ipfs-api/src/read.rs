@@ -20,7 +20,6 @@ use std::marker::PhantomData;
 use tokio_io::AsyncRead;
 use tokio_io::codec::Decoder;
 
-
 /// A decoder for a response where each line is a full json object.
 ///
 pub struct JsonLineDecoder<T> {
@@ -71,14 +70,14 @@ where
                     if self.parse_stream_error {
                         match slice.iter().position(|&x| x == b':') {
                             Some(colon)
-                                if &slice[..colon] == XStreamError::header_name().as_bytes() => {
+                                if &slice[..colon] == XStreamError::header_name().as_bytes() =>
+                            {
                                 let raw = Raw::from(&slice[colon + 2..]);
 
                                 match XStreamError::parse_header(&raw) {
-                                    Ok(stream_error) => Err(
-                                        ErrorKind::StreamError(stream_error.error)
-                                            .into(),
-                                    ),
+                                    Ok(stream_error) => {
+                                        Err(ErrorKind::StreamError(stream_error.error).into())
+                                    }
                                     Err(_) => Err(e.into()),
                                 }
                             }
@@ -94,7 +93,6 @@ where
         }
     }
 }
-
 
 /// A decoder that reads a line at a time.
 ///
@@ -115,15 +113,13 @@ impl Decoder for LineDecoder {
             let slice = src.split_to(pos + 1);
 
             Ok(Some(
-                String::from_utf8_lossy(&slice[..slice.len() - 1])
-                    .into_owned(),
+                String::from_utf8_lossy(&slice[..slice.len() - 1]).into_owned(),
             ))
         } else {
             Ok(None)
         }
     }
 }
-
 
 /// The state of a stream returning Chunks.
 ///
@@ -136,7 +132,6 @@ enum ReadState {
     ///
     NotReady,
 }
-
 
 /// Reads from a stream of chunks asynchronously.
 ///

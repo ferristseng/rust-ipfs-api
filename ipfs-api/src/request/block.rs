@@ -8,17 +8,14 @@
 
 use request::ApiRequest;
 
-
 #[derive(Serialize)]
 pub struct BlockGet<'a> {
-    #[serde(rename = "arg")]
-    pub hash: &'a str,
+    #[serde(rename = "arg")] pub hash: &'a str,
 }
 
 impl<'a> ApiRequest for BlockGet<'a> {
     const PATH: &'static str = "/block/get";
 }
-
 
 pub struct BlockPut;
 
@@ -28,22 +25,18 @@ impl ApiRequest for BlockPut {
     const PATH: &'static str = "/block/put";
 }
 
-
 #[derive(Serialize)]
 pub struct BlockRm<'a> {
-    #[serde(rename = "arg")]
-    pub hash: &'a str,
+    #[serde(rename = "arg")] pub hash: &'a str,
 }
 
 impl<'a> ApiRequest for BlockRm<'a> {
     const PATH: &'static str = "/block/rm";
 }
 
-
 #[derive(Serialize)]
 pub struct BlockStat<'a> {
-    #[serde(rename = "arg")]
-    pub hash: &'a str,
+    #[serde(rename = "arg")] pub hash: &'a str,
 }
 
 impl<'a> ApiRequest for BlockStat<'a> {

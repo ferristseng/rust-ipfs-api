@@ -8,11 +8,9 @@
 
 use request::ApiRequest;
 
-
 #[derive(Serialize)]
 pub struct Ping<'a, 'b> {
-    #[serde(rename = "arg")]
-    pub peer: &'a str,
+    #[serde(rename = "arg")] pub peer: &'a str,
 
     pub count: &'b Option<i32>,
 }

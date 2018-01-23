@@ -9,10 +9,8 @@
 use std::error::Error;
 use std::fs;
 
-
 pub const EXPECTED_API: &str = "expected response from API";
 pub const EXPECTED_FILE: &str = "expected to read input file";
-
 
 /// Verifies that a path points to a file that exists, and not a directory.
 ///
@@ -23,7 +21,6 @@ pub fn verify_file(path: String) -> Result<(), String> {
         Err(e) => Err(e.description().into()),
     }
 }
-
 
 pub mod add;
 pub mod bitswap;

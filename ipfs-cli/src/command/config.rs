@@ -12,7 +12,6 @@ use ipfs_api::IpfsClient;
 use std::fs::File;
 use tokio_core::reactor::Core;
 
-
 pub fn signature<'a, 'b>() -> App<'a, 'b> {
     clap_app!(
         @subcommand config =>
@@ -29,7 +28,6 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
             )
     )
 }
-
 
 pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
     match args.subcommand() {

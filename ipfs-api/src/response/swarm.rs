@@ -8,53 +8,41 @@
 
 use response::serde;
 
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmAddrsLocalResponse {
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub strings: Vec<String>,
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub strings: Vec<String>,
 }
-
 
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmAddrsConnectResponse {
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub strings: Vec<String>,
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub strings: Vec<String>,
 }
-
 
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmAddrsDisconnectResponse {
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub strings: Vec<String>,
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub strings: Vec<String>,
 }
-
 
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmFiltersAddResponse {
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub strings: Vec<String>,
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub strings: Vec<String>,
 }
-
 
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmFiltersRmResponse {
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub strings: Vec<String>,
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub strings: Vec<String>,
 }
-
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmPeerStream {
     pub protocol: String,
 }
-
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
@@ -64,18 +52,14 @@ pub struct SwarmPeer {
     pub latency: String,
     pub muxer: String,
 
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub streams: Vec<SwarmPeerStream>,
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub streams: Vec<SwarmPeerStream>,
 }
-
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmPeersResponse {
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub peers: Vec<SwarmPeer>,
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub peers: Vec<SwarmPeer>,
 }
-
 
 #[cfg(test)]
 mod tests {

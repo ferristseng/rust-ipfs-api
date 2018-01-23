@@ -8,22 +8,25 @@
 
 use request::ApiRequest;
 
-
 #[derive(Serialize)]
 pub struct Ls<'a> {
-    #[serde(rename = "arg")]
-    pub path: &'a Option<&'a str>,
+    #[serde(rename = "arg")] pub path: &'a Option<&'a str>,
 }
 
 impl<'a> ApiRequest for Ls<'a> {
     const PATH: &'static str = "/ls";
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::Ls;
 
-    serialize_url_test!(test_serializes_0, Ls { path: &Some("test") }, "arg=test");
+    serialize_url_test!(
+        test_serializes_0,
+        Ls {
+            path: &Some("test"),
+        },
+        "arg=test"
+    );
     serialize_url_test!(test_serializes_1, Ls { path: &None }, "");
 }

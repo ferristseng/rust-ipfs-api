@@ -9,22 +9,18 @@
 use response::serde;
 use std::collections::HashMap;
 
-
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct RepoFsckResponse {
     pub message: String,
 }
 
-
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct RepoGcResponse {
-    #[serde(deserialize_with = "serde::deserialize_hashmap")]
-    pub key: HashMap<String, String>,
+    #[serde(deserialize_with = "serde::deserialize_hashmap")] pub key: HashMap<String, String>,
     pub error: Option<String>,
 }
-
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
@@ -35,7 +31,6 @@ pub struct RepoStatResponse {
     pub version: String,
 }
 
-
 // Defined in go-ipfs:master core/commands/repo.go
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
@@ -45,13 +40,11 @@ pub struct RepoVerifyResponse {
     pub progress: i32,
 }
 
-
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct RepoVersionResponse {
     pub version: String,
 }
-
 
 #[cfg(test)]
 mod tests {

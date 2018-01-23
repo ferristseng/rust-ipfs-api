@@ -13,7 +13,6 @@ use ipfs_api::IpfsClient;
 use ipfs_api::response::DhtMessage;
 use tokio_core::reactor::Core;
 
-
 pub fn signature<'a, 'b>() -> App<'a, 'b> {
     clap_app!(
         @subcommand dht =>
@@ -46,7 +45,6 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
     )
 }
 
-
 fn print_dht_response<E>(res: DhtMessage) -> Result<(), E> {
     println!();
     println!("  id                     : {}", res.id);
@@ -65,7 +63,6 @@ fn print_dht_response<E>(res: DhtMessage) -> Result<(), E> {
 
     Ok(())
 }
-
 
 pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
     let req = match args.subcommand() {
@@ -87,7 +84,7 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         ("provide", Some(args)) => {
             let key = args.value_of("KEY").unwrap();
 
-            client.dht_provide(key)
+            client.dht_provide(&key)
         }
         ("put", Some(args)) => {
             let key = args.value_of("KEY").unwrap();
@@ -103,7 +100,6 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         _ => unreachable!(),
     };
 
-    core.run(req.for_each(print_dht_response)).expect(
-        EXPECTED_API,
-    );
+    core.run(req.for_each(print_dht_response))
+        .expect(EXPECTED_API);
 }

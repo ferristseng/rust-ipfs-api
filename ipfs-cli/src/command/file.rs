@@ -11,7 +11,6 @@ use command::EXPECTED_API;
 use ipfs_api::IpfsClient;
 use tokio_core::reactor::Core;
 
-
 pub fn signature<'a, 'b>() -> App<'a, 'b> {
     clap_app!(
         @subcommand file =>
@@ -22,7 +21,6 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
             )
     )
 }
-
 
 pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
     match args.subcommand() {

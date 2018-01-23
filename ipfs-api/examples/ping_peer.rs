@@ -29,9 +29,11 @@ fn main() {
     let connected = client.swarm_peers();
     let connected = core.run(connected).expect("expected a valid response");
 
-    let peer = connected.peers.iter().next().expect(
-        "expected at least one peer",
-    );
+    let peer = connected
+        .peers
+        .iter()
+        .next()
+        .expect("expected at least one peer");
 
     println!();
     println!("discovered peer ({})", peer.peer);

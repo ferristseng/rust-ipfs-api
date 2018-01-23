@@ -9,7 +9,6 @@
 use response::serde;
 use serde::de::{Deserialize, Deserializer, Error};
 
-
 /// See
 /// [libp2p](https://github.com/libp2p/go-libp2p-routing/blob/master/notifications/query.go#L16).
 ///
@@ -45,33 +44,25 @@ impl<'de> Deserialize<'de> for DhtType {
     }
 }
 
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct DhtPeerResponse {
-    #[serde(rename = "ID")]
-    pub id: String,
+    #[serde(rename = "ID")] pub id: String,
 
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub addrs: Vec<String>,
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub addrs: Vec<String>,
 }
-
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct DhtMessage {
-    #[serde(rename = "ID")]
-    pub id: String,
+    #[serde(rename = "ID")] pub id: String,
 
-    #[serde(rename = "Type")]
-    pub typ: DhtType,
+    #[serde(rename = "Type")] pub typ: DhtType,
 
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub responses: Vec<DhtPeerResponse>,
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub responses: Vec<DhtPeerResponse>,
 
     pub extra: String,
 }
-
 
 pub type DhtFindPeerResponse = DhtMessage;
 

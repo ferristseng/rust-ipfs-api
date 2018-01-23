@@ -13,7 +13,6 @@ pub struct TarAddResponse {
     pub hash: String,
 }
 
-
 #[cfg(test)]
 mod tests {
     deserialize_test!(v0_tar_add_0, TarAddResponse);

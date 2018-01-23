@@ -8,17 +8,14 @@
 
 use request::ApiRequest;
 
-
 #[derive(Serialize)]
 pub struct BitswapLedger<'a> {
-    #[serde(rename = "arg")]
-    pub peer: &'a str,
+    #[serde(rename = "arg")] pub peer: &'a str,
 }
 
 impl<'a> ApiRequest for BitswapLedger<'a> {
     const PATH: &'static str = "/bitswap/ledger";
 }
-
 
 pub struct BitswapStat;
 
@@ -28,17 +25,14 @@ impl ApiRequest for BitswapStat {
     const PATH: &'static str = "/bitswap/stat";
 }
 
-
 #[derive(Serialize)]
 pub struct BitswapUnwant<'a> {
-    #[serde(rename = "arg")]
-    pub key: &'a str,
+    #[serde(rename = "arg")] pub key: &'a str,
 }
 
 impl<'a> ApiRequest for BitswapUnwant<'a> {
     const PATH: &'static str = "/bitswap/stat";
 }
-
 
 #[derive(Serialize)]
 pub struct BitswapWantlist<'a> {

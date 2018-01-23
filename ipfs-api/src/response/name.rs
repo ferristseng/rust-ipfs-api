@@ -13,13 +13,11 @@ pub struct NamePublishResponse {
     pub value: String,
 }
 
-
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct NameResolveResponse {
     pub path: String,
 }
-
 
 #[cfg(test)]
 mod tests {

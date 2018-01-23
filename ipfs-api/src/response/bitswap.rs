@@ -8,7 +8,6 @@
 
 use response::serde;
 
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BitswapLedgerResponse {
@@ -19,17 +18,14 @@ pub struct BitswapLedgerResponse {
     pub exchanged: u64,
 }
 
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BitswapStatResponse {
     pub provide_buf_len: i32,
 
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub wantlist: Vec<String>,
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub wantlist: Vec<String>,
 
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub peers: Vec<String>,
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub peers: Vec<String>,
 
     pub blocks_received: u64,
     pub data_received: u64,
@@ -39,17 +35,13 @@ pub struct BitswapStatResponse {
     pub dup_data_received: u64,
 }
 
-
 pub type BitswapUnwantResponse = ();
-
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BitswapWantlistResponse {
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub keys: Vec<String>,
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub keys: Vec<String>,
 }
-
 
 #[cfg(test)]
 mod tests {

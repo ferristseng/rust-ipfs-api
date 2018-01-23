@@ -6,8 +6,8 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-extern crate ipfs_api;
 extern crate futures;
+extern crate ipfs_api;
 extern crate tar;
 extern crate tokio_core;
 
@@ -33,9 +33,9 @@ fn main() {
     {
         let mut builder = Builder::new(&mut buf);
 
-        builder.append_path(file!()).expect(
-            "failed to create tar file",
-        );
+        builder
+            .append_path(file!())
+            .expect("failed to create tar file");
         builder.finish().expect("failed to create tar file");
     }
 

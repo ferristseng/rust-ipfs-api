@@ -8,7 +8,6 @@
 
 use request::ApiRequest;
 
-
 pub struct PubsubLs;
 
 impl_skip_serialize!(PubsubLs);
@@ -17,36 +16,29 @@ impl ApiRequest for PubsubLs {
     const PATH: &'static str = "/pubsub/ls";
 }
 
-
 #[derive(Serialize)]
 pub struct PubsubPeers<'a> {
-    #[serde(rename = "arg")]
-    pub topic: &'a Option<&'a str>,
+    #[serde(rename = "arg")] pub topic: &'a Option<&'a str>,
 }
 
 impl<'a> ApiRequest for PubsubPeers<'a> {
     const PATH: &'static str = "/pubsub/peers";
 }
 
-
 #[derive(Serialize)]
 pub struct PubsubPub<'a> {
-    #[serde(rename = "arg")]
-    pub topic: &'a str,
+    #[serde(rename = "arg")] pub topic: &'a str,
 
-    #[serde(rename = "arg")]
-    pub payload: &'a str,
+    #[serde(rename = "arg")] pub payload: &'a str,
 }
 
 impl<'a> ApiRequest for PubsubPub<'a> {
     const PATH: &'static str = "/pubsub/pub";
 }
 
-
 #[derive(Serialize)]
 pub struct PubsubSub<'a> {
-    #[serde(rename = "arg")]
-    pub topic: &'a str,
+    #[serde(rename = "arg")] pub topic: &'a str,
 
     pub discover: bool,
 }

@@ -14,7 +14,6 @@ use std::fs::File;
 use std::io::{self, Write};
 use tokio_core::reactor::Core;
 
-
 pub fn signature<'a, 'b>() -> App<'a, 'b> {
     clap_app!(
         @subcommand files =>
@@ -65,7 +64,6 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
             )
     )
 }
-
 
 pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
     match args.subcommand() {
@@ -125,9 +123,9 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         }
         ("read", Some(args)) => {
             let path = args.value_of("PATH").unwrap();
-            let req = client.files_read(path).for_each(|chunk| {
-                io::stdout().write_all(&chunk).map_err(From::from)
-            });
+            let req = client
+                .files_read(&path)
+                .for_each(|chunk| io::stdout().write_all(&chunk).map_err(From::from));
 
             core.run(req).expect(EXPECTED_API);
         }

@@ -12,7 +12,6 @@ use ipfs_api::IpfsClient;
 use std::fs::File;
 use tokio_core::reactor::Core;
 
-
 pub fn signature<'a, 'b>() -> App<'a, 'b> {
     clap_app!(
         @subcommand add =>
@@ -20,7 +19,6 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
             (@arg INPUT: +required {verify_file} "File to add")
     )
 }
-
 
 pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
     let path = args.value_of("INPUT").unwrap();

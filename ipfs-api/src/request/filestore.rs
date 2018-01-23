@@ -8,7 +8,6 @@
 
 use request::ApiRequest;
 
-
 pub struct FilestoreDups;
 
 impl_skip_serialize!(FilestoreDups);
@@ -17,22 +16,18 @@ impl ApiRequest for FilestoreDups {
     const PATH: &'static str = "/filestore/dups";
 }
 
-
 #[derive(Serialize)]
 pub struct FilestoreLs<'a> {
-    #[serde(rename = "arg")]
-    pub cid: &'a Option<&'a str>,
+    #[serde(rename = "arg")] pub cid: &'a Option<&'a str>,
 }
 
 impl<'a> ApiRequest for FilestoreLs<'a> {
     const PATH: &'static str = "/filestore/ls";
 }
 
-
 #[derive(Serialize)]
 pub struct FilestoreVerify<'a> {
-    #[serde(rename = "arg")]
-    pub cid: &'a Option<&'a str>,
+    #[serde(rename = "arg")] pub cid: &'a Option<&'a str>,
 }
 
 impl<'a> ApiRequest for FilestoreVerify<'a> {

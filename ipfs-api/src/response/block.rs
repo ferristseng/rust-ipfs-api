@@ -13,7 +13,6 @@ pub struct BlockPutResponse {
     pub size: u64,
 }
 
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BlockRmResponse {
@@ -21,14 +20,12 @@ pub struct BlockRmResponse {
     pub error: Option<String>,
 }
 
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BlockStatResponse {
     pub key: String,
     pub size: u64,
 }
-
 
 #[cfg(test)]
 mod tests {

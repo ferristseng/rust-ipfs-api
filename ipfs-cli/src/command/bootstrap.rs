@@ -11,7 +11,6 @@ use command::EXPECTED_API;
 use ipfs_api::IpfsClient;
 use tokio_core::reactor::Core;
 
-
 pub fn signature<'a, 'b>() -> App<'a, 'b> {
     clap_app!(
         @subcommand bootstrap =>
@@ -34,7 +33,6 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
     )
 }
 
-
 fn print_peers(peers: &[String]) {
     println!();
     println!("  peers                  :");
@@ -44,36 +42,30 @@ fn print_peers(peers: &[String]) {
     println!();
 }
 
-
 pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
     match args.subcommand() {
-        ("add", Some(add)) => {
-            match add.subcommand() {
-                ("default", _) => {
-                    let peers = core.run(client.bootstrap_add_default()).expect(
-                        EXPECTED_API,
-                    );
+        ("add", Some(add)) => match add.subcommand() {
+            ("default", _) => {
+                let peers = core.run(client.bootstrap_add_default())
+                    .expect(EXPECTED_API);
 
-                    print_peers(&peers.peers);
-                }
-                _ => unreachable!(),
+                print_peers(&peers.peers);
             }
-        }
+            _ => unreachable!(),
+        },
         ("list", _) => {
             let peers = core.run(client.bootstrap_list()).expect(EXPECTED_API);
 
             print_peers(&peers.peers);
         }
-        ("rm", Some(rm)) => {
-            match rm.subcommand() {
-                ("all", _) => {
-                    let peers = core.run(client.bootstrap_rm_all()).expect(EXPECTED_API);
+        ("rm", Some(rm)) => match rm.subcommand() {
+            ("all", _) => {
+                let peers = core.run(client.bootstrap_rm_all()).expect(EXPECTED_API);
 
-                    print_peers(&peers.peers);
-                }
-                _ => unreachable!(),
+                print_peers(&peers.peers);
             }
-        }
+            _ => unreachable!(),
+        },
         _ => unreachable!(),
     }
 }

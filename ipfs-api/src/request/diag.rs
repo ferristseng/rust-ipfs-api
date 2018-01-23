@@ -8,7 +8,6 @@
 
 use request::ApiRequest;
 
-
 pub struct DiagCmdsClear;
 
 impl_skip_serialize!(DiagCmdsClear);
@@ -17,17 +16,14 @@ impl ApiRequest for DiagCmdsClear {
     const PATH: &'static str = "/diag/cmds/clear";
 }
 
-
 #[derive(Serialize)]
 pub struct DiagCmdsSetTime<'a> {
-    #[serde(rename = "arg")]
-    pub time: &'a str,
+    #[serde(rename = "arg")] pub time: &'a str,
 }
 
 impl<'a> ApiRequest for DiagCmdsSetTime<'a> {
     const PATH: &'static str = "/diag/cmds/set-time";
 }
-
 
 pub struct DiagSys;
 

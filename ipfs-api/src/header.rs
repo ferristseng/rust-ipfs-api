@@ -10,7 +10,6 @@ use hyper;
 use hyper::header::{self, Header, Raw};
 use std::fmt;
 
-
 /// Header that is returned for streaming calls.
 ///
 /// A `Trailer` header indicates that after a streaming call, there will
@@ -51,7 +50,6 @@ impl Header for Trailer {
     }
 }
 
-
 /// This header is included while streaming if an error occured
 /// while streaming the data.
 ///
@@ -69,7 +67,9 @@ impl Header for XStreamError {
         if let Some(bytes) = raw.one() {
             let value = String::from_utf8_lossy(bytes);
 
-            Ok(XStreamError { error: value.into_owned() })
+            Ok(XStreamError {
+                error: value.into_owned(),
+            })
         } else {
             Err(hyper::Error::Header)
         }

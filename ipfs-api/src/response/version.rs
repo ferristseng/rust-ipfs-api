@@ -16,7 +16,6 @@ pub struct VersionResponse {
     pub golang: String,
 }
 
-
 #[cfg(test)]
 mod tests {
     deserialize_test!(v0_version_0, VersionResponse);

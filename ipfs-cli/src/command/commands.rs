@@ -12,14 +12,12 @@ use ipfs_api::IpfsClient;
 use ipfs_api::response::CommandsResponse;
 use tokio_core::reactor::Core;
 
-
 pub fn signature<'a, 'b>() -> App<'a, 'b> {
     clap_app!(
         @subcommand commands =>
             (about: "List all available commands")
     )
 }
-
 
 fn recursive_print_commands(cmd: CommandsResponse, stack: &mut Vec<String>) {
     if cmd.subcommands.is_empty() {
@@ -36,7 +34,6 @@ fn recursive_print_commands(cmd: CommandsResponse, stack: &mut Vec<String>) {
         stack.pop();
     }
 }
-
 
 pub fn handle(core: &mut Core, client: &IpfsClient) {
     let commands = core.run(client.commands()).expect(EXPECTED_API);

@@ -10,7 +10,6 @@ use request::ApiRequest;
 use serde::ser::{Serialize, Serializer};
 use std::borrow::Cow;
 
-
 #[derive(Copy, Clone)]
 pub enum LoggingLevel {
     Debug,
@@ -37,7 +36,6 @@ impl Serialize for LoggingLevel {
     }
 }
 
-
 pub enum Logger<'a> {
     All,
     Specific(Cow<'a, str>),
@@ -57,20 +55,16 @@ impl<'a> Serialize for Logger<'a> {
     }
 }
 
-
 #[derive(Serialize)]
 pub struct LogLevel<'a> {
-    #[serde(rename = "arg")]
-    pub logger: Logger<'a>,
+    #[serde(rename = "arg")] pub logger: Logger<'a>,
 
-    #[serde(rename = "arg")]
-    pub level: LoggingLevel,
+    #[serde(rename = "arg")] pub level: LoggingLevel,
 }
 
 impl<'a> ApiRequest for LogLevel<'a> {
     const PATH: &'static str = "/log/level";
 }
-
 
 pub struct LogLs;
 
@@ -79,7 +73,6 @@ impl_skip_serialize!(LogLs);
 impl ApiRequest for LogLs {
     const PATH: &'static str = "/log/ls";
 }
-
 
 pub struct LogTail;
 

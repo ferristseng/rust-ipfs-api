@@ -11,14 +11,12 @@ use serde_json;
 use serde_urlencoded;
 use std::string::FromUtf8Error;
 
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ApiError {
     pub message: String,
     pub code: u8,
 }
-
 
 error_chain! {
     foreign_links {

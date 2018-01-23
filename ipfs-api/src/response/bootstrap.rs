@@ -8,30 +8,23 @@
 
 use response::serde;
 
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BootstrapAddDefaultResponse {
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub peers: Vec<String>,
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub peers: Vec<String>,
 }
-
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BootstrapListResponse {
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub peers: Vec<String>,
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub peers: Vec<String>,
 }
-
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BootstrapRmAllResponse {
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub peers: Vec<String>,
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub peers: Vec<String>,
 }
-
 
 #[cfg(test)]
 mod tests {

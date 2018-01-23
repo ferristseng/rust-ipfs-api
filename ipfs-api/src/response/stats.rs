@@ -8,9 +8,7 @@
 
 use response::{BitswapStatResponse, RepoStatResponse};
 
-
 pub type StatsBitswapResponse = BitswapStatResponse;
-
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
@@ -21,9 +19,7 @@ pub struct StatsBwResponse {
     pub rate_out: f64,
 }
 
-
 pub type StatsRepoResponse = RepoStatResponse;
-
 
 #[cfg(test)]
 mod tests {

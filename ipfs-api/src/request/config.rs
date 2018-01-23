@@ -8,7 +8,6 @@
 
 use request::ApiRequest;
 
-
 pub struct ConfigEdit;
 
 impl_skip_serialize!(ConfigEdit);
@@ -17,7 +16,6 @@ impl ApiRequest for ConfigEdit {
     const PATH: &'static str = "/config/edit";
 }
 
-
 pub struct ConfigReplace;
 
 impl_skip_serialize!(ConfigReplace);
@@ -25,7 +23,6 @@ impl_skip_serialize!(ConfigReplace);
 impl ApiRequest for ConfigReplace {
     const PATH: &'static str = "/config/replace";
 }
-
 
 pub struct ConfigShow;
 

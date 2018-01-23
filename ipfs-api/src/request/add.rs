@@ -8,7 +8,6 @@
 
 use request::ApiRequest;
 
-
 pub struct Add;
 
 impl_skip_serialize!(Add);

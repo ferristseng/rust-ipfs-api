@@ -8,17 +8,14 @@
 
 use request::ApiRequest;
 
-
 #[derive(Serialize)]
 pub struct DagGet<'a> {
-    #[serde(rename = "arg")]
-    pub path: &'a str,
+    #[serde(rename = "arg")] pub path: &'a str,
 }
 
 impl<'a> ApiRequest for DagGet<'a> {
     const PATH: &'static str = "/dag/get";
 }
-
 
 pub struct DagPut;
 

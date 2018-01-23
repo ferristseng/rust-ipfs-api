@@ -8,25 +8,19 @@
 
 use response::serde;
 
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct PubsubLsResponse {
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub strings: Vec<String>,
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub strings: Vec<String>,
 }
-
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct PubsubPeersResponse {
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub strings: Vec<String>,
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub strings: Vec<String>,
 }
 
-
 pub type PubsubPubResponse = ();
-
 
 #[derive(Debug, Deserialize)]
 pub struct PubsubSubResponse {
@@ -34,13 +28,10 @@ pub struct PubsubSubResponse {
     pub data: Option<String>,
     pub seqno: Option<String>,
 
-    #[serde(rename = "topicIDs")]
-    pub topic_ids: Option<Vec<String>>,
+    #[serde(rename = "topicIDs")] pub topic_ids: Option<Vec<String>>,
 
-    #[serde(rename = "XXX_unrecognized")]
-    pub unrecognized: Option<Vec<u8>>,
+    #[serde(rename = "XXX_unrecognized")] pub unrecognized: Option<Vec<u8>>,
 }
-
 
 #[cfg(test)]
 mod tests {

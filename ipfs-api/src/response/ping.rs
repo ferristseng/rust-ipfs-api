@@ -14,7 +14,6 @@ pub struct PingResponse {
     pub text: String,
 }
 
-
 #[cfg(test)]
 mod tests {
     deserialize_test!(v0_ping_0, PingResponse);

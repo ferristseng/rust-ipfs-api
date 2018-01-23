@@ -40,7 +40,6 @@ pub use self::swarm::*;
 pub use self::tar::*;
 pub use self::version::*;
 
-
 /// Create a test to deserialize a file to the given instance.
 ///
 #[cfg(test)]
@@ -57,7 +56,6 @@ macro_rules! deserialize_test {
         }
     )
 }
-
 
 mod add;
 mod bitswap;
@@ -92,7 +90,6 @@ mod swarm;
 mod tar;
 mod version;
 
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct IpfsHeader {
@@ -100,6 +97,5 @@ pub struct IpfsHeader {
     pub hash: String,
     pub size: u64,
 
-    #[serde(rename = "Type")]
-    pub typ: Option<String>,
+    #[serde(rename = "Type")] pub typ: Option<String>,
 }

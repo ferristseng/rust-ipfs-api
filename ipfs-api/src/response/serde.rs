@@ -12,7 +12,6 @@ use std::error::Error;
 use std::fmt;
 use std::marker::PhantomData;
 
-
 pub struct IntegerVisitor;
 
 impl<'de> Visitor<'de> for IntegerVisitor {
@@ -64,7 +63,6 @@ impl<'de> Visitor<'de> for IntegerVisitor {
         Ok(num as i64)
     }
 }
-
 
 /// Deserializes a sequence or null values as a vec.
 ///
@@ -118,7 +116,6 @@ where
 
     deserializer.deserialize_option(VecVisitor(PhantomData))
 }
-
 
 /// Deserializes a map or null values as a HashMap.
 ///

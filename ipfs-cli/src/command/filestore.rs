@@ -12,7 +12,6 @@ use futures::stream::Stream;
 use ipfs_api::{response, IpfsClient};
 use tokio_core::reactor::Core;
 
-
 pub fn signature<'a, 'b>() -> App<'a, 'b> {
     clap_app!(
         @subcommand filestore =>
@@ -31,7 +30,6 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
     )
 }
 
-
 fn print_filestore_object<E>(obj: &response::FilestoreObject) -> Result<(), E> {
     println!("  status                 : {}", obj.status);
     println!("  error_msg              : {}", obj.error_msg);
@@ -43,7 +41,6 @@ fn print_filestore_object<E>(obj: &response::FilestoreObject) -> Result<(), E> {
 
     Ok(())
 }
-
 
 pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
     match args.subcommand() {
@@ -72,9 +69,9 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         }
         ("verify", Some(args)) => {
             let cid = args.value_of("CID");
-            let req = client.filestore_verify(&cid).for_each(|res| {
-                print_filestore_object(&res)
-            });
+            let req = client
+                .filestore_verify(&cid)
+                .for_each(print_filestore_object);
 
             println!();
             core.run(req).expect(EXPECTED_API);

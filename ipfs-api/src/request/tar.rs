@@ -8,7 +8,6 @@
 
 use request::ApiRequest;
 
-
 pub struct TarAdd;
 
 impl_skip_serialize!(TarAdd);
@@ -17,11 +16,9 @@ impl ApiRequest for TarAdd {
     const PATH: &'static str = "/tar/add";
 }
 
-
 #[derive(Serialize)]
 pub struct TarCat<'a> {
-    #[serde(rename = "arg")]
-    pub path: &'a str,
+    #[serde(rename = "arg")] pub path: &'a str,
 }
 
 impl<'a> ApiRequest for TarCat<'a> {

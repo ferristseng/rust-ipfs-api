@@ -8,12 +8,9 @@
 
 use response::serde;
 
-
 pub type FilesCpResponse = ();
 
-
 pub type FilesFlushResponse = ();
-
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
@@ -23,29 +20,22 @@ pub struct FilesEntry {
     // This is a protocol buffer enum type defined in
     // https://github.com/ipfs/go-ipfs/blob/master/unixfs/pb/unixfs.proto ...
     // So it might be some other type than u64, but certainly shouldn't be *bigger* than u64.
-    #[serde(rename = "Type")]
-    pub typ: u64,
+    #[serde(rename = "Type")] pub typ: u64,
     pub size: u64,
     pub hash: String,
 }
 
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct FilesLsResponse {
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub entries: Vec<FilesEntry>,
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub entries: Vec<FilesEntry>,
 }
-
 
 pub type FilesMkdirResponse = ();
 
-
 pub type FilesMvResponse = ();
 
-
 pub type FilesRmResponse = ();
-
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
@@ -55,13 +45,10 @@ pub struct FilesStatResponse {
     pub cumulative_size: u64,
     pub blocks: u64,
 
-    #[serde(rename = "Type")]
-    pub typ: String,
+    #[serde(rename = "Type")] pub typ: String,
 }
 
-
 pub type FilesWriteResponse = ();
-
 
 #[cfg(test)]
 mod tests {

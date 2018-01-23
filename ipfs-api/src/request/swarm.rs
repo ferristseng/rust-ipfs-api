@@ -8,7 +8,6 @@
 
 use request::ApiRequest;
 
-
 pub struct SwarmAddrsLocal;
 
 impl_skip_serialize!(SwarmAddrsLocal);
@@ -16,7 +15,6 @@ impl_skip_serialize!(SwarmAddrsLocal);
 impl ApiRequest for SwarmAddrsLocal {
     const PATH: &'static str = "/swarm/addrs/local";
 }
-
 
 pub struct SwarmPeers;
 

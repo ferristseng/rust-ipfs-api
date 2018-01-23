@@ -9,12 +9,10 @@
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct FilestoreDupsResponse {
-    #[serde(rename = "Ref")]
-    pub reference: String,
+    #[serde(rename = "Ref")] pub reference: String,
 
     pub err: String,
 }
-
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
@@ -27,8 +25,6 @@ pub struct FilestoreObject {
     pub size: u64,
 }
 
-
 pub type FilestoreLsResponse = FilestoreObject;
-
 
 pub type FilestoreVerifyResponse = FilestoreObject;

@@ -11,7 +11,6 @@ use command::EXPECTED_API;
 use ipfs_api::IpfsClient;
 use tokio_core::reactor::Core;
 
-
 pub fn signature<'a, 'b>() -> App<'a, 'b> {
     clap_app!(
         @subcommand dns =>
@@ -20,7 +19,6 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
             (@arg recursive: -r --recursive "Resolve until the result is not a DNS link")
     )
 }
-
 
 pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
     let path = args.value_of("PATH").unwrap();
