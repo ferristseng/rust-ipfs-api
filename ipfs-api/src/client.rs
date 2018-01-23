@@ -362,6 +362,8 @@ impl IpfsClient {
         self.request(&request::BitswapLedger { peer }, None)
     }
 
+    // TODO /bitswap/reprovide
+
     /// Returns some stats about the bitswap agent.
     ///
     /// # Examples
@@ -765,6 +767,8 @@ impl IpfsClient {
     //
     //     self.request(&request::DagPut, Some(form))
     // }
+
+    // TODO /dag/resolve
 
     /// Query the DHT for all of the multiaddresses associated with a Peer ID.
     ///
@@ -1551,6 +1555,14 @@ impl IpfsClient {
         self.request(&request::Ls { path }, None)
     }
 
+    // TODO /mount
+
+    // TODO /name/publish
+
+    // TODO /name/resolve
+
+    // TODO /object/data
+
     /// Returns the diff of two Ipfs objects.
     ///
     /// ```no_run
@@ -1620,6 +1632,18 @@ impl IpfsClient {
         self.request(&request::ObjectLinks { key }, None)
     }
 
+    // TODO /object/new
+
+    // TODO /object/patch/add-link
+
+    // TODO /object/patch/append-data
+
+    // TODO /object/patch/rm-link
+
+    // TODO /object/patch/set-data
+
+    // TODO /object/put
+
     /// Returns the stats for an object.
     ///
     /// ```no_run
@@ -1640,6 +1664,18 @@ impl IpfsClient {
     pub fn object_stat(&self, key: &str) -> AsyncResponse<response::ObjectStatResponse> {
         self.request(&request::ObjectStat { key }, None)
     }
+
+    // TODO /p2p/listener/close
+
+    // TODO /p2p/listener/ls
+
+    // TODO /p2p/listener/open
+
+    // TODO /p2p/stream/close
+
+    // TODO /p2p/stream/dial
+
+    // TODO /p2p/stream/ls
 
     /// Pins a new object.
     ///
@@ -1731,6 +1767,10 @@ impl IpfsClient {
     pub fn pin_rm(&self, key: &str, recursive: bool) -> AsyncResponse<response::PinRmResponse> {
         self.request(&request::PinRm { key, recursive }, None)
     }
+
+    // TODO /pin/update
+
+    // TODO /pin/verify
 
     /// Pings a peer.
     ///
@@ -1876,6 +1916,20 @@ impl IpfsClient {
         self.request_stream_json(&request::RefsLocal, None)
     }
 
+    // TODO /repo/fsck
+
+    // TODO /repo/gc
+
+    // TODO /repo/stat
+
+    // TODO /repo/verify
+
+    // TODO /repo/version
+
+    // TODO /resolve
+
+    // TODO /shutdown
+
     /// Returns bitswap stats.
     ///
     /// ```no_run
@@ -1939,6 +1993,8 @@ impl IpfsClient {
         self.request(&request::StatsRepo, None)
     }
 
+    // TODO /swarm/addrs/listen
+
     /// Return a list of local addresses.
     ///
     /// ```no_run
@@ -1959,6 +2015,14 @@ impl IpfsClient {
     pub fn swarm_addrs_local(&self) -> AsyncResponse<response::SwarmAddrsLocalResponse> {
         self.request(&request::SwarmAddrsLocal, None)
     }
+
+    // TODO /swarm/connect
+
+    // TODO /swarm/disconnect
+
+    // TODO /swarm/filters/add
+
+    // TODO /swarm/filters/rm
 
     /// Return a list of peers with open connections.
     ///
