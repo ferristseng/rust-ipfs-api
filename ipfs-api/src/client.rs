@@ -1725,7 +1725,7 @@ impl IpfsClient {
     /// # fn main() {
     /// let mut core = Core::new().unwrap();
     /// let client = IpfsClient::default(&core.handle());
-    /// let req = client.pin_ls(&None, &None);
+    /// let req = client.pin_ls(None, None);
     /// let req = client.pin_ls(
     ///     Some("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY"),
     ///     None);
