@@ -59,9 +59,9 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
         }
         ("ls", Some(args)) => {
             let cid = args.value_of("CID");
-            let req = client.filestore_ls(&cid).for_each(
-                |res| print_filestore_object(&res),
-            );
+            let req = client
+                .filestore_ls(&cid)
+                .for_each(|res| print_filestore_object(&res));
 
             println!();
             core.run(req).expect(EXPECTED_API);
