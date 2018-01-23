@@ -8,25 +8,37 @@
 
 use response::serde;
 
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
-pub struct KeyGenResponse {
+pub struct KeyPair {
     pub name: String,
     pub id: String,
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct KeyPairList {
+    #[serde(deserialize_with = "serde::deserialize_vec")] pub keys: Vec<KeyPair>,
+}
+
+pub type KeyGenResponse = KeyPair;
+
+pub type KeyListResponse = KeyPairList;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
-pub struct KeyListResponse {
-    #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub keys: Vec<KeyGenResponse>,
+pub struct KeyRenameResponse {
+    pub was: String,
+    pub now: String,
+    pub id: String,
+    pub overwrite: bool,
 }
 
+pub type KeyRmResponse = KeyPairList;
 
 #[cfg(test)]
 mod tests {
     deserialize_test!(v0_key_gen_0, KeyGenResponse);
     deserialize_test!(v0_key_list_0, KeyListResponse);
+    deserialize_test!(v0_key_rename_0, KeyRenameResponse);
 }

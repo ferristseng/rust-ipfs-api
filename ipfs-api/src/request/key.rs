@@ -9,7 +9,6 @@
 use request::ApiRequest;
 use serde::ser::{Serialize, Serializer};
 
-
 #[derive(Copy, Clone)]
 pub enum KeyType {
     Rsa,
@@ -30,14 +29,11 @@ impl Serialize for KeyType {
     }
 }
 
-
 #[derive(Serialize)]
 pub struct KeyGen<'a, 'b> {
-    #[serde(rename = "arg")]
-    pub name: &'a str,
+    #[serde(rename = "arg")] pub name: &'a str,
 
-    #[serde(rename = "type")]
-    pub kind: KeyType,
+    #[serde(rename = "type")] pub kind: KeyType,
 
     pub size: &'b Option<i32>,
 }
@@ -46,11 +42,32 @@ impl<'a, 'b> ApiRequest for KeyGen<'a, 'b> {
     const PATH: &'static str = "/key/gen";
 }
 
-
 pub struct KeyList;
 
 impl_skip_serialize!(KeyList);
 
 impl ApiRequest for KeyList {
     const PATH: &'static str = "/key/list";
+}
+
+#[derive(Serialize)]
+pub struct KeyRename<'a, 'b> {
+    #[serde(rename = "arg")] pub name: &'a str,
+
+    #[serde(rename = "arg")] pub new: &'b str,
+
+    pub force: bool,
+}
+
+impl<'a, 'b> ApiRequest for KeyRename<'a, 'b> {
+    const PATH: &'static str = "/key/rename";
+}
+
+#[derive(Serialize)]
+pub struct KeyRm<'a> {
+    #[serde(rename = "arg")] pub name: &'a str,
+}
+
+impl<'a> ApiRequest for KeyRm<'a> {
+    const PATH: &'static str = "/key/rm";
 }

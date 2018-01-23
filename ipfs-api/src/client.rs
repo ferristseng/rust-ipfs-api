@@ -12,7 +12,7 @@ use header::Trailer;
 use read::{JsonLineDecoder, LineDecoder, StreamReader};
 use request::{self, ApiRequest};
 use response::{self, Error, ErrorKind};
-use hyper::{self, Chunk, Request, Response, Uri, Method, StatusCode};
+use hyper::{self, Chunk, Method, Request, Response, StatusCode, Uri};
 use hyper::client::{Client, Config, HttpConnector};
 use hyper_multipart::client::multipart;
 use serde::{Deserialize, Serialize};
@@ -21,16 +21,13 @@ use std::io::Read;
 use tokio_core::reactor::Handle;
 use tokio_io::codec::{Decoder, FramedRead};
 
-
 /// A response returned by the HTTP client.
 ///
 type AsyncResponse<T> = Box<Future<Item = T, Error = Error>>;
 
-
 /// A future that returns a stream of responses.
 ///
 type AsyncStreamResponse<T> = Box<Stream<Item = T, Error = Error>>;
-
 
 /// Asynchronous Ipfs client.
 ///
@@ -107,12 +104,10 @@ impl IpfsClient {
     fn build_error_from_body(chunk: Chunk) -> Error {
         match serde_json::from_slice(&chunk) {
             Ok(e) => ErrorKind::Api(e).into(),
-            Err(_) => {
-                match String::from_utf8(chunk.to_vec()) {
-                    Ok(s) => ErrorKind::Uncategorized(s).into(),
-                    Err(e) => e.into(),
-                }
-            }
+            Err(_) => match String::from_utf8(chunk.to_vec()) {
+                Ok(s) => ErrorKind::Uncategorized(s).into(),
+                Err(e) => e.into(),
+            },
         }
     }
 
@@ -226,9 +221,8 @@ impl IpfsClient {
         Req: ApiRequest + Serialize,
         for<'de> Res: 'static + Deserialize<'de>,
     {
-        let res = self.request_raw(req, form).and_then(|(status, chunk)| {
-            IpfsClient::process_json_response(status, chunk)
-        });
+        let res = self.request_raw(req, form)
+            .and_then(|(status, chunk)| IpfsClient::process_json_response(status, chunk));
 
         Box::new(res)
     }
@@ -240,12 +234,11 @@ impl IpfsClient {
     where
         Req: ApiRequest + Serialize,
     {
-        let res = self.request_raw(req, form).and_then(
-            |(status, chunk)| match status {
+        let res = self.request_raw(req, form)
+            .and_then(|(status, chunk)| match status {
                 StatusCode::Ok => Ok(()),
                 _ => Err(Self::build_error_from_body(chunk)),
-            },
-        );
+            });
 
         Box::new(res)
     }
@@ -257,16 +250,14 @@ impl IpfsClient {
     where
         Req: ApiRequest + Serialize,
     {
-        let res = self.request_raw(req, form).and_then(
-            |(status, chunk)| match status {
+        let res = self.request_raw(req, form)
+            .and_then(|(status, chunk)| match status {
                 StatusCode::Ok => String::from_utf8(chunk.to_vec()).map_err(From::from),
                 _ => Err(Self::build_error_from_body(chunk)),
-            },
-        );
+            });
 
         Box::new(res)
     }
-
 
     /// Generic method for making a request to the Ipfs server, and getting
     /// back a raw stream of bytes.
@@ -1412,6 +1403,53 @@ impl IpfsClient {
     #[inline]
     pub fn key_list(&self) -> AsyncResponse<response::KeyListResponse> {
         self.request(&request::KeyList, None)
+    }
+
+    /// Rename a keypair.
+    ///
+    /// ```no_run
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let req = client.key_rename("key_0", "new_name", false);
+    /// # }
+    /// ```
+    ///
+    #[inline]
+    pub fn key_rename(
+        &self,
+        name: &str,
+        new: &str,
+        force: bool,
+    ) -> AsyncResponse<response::KeyRenameResponse> {
+        self.request(&request::KeyRename { name, new, force }, None)
+    }
+
+    /// Remove a keypair.
+    ///
+    /// ```no_run
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let req = client.key_rm("key_0");
+    /// # }
+    /// ```
+    ///
+    #[inline]
+    pub fn key_rm(&self, name: &str) -> AsyncResponse<response::KeyRmResponse> {
+        self.request(&request::KeyRm { name }, None)
     }
 
     /// Change the logging level for a logger.
