@@ -1557,9 +1557,81 @@ impl IpfsClient {
 
     // TODO /mount
 
-    // TODO /name/publish
+    /// Publish an IPFS path to IPNS.
+    ///
+    /// ```no_run
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let req = client.name_publish(
+    ///     "/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY",
+    ///     false,
+    ///     Some("12h"),
+    ///     None,
+    ///     None);
+    /// # }
+    /// ```
+    ///
+    pub fn name_publish(
+        &self,
+        path: &str,
+        resolve: bool,
+        lifetime: Option<&str>,
+        ttl: Option<&str>,
+        key: Option<&str>,
+    ) -> AsyncResponse<response::NamePublishResponse> {
+        self.request(
+            &request::NamePublish {
+                path,
+                resolve,
+                lifetime,
+                ttl,
+                key,
+            },
+            None,
+        )
+    }
 
-    // TODO /name/resolve
+    /// Resolve an IPNS name.
+    ///
+    /// ```no_run
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let req = client.name_resolve(
+    ///     Some("/ipns/ipfs.io"),
+    ///     true,
+    ///     false);
+    /// # }
+    /// ```
+    ///
+    pub fn name_resolve(
+        &self,
+        name: Option<&str>,
+        recursive: bool,
+        nocache: bool,
+    ) -> AsyncResponse<response::NameResolveResponse> {
+        self.request(
+            &request::NameResolve {
+                name,
+                recursive,
+                nocache,
+            },
+            None,
+        )
+    }
 
     // TODO /object/data
 
