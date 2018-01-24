@@ -1654,7 +1654,26 @@ impl IpfsClient {
         )
     }
 
-    // TODO /object/data
+    /// Output the raw bytes of an Ipfs object.
+    ///
+    /// ```no_run
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let req = client.object_data("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
+    /// # }
+    /// ```
+    ///
+    #[inline]
+    pub fn object_data(&self, key: &str) -> AsyncStreamResponse<Chunk> {
+        self.request_stream_bytes(&request::ObjectData { key }, None)
+    }
 
     /// Returns the diff of two Ipfs objects.
     ///
@@ -1725,7 +1744,30 @@ impl IpfsClient {
         self.request(&request::ObjectLinks { key }, None)
     }
 
-    // TODO /object/new
+    /// Create a new object.
+    ///
+    /// ```no_run
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::{IpfsClient, ObjectTemplate};
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let req = client.object_new(None);
+    /// let req = client.object_new(Some(ObjectTemplate::UnixFsDir));
+    /// # }
+    /// ```
+    ///
+    #[inline]
+    pub fn object_new(
+        &self,
+        template: Option<request::ObjectTemplate>,
+    ) -> AsyncResponse<response::ObjectNewResponse> {
+        self.request(&request::ObjectNew { template }, None)
+    }
 
     // TODO /object/patch/add-link
 

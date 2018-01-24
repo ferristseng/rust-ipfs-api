@@ -7,6 +7,16 @@
 //
 
 use request::ApiRequest;
+use serde::ser::{Serialize, Serializer};
+
+#[derive(Serialize)]
+pub struct ObjectData<'a> {
+    #[serde(rename = "arg")] pub key: &'a str,
+}
+
+impl<'a> ApiRequest for ObjectData<'a> {
+    const PATH: &'static str = "/object/data";
+}
 
 #[derive(Serialize)]
 pub struct ObjectDiff<'a> {
@@ -35,6 +45,33 @@ pub struct ObjectLinks<'a> {
 
 impl<'a> ApiRequest for ObjectLinks<'a> {
     const PATH: &'static str = "/object/links";
+}
+
+#[derive(Copy, Clone)]
+pub enum ObjectTemplate {
+    UnixFsDir,
+}
+
+impl Serialize for ObjectTemplate {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let s = match self {
+            &ObjectTemplate::UnixFsDir => "unixfs-dir",
+        };
+
+        serializer.serialize_str(s)
+    }
+}
+
+#[derive(Serialize)]
+pub struct ObjectNew {
+    #[serde(rename = "arg")] pub template: Option<ObjectTemplate>,
+}
+
+impl ApiRequest for ObjectNew {
+    const PATH: &'static str = "/object/new";
 }
 
 #[derive(Serialize)]

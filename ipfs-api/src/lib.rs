@@ -88,7 +88,7 @@ extern crate tokio_core;
 extern crate tokio_io;
 
 pub use client::IpfsClient;
-pub use request::{KeyType, Logger, LoggingLevel};
+pub use request::{KeyType, Logger, LoggingLevel, ObjectTemplate};
 
 mod request;
 pub mod response;

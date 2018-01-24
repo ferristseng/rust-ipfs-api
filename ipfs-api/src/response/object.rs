@@ -9,8 +9,6 @@
 use response::{serde, IpfsHeader};
 use std::collections::HashMap;
 
-pub type ObjectDataResponse = Vec<u8>;
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ObjectDiff {
