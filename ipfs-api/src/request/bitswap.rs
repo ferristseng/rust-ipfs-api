@@ -17,6 +17,14 @@ impl<'a> ApiRequest for BitswapLedger<'a> {
     const PATH: &'static str = "/bitswap/ledger";
 }
 
+pub struct BitswapReprovide;
+
+impl_skip_serialize!(BitswapReprovide);
+
+impl ApiRequest for BitswapReprovide {
+    const PATH: &'static str = "/bitswap/reprovide";
+}
+
 pub struct BitswapStat;
 
 impl_skip_serialize!(BitswapStat);

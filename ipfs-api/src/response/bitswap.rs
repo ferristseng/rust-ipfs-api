@@ -18,6 +18,8 @@ pub struct BitswapLedgerResponse {
     pub exchanged: u64,
 }
 
+pub type BitswapReprovideResponse = ();
+
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct BitswapStatResponse {

@@ -362,7 +362,28 @@ impl IpfsClient {
         self.request(&request::BitswapLedger { peer }, None)
     }
 
-    // TODO /bitswap/reprovide
+    /// Triggers a reprovide.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let req = client.bitswap_reprovide();
+    /// # }
+    /// ```
+    ///
+    #[inline]
+    pub fn bitswap_reprovide(&self) -> AsyncResponse<response::BitswapReprovideResponse> {
+        self.request_empty(&request::BitswapReprovide, None)
+    }
 
     /// Returns some stats about the bitswap agent.
     ///

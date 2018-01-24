@@ -19,6 +19,9 @@ pub fn signature<'a, 'b>() -> App<'a, 'b> {
                 (about: "Show the current ledger for a peer")
                 (@arg PEER: +required "Peer to inspect")
             )
+            (@subcommand reprovide =>
+                (about: "Triggers a reprovide")
+            )
             (@subcommand stat =>
                 (about: "Show some diagnostic information on the bitswap agent")
             )
@@ -45,6 +48,9 @@ pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
             println!("  recv      : {}", ledger.recv);
             println!("  exchanged : {}", ledger.exchanged);
             println!();
+        }
+        ("reprovide", _) => {
+            core.run(client.bitswap_reprovide()).expect(EXPECTED_API);
         }
         ("stat", _) => {
             let stat = core.run(client.bitswap_stat()).expect(EXPECTED_API);
