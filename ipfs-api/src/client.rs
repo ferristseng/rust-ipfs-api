@@ -2000,7 +2000,25 @@ impl IpfsClient {
 
     // TODO /resolve
 
-    // TODO /shutdown
+    /// Shutdown the Ipfs daemon.
+    ///
+    /// ```no_run
+    /// # extern crate ipfs_api;
+    /// # extern crate tokio_core;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use tokio_core::reactor::Core;
+    ///
+    /// # fn main() {
+    /// let mut core = Core::new().unwrap();
+    /// let client = IpfsClient::default(&core.handle());
+    /// let req = client.shutdown();
+    /// # }
+    /// ```
+    ///
+    pub fn shutdown(&self) -> AsyncResponse<response::ShutdownResponse> {
+        self.request_empty(&request::Shutdown, None)
+    }
 
     /// Returns bitswap stats.
     ///

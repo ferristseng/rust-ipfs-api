@@ -39,6 +39,7 @@ fn main() {
             (subcommand: command::file::signature())
             (subcommand: command::files::signature())
             (subcommand: command::filestore::signature())
+            (subcommand: command::shutdown::signature())
             (subcommand: command::version::signature())
     ).get_matches();
 
@@ -60,6 +61,7 @@ fn main() {
         ("file", Some(args)) => command::file::handle(&mut core, &client, args),
         ("files", Some(args)) => command::files::handle(&mut core, &client, args),
         ("filestore", Some(args)) => command::filestore::handle(&mut core, &client, args),
+        ("shutdown", _) => command::shutdown::handle(&mut core, &client),
         ("version", _) => command::version::handle(&mut core, &client),
         _ => unreachable!(),
     }

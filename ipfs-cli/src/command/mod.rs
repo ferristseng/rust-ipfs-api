@@ -36,4 +36,5 @@ pub mod dns;
 pub mod file;
 pub mod files;
 pub mod filestore;
+pub mod shutdown;
 pub mod version;
