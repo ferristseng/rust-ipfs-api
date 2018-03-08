@@ -11,7 +11,8 @@ use serde::ser::{Serialize, Serializer};
 
 #[derive(Serialize)]
 pub struct ObjectData<'a> {
-    #[serde(rename = "arg")] pub key: &'a str,
+    #[serde(rename = "arg")]
+    pub key: &'a str,
 }
 
 impl<'a> ApiRequest for ObjectData<'a> {
@@ -20,9 +21,11 @@ impl<'a> ApiRequest for ObjectData<'a> {
 
 #[derive(Serialize)]
 pub struct ObjectDiff<'a> {
-    #[serde(rename = "arg")] pub key0: &'a str,
+    #[serde(rename = "arg")]
+    pub key0: &'a str,
 
-    #[serde(rename = "arg")] pub key1: &'a str,
+    #[serde(rename = "arg")]
+    pub key1: &'a str,
 }
 
 impl<'a> ApiRequest for ObjectDiff<'a> {
@@ -31,7 +34,8 @@ impl<'a> ApiRequest for ObjectDiff<'a> {
 
 #[derive(Serialize)]
 pub struct ObjectGet<'a> {
-    #[serde(rename = "arg")] pub key: &'a str,
+    #[serde(rename = "arg")]
+    pub key: &'a str,
 }
 
 impl<'a> ApiRequest for ObjectGet<'a> {
@@ -40,7 +44,8 @@ impl<'a> ApiRequest for ObjectGet<'a> {
 
 #[derive(Serialize)]
 pub struct ObjectLinks<'a> {
-    #[serde(rename = "arg")] pub key: &'a str,
+    #[serde(rename = "arg")]
+    pub key: &'a str,
 }
 
 impl<'a> ApiRequest for ObjectLinks<'a> {
@@ -67,7 +72,8 @@ impl Serialize for ObjectTemplate {
 
 #[derive(Serialize)]
 pub struct ObjectNew {
-    #[serde(rename = "arg")] pub template: Option<ObjectTemplate>,
+    #[serde(rename = "arg")]
+    pub template: Option<ObjectTemplate>,
 }
 
 impl ApiRequest for ObjectNew {
@@ -76,7 +82,8 @@ impl ApiRequest for ObjectNew {
 
 #[derive(Serialize)]
 pub struct ObjectStat<'a> {
-    #[serde(rename = "arg")] pub key: &'a str,
+    #[serde(rename = "arg")]
+    pub key: &'a str,
 }
 
 impl<'a> ApiRequest for ObjectStat<'a> {

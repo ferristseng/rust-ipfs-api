@@ -10,7 +10,8 @@ use request::ApiRequest;
 
 #[derive(Serialize)]
 pub struct BitswapLedger<'a> {
-    #[serde(rename = "arg")] pub peer: &'a str,
+    #[serde(rename = "arg")]
+    pub peer: &'a str,
 }
 
 impl<'a> ApiRequest for BitswapLedger<'a> {
@@ -35,7 +36,8 @@ impl ApiRequest for BitswapStat {
 
 #[derive(Serialize)]
 pub struct BitswapUnwant<'a> {
-    #[serde(rename = "arg")] pub key: &'a str,
+    #[serde(rename = "arg")]
+    pub key: &'a str,
 }
 
 impl<'a> ApiRequest for BitswapUnwant<'a> {

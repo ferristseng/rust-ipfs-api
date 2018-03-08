@@ -10,7 +10,8 @@ use request::ApiRequest;
 
 #[derive(Serialize)]
 pub struct DhtFindPeer<'a> {
-    #[serde(rename = "arg")] pub peer: &'a str,
+    #[serde(rename = "arg")]
+    pub peer: &'a str,
 }
 
 impl<'a> ApiRequest for DhtFindPeer<'a> {
@@ -19,7 +20,8 @@ impl<'a> ApiRequest for DhtFindPeer<'a> {
 
 #[derive(Serialize)]
 pub struct DhtFindProvs<'a> {
-    #[serde(rename = "arg")] pub key: &'a str,
+    #[serde(rename = "arg")]
+    pub key: &'a str,
 }
 
 impl<'a> ApiRequest for DhtFindProvs<'a> {
@@ -28,7 +30,8 @@ impl<'a> ApiRequest for DhtFindProvs<'a> {
 
 #[derive(Serialize)]
 pub struct DhtGet<'a> {
-    #[serde(rename = "arg")] pub key: &'a str,
+    #[serde(rename = "arg")]
+    pub key: &'a str,
 }
 
 impl<'a> ApiRequest for DhtGet<'a> {
@@ -37,7 +40,8 @@ impl<'a> ApiRequest for DhtGet<'a> {
 
 #[derive(Serialize)]
 pub struct DhtProvide<'a> {
-    #[serde(rename = "arg")] pub key: &'a str,
+    #[serde(rename = "arg")]
+    pub key: &'a str,
 }
 
 impl<'a> ApiRequest for DhtProvide<'a> {
@@ -46,9 +50,11 @@ impl<'a> ApiRequest for DhtProvide<'a> {
 
 #[derive(Serialize)]
 pub struct DhtPut<'a> {
-    #[serde(rename = "arg")] pub key: &'a str,
+    #[serde(rename = "arg")]
+    pub key: &'a str,
 
-    #[serde(rename = "arg")] pub value: &'a str,
+    #[serde(rename = "arg")]
+    pub value: &'a str,
 }
 
 impl<'a> ApiRequest for DhtPut<'a> {
@@ -57,7 +63,8 @@ impl<'a> ApiRequest for DhtPut<'a> {
 
 #[derive(Serialize)]
 pub struct DhtQuery<'a> {
-    #[serde(rename = "arg")] pub peer: &'a str,
+    #[serde(rename = "arg")]
+    pub peer: &'a str,
 }
 
 impl<'a> ApiRequest for DhtQuery<'a> {

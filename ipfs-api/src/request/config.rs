@@ -6,6 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+use hyper::Method;
 use request::ApiRequest;
 
 pub struct ConfigEdit;
@@ -22,6 +23,8 @@ impl_skip_serialize!(ConfigReplace);
 
 impl ApiRequest for ConfigReplace {
     const PATH: &'static str = "/config/replace";
+
+    const METHOD: &'static Method = &Method::Post;
 }
 
 pub struct ConfigShow;

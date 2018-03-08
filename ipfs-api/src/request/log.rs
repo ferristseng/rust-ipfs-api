@@ -57,9 +57,11 @@ impl<'a> Serialize for Logger<'a> {
 
 #[derive(Serialize)]
 pub struct LogLevel<'a> {
-    #[serde(rename = "arg")] pub logger: Logger<'a>,
+    #[serde(rename = "arg")]
+    pub logger: Logger<'a>,
 
-    #[serde(rename = "arg")] pub level: LoggingLevel,
+    #[serde(rename = "arg")]
+    pub level: LoggingLevel,
 }
 
 impl<'a> ApiRequest for LogLevel<'a> {

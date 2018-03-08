@@ -6,11 +6,13 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+use hyper::Method;
 use request::ApiRequest;
 
 #[derive(Serialize)]
 pub struct DagGet<'a> {
-    #[serde(rename = "arg")] pub path: &'a str,
+    #[serde(rename = "arg")]
+    pub path: &'a str,
 }
 
 impl<'a> ApiRequest for DagGet<'a> {
@@ -23,4 +25,6 @@ impl_skip_serialize!(DagPut);
 
 impl ApiRequest for DagPut {
     const PATH: &'static str = "/dag/put";
+
+    const METHOD: &'static Method = &Method::Post;
 }

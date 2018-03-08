@@ -42,15 +42,12 @@ pub use self::version::*;
 ///
 #[cfg(test)]
 macro_rules! serialize_url_test {
-    ($f:ident, $obj:expr, $exp:expr) => (
+    ($f: ident, $obj: expr, $exp: expr) => {
         #[test]
         fn $f() {
-            assert_eq!(
-                ::serde_urlencoded::to_string($obj),
-                Ok($exp.to_string())
-            )
+            assert_eq!(::serde_urlencoded::to_string($obj), Ok($exp.to_string()))
         }
-    )
+    };
 }
 
 /// Implements the `Serialize` trait for types that do not require
@@ -58,15 +55,16 @@ macro_rules! serialize_url_test {
 /// `serde_urlencoded`, that prevents unit structs from being serialized.
 ///
 macro_rules! impl_skip_serialize {
-    ($ty:ty) => (
+    ($ty: ty) => {
         impl ::serde::Serialize for $ty {
             fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-                where S: ::serde::Serializer
+            where
+                S: ::serde::Serializer,
             {
                 serializer.serialize_none()
             }
         }
-    )
+    };
 }
 
 mod add;
@@ -108,4 +106,8 @@ pub trait ApiRequest {
     /// All paths should begin with '/'.
     ///
     const PATH: &'static str;
+
+    /// Method used to make the request.
+    ///
+    const METHOD: &'static ::hyper::Method = &::hyper::Method::Get;
 }

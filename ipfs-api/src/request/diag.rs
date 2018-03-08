@@ -18,7 +18,8 @@ impl ApiRequest for DiagCmdsClear {
 
 #[derive(Serialize)]
 pub struct DiagCmdsSetTime<'a> {
-    #[serde(rename = "arg")] pub time: &'a str,
+    #[serde(rename = "arg")]
+    pub time: &'a str,
 }
 
 impl<'a> ApiRequest for DiagCmdsSetTime<'a> {

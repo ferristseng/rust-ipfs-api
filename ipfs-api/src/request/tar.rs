@@ -6,6 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+use hyper::Method;
 use request::ApiRequest;
 
 pub struct TarAdd;
@@ -14,11 +15,14 @@ impl_skip_serialize!(TarAdd);
 
 impl ApiRequest for TarAdd {
     const PATH: &'static str = "/tar/add";
+
+    const METHOD: &'static Method = &Method::Post;
 }
 
 #[derive(Serialize)]
 pub struct TarCat<'a> {
-    #[serde(rename = "arg")] pub path: &'a str,
+    #[serde(rename = "arg")]
+    pub path: &'a str,
 }
 
 impl<'a> ApiRequest for TarCat<'a> {

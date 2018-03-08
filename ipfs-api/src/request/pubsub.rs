@@ -18,7 +18,8 @@ impl ApiRequest for PubsubLs {
 
 #[derive(Serialize)]
 pub struct PubsubPeers<'a> {
-    #[serde(rename = "arg")] pub topic: Option<&'a str>,
+    #[serde(rename = "arg")]
+    pub topic: Option<&'a str>,
 }
 
 impl<'a> ApiRequest for PubsubPeers<'a> {
@@ -27,9 +28,11 @@ impl<'a> ApiRequest for PubsubPeers<'a> {
 
 #[derive(Serialize)]
 pub struct PubsubPub<'a> {
-    #[serde(rename = "arg")] pub topic: &'a str,
+    #[serde(rename = "arg")]
+    pub topic: &'a str,
 
-    #[serde(rename = "arg")] pub payload: &'a str,
+    #[serde(rename = "arg")]
+    pub payload: &'a str,
 }
 
 impl<'a> ApiRequest for PubsubPub<'a> {
@@ -38,7 +41,8 @@ impl<'a> ApiRequest for PubsubPub<'a> {
 
 #[derive(Serialize)]
 pub struct PubsubSub<'a> {
-    #[serde(rename = "arg")] pub topic: &'a str,
+    #[serde(rename = "arg")]
+    pub topic: &'a str,
 
     pub discover: bool,
 }

@@ -6,11 +6,13 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+use hyper::Method;
 use request::ApiRequest;
 
 #[derive(Serialize)]
 pub struct BlockGet<'a> {
-    #[serde(rename = "arg")] pub hash: &'a str,
+    #[serde(rename = "arg")]
+    pub hash: &'a str,
 }
 
 impl<'a> ApiRequest for BlockGet<'a> {
@@ -23,11 +25,14 @@ impl_skip_serialize!(BlockPut);
 
 impl ApiRequest for BlockPut {
     const PATH: &'static str = "/block/put";
+
+    const METHOD: &'static Method = &Method::Post;
 }
 
 #[derive(Serialize)]
 pub struct BlockRm<'a> {
-    #[serde(rename = "arg")] pub hash: &'a str,
+    #[serde(rename = "arg")]
+    pub hash: &'a str,
 }
 
 impl<'a> ApiRequest for BlockRm<'a> {
@@ -36,7 +41,8 @@ impl<'a> ApiRequest for BlockRm<'a> {
 
 #[derive(Serialize)]
 pub struct BlockStat<'a> {
-    #[serde(rename = "arg")] pub hash: &'a str,
+    #[serde(rename = "arg")]
+    pub hash: &'a str,
 }
 
 impl<'a> ApiRequest for BlockStat<'a> {

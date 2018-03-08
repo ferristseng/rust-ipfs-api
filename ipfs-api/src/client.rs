@@ -12,7 +12,7 @@ use header::Trailer;
 use read::{JsonLineDecoder, LineDecoder, StreamReader};
 use request::{self, ApiRequest};
 use response::{self, Error, ErrorKind};
-use hyper::{self, Chunk, Method, Request, Response, StatusCode, Uri};
+use hyper::{self, Chunk, Request, Response, StatusCode, Uri};
 use hyper::client::{Client, Config, HttpConnector};
 use hyper_multipart::client::multipart;
 use serde::{Deserialize, Serialize};
@@ -87,7 +87,7 @@ impl IpfsClient {
 
         url.parse::<Uri>()
             .map(move |url| {
-                let mut req = Request::new(Method::Get, url);
+                let mut req = Request::new(Req::METHOD.clone(), url);
 
                 if let Some(form) = form {
                     form.set_body(&mut req);

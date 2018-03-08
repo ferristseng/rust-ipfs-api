@@ -31,9 +31,11 @@ impl Serialize for KeyType {
 
 #[derive(Serialize)]
 pub struct KeyGen<'a> {
-    #[serde(rename = "arg")] pub name: &'a str,
+    #[serde(rename = "arg")]
+    pub name: &'a str,
 
-    #[serde(rename = "type")] pub kind: KeyType,
+    #[serde(rename = "type")]
+    pub kind: KeyType,
 
     pub size: i32,
 }
@@ -52,9 +54,11 @@ impl ApiRequest for KeyList {
 
 #[derive(Serialize)]
 pub struct KeyRename<'a, 'b> {
-    #[serde(rename = "arg")] pub name: &'a str,
+    #[serde(rename = "arg")]
+    pub name: &'a str,
 
-    #[serde(rename = "arg")] pub new: &'b str,
+    #[serde(rename = "arg")]
+    pub new: &'b str,
 
     pub force: bool,
 }
@@ -65,7 +69,8 @@ impl<'a, 'b> ApiRequest for KeyRename<'a, 'b> {
 
 #[derive(Serialize)]
 pub struct KeyRm<'a> {
-    #[serde(rename = "arg")] pub name: &'a str,
+    #[serde(rename = "arg")]
+    pub name: &'a str,
 }
 
 impl<'a> ApiRequest for KeyRm<'a> {

@@ -10,7 +10,8 @@ use request::ApiRequest;
 
 #[derive(Serialize)]
 pub struct NamePublish<'a, 'b, 'c, 'd> {
-    #[serde(rename = "arg")] pub path: &'a str,
+    #[serde(rename = "arg")]
+    pub path: &'a str,
 
     pub resolve: bool,
 
@@ -27,7 +28,8 @@ impl<'a, 'b, 'c, 'd> ApiRequest for NamePublish<'a, 'b, 'c, 'd> {
 
 #[derive(Serialize)]
 pub struct NameResolve<'a> {
-    #[serde(rename = "arg")] pub name: Option<&'a str>,
+    #[serde(rename = "arg")]
+    pub name: Option<&'a str>,
 
     pub recursive: bool,
 

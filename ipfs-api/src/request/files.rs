@@ -6,13 +6,16 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+use hyper::Method;
 use request::ApiRequest;
 
 #[derive(Serialize)]
 pub struct FilesCp<'a> {
-    #[serde(rename = "arg")] pub path: &'a str,
+    #[serde(rename = "arg")]
+    pub path: &'a str,
 
-    #[serde(rename = "arg")] pub dest: &'a str,
+    #[serde(rename = "arg")]
+    pub dest: &'a str,
 }
 
 impl<'a> ApiRequest for FilesCp<'a> {
@@ -21,7 +24,8 @@ impl<'a> ApiRequest for FilesCp<'a> {
 
 #[derive(Serialize)]
 pub struct FilesFlush<'a> {
-    #[serde(rename = "arg")] pub path: Option<&'a str>,
+    #[serde(rename = "arg")]
+    pub path: Option<&'a str>,
 }
 
 impl<'a> ApiRequest for FilesFlush<'a> {
@@ -30,7 +34,8 @@ impl<'a> ApiRequest for FilesFlush<'a> {
 
 #[derive(Serialize)]
 pub struct FilesLs<'a> {
-    #[serde(rename = "arg")] pub path: Option<&'a str>,
+    #[serde(rename = "arg")]
+    pub path: Option<&'a str>,
 }
 
 impl<'a> ApiRequest for FilesLs<'a> {
@@ -39,7 +44,8 @@ impl<'a> ApiRequest for FilesLs<'a> {
 
 #[derive(Serialize)]
 pub struct FilesMkdir<'a> {
-    #[serde(rename = "arg")] pub path: &'a str,
+    #[serde(rename = "arg")]
+    pub path: &'a str,
 
     pub parents: bool,
 }
@@ -50,9 +56,11 @@ impl<'a> ApiRequest for FilesMkdir<'a> {
 
 #[derive(Serialize)]
 pub struct FilesMv<'a> {
-    #[serde(rename = "arg")] pub path: &'a str,
+    #[serde(rename = "arg")]
+    pub path: &'a str,
 
-    #[serde(rename = "arg")] pub dest: &'a str,
+    #[serde(rename = "arg")]
+    pub dest: &'a str,
 }
 
 impl<'a> ApiRequest for FilesMv<'a> {
@@ -61,7 +69,8 @@ impl<'a> ApiRequest for FilesMv<'a> {
 
 #[derive(Serialize)]
 pub struct FilesRead<'a> {
-    #[serde(rename = "arg")] pub path: &'a str,
+    #[serde(rename = "arg")]
+    pub path: &'a str,
 }
 
 impl<'a> ApiRequest for FilesRead<'a> {
@@ -70,7 +79,8 @@ impl<'a> ApiRequest for FilesRead<'a> {
 
 #[derive(Serialize)]
 pub struct FilesRm<'a> {
-    #[serde(rename = "arg")] pub path: &'a str,
+    #[serde(rename = "arg")]
+    pub path: &'a str,
 
     pub recursive: bool,
 }
@@ -81,7 +91,8 @@ impl<'a> ApiRequest for FilesRm<'a> {
 
 #[derive(Serialize)]
 pub struct FilesStat<'a> {
-    #[serde(rename = "arg")] pub path: &'a str,
+    #[serde(rename = "arg")]
+    pub path: &'a str,
 }
 
 impl<'a> ApiRequest for FilesStat<'a> {
@@ -90,7 +101,8 @@ impl<'a> ApiRequest for FilesStat<'a> {
 
 #[derive(Serialize)]
 pub struct FilesWrite<'a> {
-    #[serde(rename = "arg")] pub path: &'a str,
+    #[serde(rename = "arg")]
+    pub path: &'a str,
 
     pub create: bool,
 
@@ -99,4 +111,6 @@ pub struct FilesWrite<'a> {
 
 impl<'a> ApiRequest for FilesWrite<'a> {
     const PATH: &'static str = "/files/write";
+
+    const METHOD: &'static Method = &Method::Post;
 }

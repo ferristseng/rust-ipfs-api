@@ -10,7 +10,8 @@ use request::ApiRequest;
 
 #[derive(Serialize)]
 pub struct Id<'a> {
-    #[serde(rename = "arg")] pub peer: Option<&'a str>,
+    #[serde(rename = "arg")]
+    pub peer: Option<&'a str>,
 }
 
 impl<'a> ApiRequest for Id<'a> {
