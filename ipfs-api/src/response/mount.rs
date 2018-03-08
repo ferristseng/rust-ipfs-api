@@ -9,9 +9,11 @@
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct MountResponse {
-    #[serde(rename = "IPFS")] pub ipfs: String,
+    #[serde(rename = "IPFS")]
+    pub ipfs: String,
 
-    #[serde(rename = "IPNS")] pub ipns: String,
+    #[serde(rename = "IPNS")]
+    pub ipns: String,
 
     pub fuse_allow_other: bool,
 }

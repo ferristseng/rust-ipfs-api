@@ -15,9 +15,11 @@ pub struct IpfsDetailedFile {
     pub hash: String,
     pub size: u64,
 
-    #[serde(rename = "Type")] pub typ: String,
+    #[serde(rename = "Type")]
+    pub typ: String,
 
-    #[serde(default)] pub links: Vec<IpfsHeader>,
+    #[serde(default)]
+    pub links: Vec<IpfsHeader>,
 }
 
 #[derive(Debug, Deserialize)]

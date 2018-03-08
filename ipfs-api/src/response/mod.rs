@@ -45,17 +45,17 @@ pub use self::version::*;
 ///
 #[cfg(test)]
 macro_rules! deserialize_test {
-    ($f:ident, $ty:ident) => (
+    ($f: ident, $ty: ident) => {
         #[test]
         fn $f() {
             let raw = include_str!(concat!("tests/", stringify!($f), ".json"));
 
             match ::serde_json::from_str::<super::$ty>(raw) {
                 Ok(_) => assert!(true),
-                Err(e) => assert!(false, format!("failed with error: {}", e))
+                Err(e) => assert!(false, format!("failed with error: {}", e)),
             };
         }
-    )
+    };
 }
 
 mod add;
@@ -99,5 +99,6 @@ pub struct IpfsHeader {
     pub hash: String,
     pub size: u64,
 
-    #[serde(rename = "Type")] pub typ: Option<String>,
+    #[serde(rename = "Type")]
+    pub typ: Option<String>,
 }

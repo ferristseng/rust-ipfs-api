@@ -17,7 +17,8 @@ pub struct LogLevelResponse {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct LogLsResponse {
-    #[serde(deserialize_with = "serde::deserialize_vec")] pub strings: Vec<String>,
+    #[serde(deserialize_with = "serde::deserialize_vec")]
+    pub strings: Vec<String>,
 }
 
 #[cfg(test)]

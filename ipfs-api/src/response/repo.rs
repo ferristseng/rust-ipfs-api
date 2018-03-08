@@ -18,7 +18,8 @@ pub struct RepoFsckResponse {
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct RepoGcResponse {
-    #[serde(deserialize_with = "serde::deserialize_hashmap")] pub key: HashMap<String, String>,
+    #[serde(deserialize_with = "serde::deserialize_hashmap")]
+    pub key: HashMap<String, String>,
     pub error: Option<String>,
 }
 

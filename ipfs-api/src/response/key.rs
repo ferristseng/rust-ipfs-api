@@ -18,7 +18,8 @@ pub struct KeyPair {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct KeyPairList {
-    #[serde(deserialize_with = "serde::deserialize_vec")] pub keys: Vec<KeyPair>,
+    #[serde(deserialize_with = "serde::deserialize_vec")]
+    pub keys: Vec<KeyPair>,
 }
 
 pub type KeyGenResponse = KeyPair;
