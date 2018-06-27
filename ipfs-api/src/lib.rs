@@ -14,7 +14,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = "0.4.0-alpha.3"
+//! ipfs-api = "0.5.0-alpha1"
 //! ```
 //!
 //! ## Examples
