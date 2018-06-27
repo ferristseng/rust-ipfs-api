@@ -6,54 +6,60 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use clap::{App, ArgMatches};
-use command::EXPECTED_API;
-use ipfs_api::IpfsClient;
-use tokio_core::reactor::Core;
+use clap::App;
+use command::CliCommand;
+use futures::Future;
 
-pub fn signature<'a, 'b>() -> App<'a, 'b> {
-    clap_app!(
-        @subcommand file =>
-            (@setting SubcommandRequiredElseHelp)
-            (@subcommand ls =>
-                (about: "List directory contents for Unix filesystem objects")
-                (@arg PATH: +required "THe path to list links from")
-            )
-    )
-}
+pub struct Command;
 
-pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
-    match args.subcommand() {
-        ("ls", Some(args)) => {
+impl CliCommand for Command {
+    const NAME: &'static str = "file";
+
+    fn signature<'a, 'b>() -> App<'a, 'b> {
+        clap_app!(
+            @subcommand file =>
+                (@setting SubcommandRequiredElseHelp)
+                (@subcommand ls =>
+                    (about: "List directory contents for Unix filesystem objects")
+                    (@arg PATH: +required "The path to list links from")
+                )
+        )
+    }
+
+    handle!(
+        client;
+        ("ls", args) => {
             let path = args.value_of("PATH").unwrap();
-            let ls = core.run(client.file_ls(path)).expect(EXPECTED_API);
 
-            println!();
-            println!("  arguments              :");
-            for (k, arg) in ls.arguments {
-                println!("    arg        : {}", k);
-                println!("    value      : {}", arg);
-                println!();
-            }
-            println!("  objects                :");
-            for (k, obj) in ls.objects {
-                println!("    key        : {}", k);
-                println!("    hash       : {}", obj.hash);
-                println!("    size       : {}", obj.size);
-                println!("    type       : {}", obj.typ);
-                println!("    links      :");
-                for link in obj.links {
-                    println!("      name       : {}", link.name);
-                    println!("      hash       : {}", link.hash);
-                    println!("      size       : {}", link.size);
-                    if let Some(ref typ) = link.typ {
-                        println!("      type       : {}", typ);
+            client
+                .file_ls(path)
+                .map(|ls| {
+                    println!();
+                    println!("  arguments              :");
+                    for (k, arg) in ls.arguments {
+                        println!("    arg        : {}", k);
+                        println!("    value      : {}", arg);
+                        println!();
+                    }
+                    println!("  objects                :");
+                    for (k, obj) in ls.objects {
+                        println!("    key        : {}", k);
+                        println!("    hash       : {}", obj.hash);
+                        println!("    size       : {}", obj.size);
+                        println!("    type       : {}", obj.typ);
+                        println!("    links      :");
+                        for link in obj.links {
+                            println!("      name       : {}", link.name);
+                            println!("      hash       : {}", link.hash);
+                            println!("      size       : {}", link.size);
+                            if let Some(ref typ) = link.typ {
+                                println!("      type       : {}", typ);
+                            }
+                            println!();
+                        }
                     }
                     println!();
-                }
-            }
-            println!();
+                })
         }
-        _ => unreachable!(),
-    }
+    );
 }

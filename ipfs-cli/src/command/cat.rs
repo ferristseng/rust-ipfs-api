@@ -6,26 +6,31 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use clap::{App, ArgMatches};
-use command::EXPECTED_API;
-use futures::stream::Stream;
-use ipfs_api::IpfsClient;
+use clap::App;
+use command::CliCommand;
+use futures::{Future, Stream};
 use std::io::{self, Write};
-use tokio_core::reactor::Core;
 
-pub fn signature<'a, 'b>() -> App<'a, 'b> {
-    clap_app!(
-        @subcommand cat =>
-            (about: "Show IPFS object data")
-            (@arg PATH: +required "The path of the IPFS object to get")
-    )
-}
+pub struct Command;
 
-pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
-    let path = args.value_of("PATH").unwrap();
-    let req = client
-        .cat(&path)
-        .for_each(|chunk| io::stdout().write_all(&chunk).map_err(From::from));
+impl CliCommand for Command {
+    const NAME: &'static str = "cat";
 
-    core.run(req).expect(EXPECTED_API);
+    fn signature<'a, 'b>() -> App<'a, 'b> {
+        clap_app!(
+            @subcommand cat =>
+                (about: "Show IPFS object data")
+                (@arg PATH: +required "The path of the IPFS object to get")
+        )
+    }
+
+    handle!(
+        (args, client) => {
+            let path = args.value_of("PATH").unwrap();
+
+            client
+                .cat(&path)
+                .for_each(|chunk| io::stdout().write_all(&chunk).map_err(From::from))
+        }
+    );
 }

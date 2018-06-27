@@ -9,60 +9,48 @@
 #[macro_use]
 extern crate clap;
 extern crate futures;
+extern crate hyper;
 extern crate ipfs_api;
-extern crate tokio_core;
 
+use command::CliCommand;
 use ipfs_api::IpfsClient;
-use tokio_core::reactor::Core;
 
 mod command;
 
-fn main() {
-    let matches = clap_app!(
-        app =>
-            (name: "IPFS CLI")
-            (about: "CLI for Go IPFS")
-            (version: crate_version!())
-            (author: "Ferris T. <ferristseng@fastmail.fm>")
-            (@setting SubcommandRequiredElseHelp)
-            (subcommand: command::add::signature())
-            (subcommand: command::bitswap::signature())
-            (subcommand: command::block::signature())
-            (subcommand: command::bootstrap::signature())
-            (subcommand: command::cat::signature())
-            (subcommand: command::commands::signature())
-            (subcommand: command::config::signature())
-            (subcommand: command::dag::signature())
-            (subcommand: command::dht::signature())
-            (subcommand: command::diag::signature())
-            (subcommand: command::dns::signature())
-            (subcommand: command::file::signature())
-            (subcommand: command::files::signature())
-            (subcommand: command::filestore::signature())
-            (subcommand: command::shutdown::signature())
-            (subcommand: command::version::signature())
-    ).get_matches();
+macro_rules! main {
+    ($($cmd:ident);*) => {
+        fn main() {
+            let matches = clap_app!(
+                app =>
+                    (name: "IPFS CLI")
+                    (about: "CLI for Go IPFS")
+                    (version: crate_version!())
+                    (author: "Ferris T. <ferristseng@fastmail.fm>")
+                    (@setting SubcommandRequiredElseHelp)
+                    $((subcommand: <command::$cmd::Command>::signature()))*
+            ).get_matches();
 
-    let mut core = Core::new().expect("expected event loop");
-    let client = IpfsClient::default(&core.handle());
+            let client = IpfsClient::default();
+            let command = match matches.subcommand() {
+                $(
+                (<command::$cmd::Command>::NAME, Some(args)) => {
+                    <command::$cmd::Command>::handle(&client, args)
+                }
+                )*
+                _ => unreachable!(),
+            };
 
-    match matches.subcommand() {
-        ("add", Some(args)) => command::add::handle(&mut core, &client, args),
-        ("bitswap", Some(args)) => command::bitswap::handle(&mut core, &client, args),
-        ("block", Some(args)) => command::block::handle(&mut core, &client, args),
-        ("bootstrap", Some(args)) => command::bootstrap::handle(&mut core, &client, args),
-        ("cat", Some(args)) => command::cat::handle(&mut core, &client, args),
-        ("commands", _) => command::commands::handle(&mut core, &client),
-        ("config", Some(args)) => command::config::handle(&mut core, &client, args),
-        ("dag", Some(args)) => command::dag::handle(&mut core, &client, args),
-        ("dht", Some(args)) => command::dht::handle(&mut core, &client, args),
-        ("diag", Some(args)) => command::diag::handle(&mut core, &client, args),
-        ("dns", Some(args)) => command::dns::handle(&mut core, &client, args),
-        ("file", Some(args)) => command::file::handle(&mut core, &client, args),
-        ("files", Some(args)) => command::files::handle(&mut core, &client, args),
-        ("filestore", Some(args)) => command::filestore::handle(&mut core, &client, args),
-        ("shutdown", _) => command::shutdown::handle(&mut core, &client),
-        ("version", _) => command::version::handle(&mut core, &client),
-        _ => unreachable!(),
+            hyper::rt::run(command);
+        }
     }
 }
+
+main!(
+    add;
+    bitswap; block; bootstrap;
+    cat; commands; config;
+    dag; dht; diag; dns;
+    file; files; filestore;
+    shutdown;
+    version
+);

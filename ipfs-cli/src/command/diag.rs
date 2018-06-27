@@ -6,69 +6,76 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use clap::{App, Arg, ArgMatches, SubCommand};
-use command::EXPECTED_API;
-use ipfs_api::IpfsClient;
-use tokio_core::reactor::Core;
+use clap::{App, Arg, SubCommand};
+use command::CliCommand;
+use futures::Future;
 
-pub fn signature<'a, 'b>() -> App<'a, 'b> {
-    // The clap macro does not allow hyphenated command names,
-    // so the `set-time` command has to be manually instantiated.
-    //
-    let set_time_command = SubCommand::with_name("set-time")
-        .about("Set how long to keep inactive requests in the log")
-        .arg(
-            Arg::with_name("TIME")
-                .required(true)
-                .index(1)
-                .help("Time to keep inactive requests in the log"),
-        );
+pub struct Command;
 
-    clap_app!(
-        @subcommand diag =>
-            (@setting SubcommandRequiredElseHelp)
-            (@subcommand cmds =>
+impl CliCommand for Command {
+    const NAME: &'static str = "diag";
+
+    fn signature<'a, 'b>() -> App<'a, 'b> {
+        // The clap macro does not allow hyphenated command names,
+        // so the `set-time` command has to be manually instantiated.
+        //
+        let set_time_command = SubCommand::with_name("set-time")
+            .about("Set how long to keep inactive requests in the log")
+            .arg(
+                Arg::with_name("TIME")
+                    .required(true)
+                    .index(1)
+                    .help("Time to keep inactive requests in the log"),
+            );
+
+        clap_app!(
+            @subcommand diag =>
                 (@setting SubcommandRequiredElseHelp)
-                (@subcommand clear =>
-                    (about: "Clear inactive requests from the log")
+                (@subcommand cmds =>
+                    (@setting SubcommandRequiredElseHelp)
+                    (@subcommand clear =>
+                        (about: "Clear inactive requests from the log")
+                    )
+                    (subcommand: set_time_command)
                 )
-                (subcommand: set_time_command)
-            )
-            (@subcommand sys =>
-                (about: "Print system diagnostic information")
-            )
-    )
-}
+                (@subcommand sys =>
+                    (about: "Print system diagnostic information")
+                )
+        )
+    }
 
-pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
-    match args.subcommand() {
-        ("cmds", Some(args)) => match args.subcommand() {
-            ("clear", _) => {
-                core.run(client.diag_cmds_clear()).expect(EXPECTED_API);
-
-                println!("");
-                println!("  OK");
-                println!("");
-            }
-            ("set-time", Some(args)) => {
+    handle!(
+        client;
+        ("cmds") => {
+            ("clear", _args) => {
+                client
+                    .diag_cmds_clear()
+                    .map(|_| {
+                        println!("");
+                        println!("  OK");
+                        println!("");
+                    })
+            },
+            ("set-time", args) => {
                 let time = args.value_of("TIME").unwrap();
 
-                core.run(client.diag_cmds_set_time(&time))
-                    .expect(EXPECTED_API);
-
-                println!("");
-                println!("  OK");
-                println!("");
+                client
+                    .diag_cmds_set_time(&time)
+                    .map(|_| {
+                        println!("");
+                        println!("  OK");
+                        println!("");
+                    })
             }
-            _ => unreachable!(),
         },
-        ("sys", _) => {
-            let sys = core.run(client.diag_sys()).expect(EXPECTED_API);
-
-            println!();
-            println!("  {}", sys);
-            println!();
+        ("sys", _args) => {
+            client
+                .diag_sys()
+                .map(|sys| {
+                    println!();
+                    println!("  {}", sys);
+                    println!();
+                })
         }
-        _ => unreachable!(),
-    }
+    );
 }
