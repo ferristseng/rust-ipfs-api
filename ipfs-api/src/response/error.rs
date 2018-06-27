@@ -6,6 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+use http;
 use hyper;
 use serde_json;
 use serde_urlencoded;
@@ -20,10 +21,11 @@ pub struct ApiError {
 
 error_chain! {
     foreign_links {
-        Http(hyper::error::Error);
+        Client(hyper::Error);
+        Http(http::Error);
         Parse(serde_json::Error);
         ParseUtf8(FromUtf8Error);
-        Url(hyper::error::UriError);
+        Url(http::uri::InvalidUri);
         Io(::std::io::Error);
         EncodeUrl(serde_urlencoded::ser::Error);
     }
@@ -41,6 +43,13 @@ error_chain! {
         StreamError(err: String) {
             description("api returned a stream error"),
             display("api returned an error while streaming: '{}'", err)
+        }
+
+        /// API returned a trailer header with unrecognized value.
+        ///
+        UnrecognizedTrailerHeader(value: String) {
+            description("api returned a trailer header with an unknown value"),
+            display("api returned a trailer header with value: '{}'", value)
         }
 
         Uncategorized(err: String) {

@@ -6,6 +6,8 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+#![recursion_limit = "128"]
+
 //! Rust library for connecting to the IPFS HTTP API using tokio.
 //!
 //! ## Usage
@@ -77,6 +79,7 @@ extern crate bytes;
 #[macro_use]
 extern crate error_chain;
 extern crate futures;
+extern crate http;
 extern crate hyper;
 extern crate hyper_multipart_rfc7578 as hyper_multipart;
 extern crate serde;
@@ -85,6 +88,7 @@ extern crate serde_derive;
 extern crate serde_json;
 extern crate serde_urlencoded;
 extern crate tokio;
+extern crate tokio_codec;
 extern crate tokio_io;
 
 pub use client::IpfsClient;

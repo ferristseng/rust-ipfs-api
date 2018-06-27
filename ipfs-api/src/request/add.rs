@@ -16,5 +16,5 @@ impl_skip_serialize!(Add);
 impl ApiRequest for Add {
     const PATH: &'static str = "/add";
 
-    const METHOD: &'static Method = &Method::Post;
+    const METHOD: &'static Method = &Method::POST;
 }

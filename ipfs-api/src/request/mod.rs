@@ -109,5 +109,5 @@ pub trait ApiRequest {
 
     /// Method used to make the request.
     ///
-    const METHOD: &'static ::hyper::Method = &::hyper::Method::Get;
+    const METHOD: &'static ::hyper::Method = &::hyper::Method::GET;
 }
