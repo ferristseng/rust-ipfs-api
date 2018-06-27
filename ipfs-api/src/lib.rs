@@ -22,22 +22,25 @@
 //! Write a file to IPFS:
 //!
 //! ```no_run
+//! # extern crate hyper;
 //! # extern crate ipfs_api;
-//! # extern crate tokio_core;
 //! #
+//! use hyper::rt::Future;
 //! use ipfs_api::IpfsClient;
 //! use std::io::Cursor;
-//! use tokio_core::reactor::Core;
 //!
 //! # fn main() {
-//! let mut core = Core::new().unwrap();
-//! let client = IpfsClient::default(&core.handle());
+//! let client = IpfsClient::default();
 //! let data = Cursor::new("Hello World!");
 //!
-//! let req = client.add(data);
-//! let res = core.run(req).unwrap();
+//! let req = client
+//!     .add(data)
+//!     .map(|res| {
+//!         println!("{}", res.hash);
+//!     })
+//!     .map_err(|e| eprintln!("{}", e));
 //!
-//! println!("{}", res.hash);
+//! hyper::rt::run(req);
 //! # }
 //! ```
 //!
@@ -45,24 +48,28 @@
 //!
 //! ```no_run
 //! # extern crate futures;
+//! # extern crate hyper;
 //! # extern crate ipfs_api;
-//! # extern crate tokio_core;
 //! #
-//! use futures::stream::Stream;
+//! use futures::{Future, Stream};
 //! use ipfs_api::IpfsClient;
 //! use std::io::{self, Write};
-//! use tokio_core::reactor::Core;
 //!
 //! # fn main() {
-//! let mut core = Core::new().unwrap();
-//! let client = IpfsClient::default(&core.handle());
+//! let client = IpfsClient::default();
 //!
-//! let req = client.get("/test/file.json").concat2();
-//! let res = core.run(req).unwrap();
-//! let out = io::stdout();
-//! let mut out = out.lock();
+//! let req = client
+//!     .get("/test/file.json")
+//!     .concat2()
+//!     .map(|res| {
+//!         let out = io::stdout();
+//!         let mut out = out.lock();
 //!
-//! out.write_all(&res).unwrap();
+//!         out.write_all(&res).unwrap();
+//!     })
+//!     .map_err(|e| eprintln!("{}", e));
+//!
+//! hyper::rt::run(req);
 //! # }
 //! ```
 //!

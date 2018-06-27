@@ -29,6 +29,7 @@ type AsyncStreamResponse<T> = Box<Stream<Item = T, Error = Error> + Send + 'stat
 
 /// Asynchronous Ipfs client.
 ///
+#[derive(Clone)]
 pub struct IpfsClient {
     base: Uri,
     client: Client<HttpConnector, hyper::Body>,
@@ -317,15 +318,12 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
     /// use std::io::Cursor;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let data = Cursor::new("Hello World!");
     /// let req = client.add(data);
     /// # }
@@ -349,14 +347,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.bitswap_ledger("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ");
     /// # }
     /// ```
@@ -372,14 +367,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.bitswap_reprovide();
     /// # }
     /// ```
@@ -395,14 +387,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.bitswap_stat();
     /// # }
     /// ```
@@ -418,14 +407,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.bitswap_unwant("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
     /// # }
     /// ```
@@ -441,14 +427,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.bitswap_wantlist(Some("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ"));
     /// # }
     /// ```
@@ -468,15 +451,12 @@ impl IpfsClient {
     /// ```no_run
     /// # extern crate futures;
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
-    /// use futures::stream::Stream;
+    /// use futures::Stream;
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let hash = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
     /// let req = client.block_get(hash).concat2();
     /// # }
@@ -493,15 +473,12 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
     /// use std::io::Cursor;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let data = Cursor::new("Hello World!");
     /// let req = client.block_put(data);
     /// # }
@@ -525,14 +502,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.block_rm("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
     /// # }
     /// ```
@@ -548,14 +522,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.block_stat("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
     /// # }
     /// ```
@@ -571,14 +542,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.bootstrap_add_default();
     /// # }
     /// ```
@@ -594,14 +562,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.bootstrap_list();
     /// # }
     /// ```
@@ -617,14 +582,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.bootstrap_rm_all();
     /// # }
     /// ```
@@ -641,15 +603,12 @@ impl IpfsClient {
     /// ```no_run
     /// # extern crate futures;
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
-    /// use futures::stream::Stream;
+    /// use futures::Stream;
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let hash = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
     /// let req = client.cat(hash).concat2();
     /// # }
@@ -664,14 +623,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.commands();
     /// # }
     /// ```
@@ -685,14 +641,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.config_edit();
     /// # }
     /// ```
@@ -706,15 +659,12 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
     /// use std::io::Cursor;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let config = Cursor::new("{..json..}");
     /// let req = client.config_replace(config);
     /// # }
@@ -738,14 +688,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.config_show();
     /// # }
     /// ```
@@ -759,14 +706,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.dag_get("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
     /// # }
     /// ```
@@ -800,15 +744,12 @@ impl IpfsClient {
     /// ```no_run
     /// # extern crate futures;
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
-    /// use futures::stream::Stream;
+    /// use futures::Stream;
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let peer = "QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM";
     /// let req = client.dht_findpeer(peer).collect();
     /// # }
@@ -824,15 +765,12 @@ impl IpfsClient {
     /// ```no_run
     /// # extern crate futures;
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
-    /// use futures::stream::Stream;
+    /// use futures::Stream;
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let key = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
     /// let req = client.dht_findprovs(key).collect();
     /// # }
@@ -848,15 +786,12 @@ impl IpfsClient {
     /// ```no_run
     /// # extern crate futures;
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
-    /// use futures::stream::Stream;
+    /// use futures::Stream;
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let key = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
     /// let req = client.dht_get(key).collect();
     /// # }
@@ -872,15 +807,12 @@ impl IpfsClient {
     /// ```no_run
     /// # extern crate futures;
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
-    /// use futures::stream::Stream;
+    /// use futures::Stream;
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let key = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
     /// let req = client.dht_provide(key).collect();
     /// # }
@@ -896,15 +828,12 @@ impl IpfsClient {
     /// ```no_run
     /// # extern crate futures;
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
-    /// use futures::stream::Stream;
+    /// use futures::Stream;
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.dht_put("test", "Hello World!").collect();
     /// # }
     /// ```
@@ -919,15 +848,12 @@ impl IpfsClient {
     /// ```no_run
     /// # extern crate futures;
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
-    /// use futures::stream::Stream;
+    /// use futures::Stream;
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let peer = "QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM";
     /// let req = client.dht_query(peer).collect();
     /// # }
@@ -942,14 +868,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.diag_cmds_clear();
     /// # }
     /// ```
@@ -963,14 +886,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.diag_cmds_set_time("1m");
     /// # }
     /// ```
@@ -991,14 +911,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.diag_sys();
     /// # }
     /// ```
@@ -1012,14 +929,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.dns("ipfs.io", true);
     /// # }
     /// ```
@@ -1033,14 +947,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.file_ls("/ipns/ipfs.io");
     /// # }
     /// ```
@@ -1054,14 +965,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.files_cp("/path/to/file", "/dest");
     /// # }
     /// ```
@@ -1075,14 +983,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.files_flush(None);
     /// let req = client.files_flush(Some("/tmp"));
     /// # }
@@ -1097,14 +1002,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.files_ls(None);
     /// let req = client.files_ls(Some("/tmp"));
     /// # }
@@ -1119,14 +1021,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.files_mkdir("/test", false);
     /// let req = client.files_mkdir("/test/nested/dir", true);
     /// # }
@@ -1145,14 +1044,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.files_mv("/test/tmp.json", "/test/file.json");
     /// # }
     /// ```
@@ -1166,14 +1062,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.files_read("/test/file.json");
     /// # }
     /// ```
@@ -1187,14 +1080,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.files_rm("/test/dir", true);
     /// let req = client.files_rm("/test/file.json", false);
     /// # }
@@ -1213,14 +1103,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.files_stat("/test/file.json");
     /// # }
     /// ```
@@ -1234,15 +1121,12 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
     /// use std::fs::File;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let file = File::open("test.json").unwrap();
     /// let req = client.files_write("/test/file.json", true, true, file);
     /// # }
@@ -1277,14 +1161,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.filestore_dups();
     /// # }
     /// ```
@@ -1298,14 +1179,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.filestore_ls(Some("QmYPP3BovR2m8UqCZxFbdXSit6SKgExxDkFAPLqiGsap4X"));
     /// # }
     /// ```
@@ -1322,14 +1200,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.filestore_verify(None);
     /// # }
     /// ```
@@ -1346,14 +1221,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.get("/test/file.json");
     /// # }
     /// ```
@@ -1369,14 +1241,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.id(None);
     /// let req = client.id(Some("QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM"));
     /// # }
@@ -1391,14 +1260,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::{IpfsClient, KeyType};
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.key_gen("test", KeyType::Rsa, 64);
     /// # }
     /// ```
@@ -1417,14 +1283,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.key_list();
     /// # }
     /// ```
@@ -1438,14 +1301,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.key_rename("key_0", "new_name", false);
     /// # }
     /// ```
@@ -1464,14 +1324,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.key_rm("key_0");
     /// # }
     /// ```
@@ -1485,15 +1342,12 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::{IpfsClient, Logger, LoggingLevel};
     /// use std::borrow::Cow;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.log_level(Logger::All, LoggingLevel::Debug);
     /// let req = client.log_level(
     ///     Logger::Specific(Cow::Borrowed("web")),
@@ -1514,14 +1368,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.log_ls();
     /// # }
     /// ```
@@ -1535,14 +1386,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.log_tail();
     /// # }
     /// ```
@@ -1562,14 +1410,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.ls(None);
     /// let req = client.ls(Some("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY"));
     /// # }
@@ -1586,14 +1431,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.name_publish(
     ///     "/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY",
     ///     false,
@@ -1627,14 +1469,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.name_resolve(
     ///     Some("/ipns/ipfs.io"),
     ///     true,
@@ -1662,14 +1501,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.object_data("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
     /// # }
     /// ```
@@ -1683,14 +1519,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.object_diff(
     ///     "/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY",
     ///     "/ipfs/QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
@@ -1710,14 +1543,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.object_get("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
     /// # }
     /// ```
@@ -1731,14 +1561,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.object_links("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
     /// # }
     /// ```
@@ -1752,14 +1579,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::{IpfsClient, ObjectTemplate};
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.object_new(None);
     /// let req = client.object_new(Some(ObjectTemplate::UnixFsDir));
     /// # }
@@ -1787,14 +1611,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.object_stat("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
     /// # }
     /// ```
@@ -1829,14 +1650,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.pin_add("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ", true);
     /// # }
     /// ```
@@ -1856,14 +1674,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.pin_ls(None, None);
     /// let req = client.pin_ls(
     ///     Some("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY"),
@@ -1885,14 +1700,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.pin_rm(
     ///     "/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY",
     ///     false);
@@ -1915,14 +1727,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.ping("QmSoLV4Bbm51jM9C4gDYZQ9Cy3U6aXMJDAbzgu2fzaDs64", None);
     /// let req = client.ping("QmSoLV4Bbm51jM9C4gDYZQ9Cy3U6aXMJDAbzgu2fzaDs64", Some(15));
     /// # }
@@ -1941,14 +1750,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.pubsub_ls();
     /// # }
     /// ```
@@ -1962,14 +1768,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.pubsub_peers(None);
     /// let req = client.pubsub_peers(Some("feed"));
     /// # }
@@ -1987,14 +1790,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.pubsub_pub("feed", "Hello World!");
     /// # }
     /// ```
@@ -2012,14 +1812,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.pubsub_sub("feed", false);
     /// let req = client.pubsub_sub("feed", true);
     /// # }
@@ -2038,14 +1835,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.refs_local();
     /// # }
     /// ```
@@ -2071,14 +1865,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.shutdown();
     /// # }
     /// ```
@@ -2091,14 +1882,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.stats_bitswap();
     /// # }
     /// ```
@@ -2112,14 +1900,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.stats_bw();
     /// # }
     /// ```
@@ -2133,14 +1918,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.stats_repo();
     /// # }
     /// ```
@@ -2156,14 +1938,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.swarm_addrs_local();
     /// # }
     /// ```
@@ -2185,14 +1964,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.swarm_peers();
     /// # }
     /// ```
@@ -2209,15 +1985,12 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
     /// use std::fs::File;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let tar = File::open("/path/to/file.tar").unwrap();
     /// let req = client.tar_add(tar);
     /// # }
@@ -2239,14 +2012,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.tar_cat("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
     /// # }
     /// ```
@@ -2260,14 +2030,11 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// # extern crate ipfs_api;
-    /// # extern crate tokio_core;
     /// #
     /// use ipfs_api::IpfsClient;
-    /// use tokio_core::reactor::Core;
     ///
     /// # fn main() {
-    /// let mut core = Core::new().unwrap();
-    /// let client = IpfsClient::default(&core.handle());
+    /// let client = IpfsClient::default();
     /// let req = client.version();
     /// # }
     /// ```
