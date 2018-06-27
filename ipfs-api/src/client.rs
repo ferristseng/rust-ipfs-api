@@ -51,7 +51,7 @@ impl IpfsClient {
 
         Ok(IpfsClient {
             base: base_path,
-            client: Client::builder().keep_alive(true).build_http(),
+            client: Client::builder().keep_alive(false).build_http(),
         })
     }
 
