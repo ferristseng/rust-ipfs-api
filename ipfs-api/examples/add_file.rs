@@ -6,12 +6,13 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+extern crate futures;
+extern crate hyper;
 extern crate ipfs_api;
-extern crate tokio_core;
 
 use ipfs_api::IpfsClient;
+use futures::Future;
 use std::fs::File;
-use tokio_core::reactor::Core;
 
 // Creates an Ipfs client, and adds this source file to Ipfs.
 //
@@ -19,11 +20,12 @@ fn main() {
     println!("note: this must be run in the root of the project repository");
     println!("connecting to localhost:5001...");
 
-    let mut core = Core::new().expect("expected event loop");
-    let client = IpfsClient::default(&core.handle());
+    let client = IpfsClient::default();
     let file = File::open(file!()).expect("could not read source file");
-    let req = client.add(file);
-    let add = core.run(req).expect("expected a valid response");
+    let req = client
+        .add(file)
+        .map(|add| println!("added file: {:?}", add))
+        .map_err(|e| eprintln!("{}", e));
 
-    println!("added file: {:?}", add);
+    hyper::rt::run(req);
 }

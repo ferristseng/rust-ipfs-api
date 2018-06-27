@@ -7,15 +7,14 @@
 //
 
 extern crate futures;
+extern crate hyper;
 extern crate ipfs_api;
 extern crate tar;
-extern crate tokio_core;
 
-use futures::stream::Stream;
+use futures::{Future, Stream};
 use ipfs_api::IpfsClient;
 use std::io::Cursor;
 use tar::Builder;
-use tokio_core::reactor::Core;
 
 // Creates an Ipfs client, and adds this source file to Ipfs.
 //
@@ -23,8 +22,7 @@ fn main() {
     println!("note: this must be run in the root of the project repository");
     println!("connecting to localhost:5001...");
 
-    let mut core = Core::new().expect("expected event loop");
-    let client = IpfsClient::default(&core.handle());
+    let client = IpfsClient::default();
 
     let mut buf = Vec::new();
 
@@ -40,15 +38,19 @@ fn main() {
     }
 
     let cursor = Cursor::new(buf);
-    let req = client.tar_add(cursor);
-    let add = core.run(req).expect("expected a valid response");
+    let req = client
+        .tar_add(cursor)
+        .and_then(move |add| {
+            println!("added tar file: {:?}", add);
+            println!();
 
-    println!("added tar file: {:?}", add);
-    println!();
+            client.tar_cat(&add.hash[..]).concat2()
+        })
+        .map(|cat| {
+            println!("{}", String::from_utf8_lossy(&cat[..]));
+            println!();
+        })
+        .map_err(|e| eprintln!("{}", e));
 
-    let req = client.tar_cat(&add.hash[..]).concat2();
-    let cat = core.run(req).expect("expected a valid response");
-
-    println!("{}", String::from_utf8_lossy(&cat[..]));
-    println!();
+    hyper::rt::run(req)
 }

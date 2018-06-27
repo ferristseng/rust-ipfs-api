@@ -6,21 +6,22 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+extern crate futures;
+extern crate hyper;
 extern crate ipfs_api;
-extern crate tokio_core;
 
+use futures::Future;
 use ipfs_api::IpfsClient;
-use tokio_core::reactor::Core;
 
 // Creates an Ipfs client, and gets the version of the Ipfs server.
 //
 fn main() {
     println!("connecting to localhost:5001...");
 
-    let mut core = Core::new().expect("expected event loop");
-    let client = IpfsClient::default(&core.handle());
-    let req = client.version();
-    let version = core.run(req).expect("expected a valid response");
+    let client = IpfsClient::default();
+    let req = client
+        .version()
+        .map(|version| println!("version: {:?}", version.version));
 
-    println!("version: {:?}", version.version);
+    hyper::rt::run(req.map_err(|e| eprintln!("{}", e)));
 }

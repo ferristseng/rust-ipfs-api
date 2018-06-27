@@ -6,12 +6,13 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+extern crate futures;
+extern crate hyper;
 extern crate ipfs_api;
-extern crate tokio_core;
 
+use futures::Future;
 use ipfs_api::{response, IpfsClient};
 use std::fs::File;
-use tokio_core::reactor::Core;
 
 fn print_stat(stat: response::FilesStatResponse) {
     println!("  type     : {}", stat.typ);
@@ -28,47 +29,55 @@ fn main() {
     println!("note: this must be run in the root of the project repository");
     println!("connecting to localhost:5001...");
 
-    let mut core = Core::new().expect("expected event loop");
-    let client = IpfsClient::default(&core.handle());
+    let client = IpfsClient::default();
 
     println!("making /test...");
     println!();
 
-    let req = client.files_mkdir("/test", false);
-    core.run(req).expect("expected mkdir to succeed");
+    let mkdir = client.files_mkdir("/test", false);
+    let mkdir_recursive = client.files_mkdir("/test/does/not/exist/yet", true);
 
-    println!("making dirs /test/does/not/exist/yet...");
-    println!();
-
-    let req = client.files_mkdir("/test/does/not/exist/yet", true);
-    core.run(req).expect("expected mkdir -p to succeed");
-
-    println!("getting status of /test/does...");
-    println!();
-
-    let req = client.files_stat("/test/does");
-    let stat = core.run(req).expect("expected stat to succeed");
-
-    print_stat(stat);
-
-    println!("writing source file to /test/mfs.rs");
-    println!();
+    let file_stat = client.files_stat("/test/does");
 
     let src = File::open(file!()).expect("could not read source file");
-    let req = client.files_write("/test/mfs.rs", true, true, src);
+    let file_write = client.files_write("/test/mfs.rs", true, true, src);
 
-    core.run(req).expect("expected write to succed");
+    let file_write_stat = client.files_stat("/test/mfs.rs");
 
-    let req = client.files_stat("/test/mfs.rs");
-    let stat = core.run(req).expect("expected stat to succeed");
+    let file_rm = client.files_rm("/test", true);
 
-    print_stat(stat);
+    hyper::rt::run(
+        mkdir
+            .and_then(|_| {
+                println!("making dirs /test/does/not/exist/yet...");
+                println!();
 
-    println!("removing /test...");
-    println!();
+                mkdir_recursive
+            })
+            .and_then(|_| {
+                println!("getting status of /test/does...");
+                println!();
 
-    let req = client.files_rm("/test", true);
-    core.run(req).expect("expected rm to succeed");
+                file_stat
+            })
+            .and_then(|stat| {
+                print_stat(stat);
 
-    println!("done!");
+                println!("writing source file to /test/mfs.rs");
+                println!();
+
+                file_write
+            })
+            .and_then(|_| file_write_stat)
+            .and_then(|stat| {
+                print_stat(stat);
+
+                println!("removing /test...");
+                println!();
+
+                file_rm
+            })
+            .map(|_| println!("done!"))
+            .map_err(|e| eprintln!("{}", e)),
+    )
 }

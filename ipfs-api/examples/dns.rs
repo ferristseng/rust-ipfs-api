@@ -6,33 +6,37 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+extern crate futures;
+extern crate hyper;
 extern crate ipfs_api;
-extern crate tokio_core;
 
+use futures::Future;
 use ipfs_api::IpfsClient;
-use tokio_core::reactor::Core;
 
 // Creates an Ipfs client, resolves ipfs.io, and lists the contents of it.
 //
 fn main() {
     println!("connecting to localhost:5001...");
 
-    let mut core = Core::new().expect("expected event loop");
-    let client = IpfsClient::default(&core.handle());
+    let client = IpfsClient::default();
 
-    let req = client.dns("ipfs.io", false);
-    let dns = core.run(req).expect("dns should resolve");
+    let req = client
+        .dns("ipfs.io", false)
+        .and_then(move |dns| {
+            println!("dns resolves to ({})", &dns.path);
+            println!();
 
-    println!("dns resolves to ({})", &dns.path);
-    println!();
+            client.file_ls(&dns.path[..])
+        })
+        .map(|contents| {
+            println!("found contents:");
+            for directory in contents.objects.values() {
+                for file in directory.links.iter() {
+                    println!("[{}] ({} bytes)", file.name, file.size);
+                }
+            }
+        })
+        .map_err(|e| eprintln!("{}", e));
 
-    let req = client.file_ls(&dns.path[..]);
-    let contents = core.run(req).expect("api should return path contents");
-
-    println!("found contents:");
-    for directory in contents.objects.values() {
-        for file in directory.links.iter() {
-            println!("[{}] ({} bytes)", file.name, file.size);
-        }
-    }
+    hyper::rt::run(req);
 }

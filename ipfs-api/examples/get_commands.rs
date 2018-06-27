@@ -6,11 +6,12 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+extern crate futures;
+extern crate hyper;
 extern crate ipfs_api;
-extern crate tokio_core;
 
+use futures::Future;
 use ipfs_api::{response, IpfsClient};
-use tokio_core::reactor::Core;
 
 fn print_recursive(indent: usize, cmd: &response::CommandsResponse) {
     let cmd_indent = " ".repeat(indent * 4);
@@ -39,9 +40,11 @@ fn print_recursive(indent: usize, cmd: &response::CommandsResponse) {
 fn main() {
     println!("connecting to localhost:5001...");
 
-    let mut core = Core::new().expect("expected event loop");
-    let client = IpfsClient::default(&core.handle());
-    let req = client.commands();
+    let client = IpfsClient::default();
+    let req = client
+        .commands()
+        .map(|commands| print_recursive(0, &commands))
+        .map_err(|e| eprintln!("{}", e));
 
-    print_recursive(0, &core.run(req).expect("expected a valid response"));
+    hyper::rt::run(req);
 }
