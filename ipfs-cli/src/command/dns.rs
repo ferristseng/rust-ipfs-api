@@ -6,26 +6,35 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use clap::{App, ArgMatches};
-use command::EXPECTED_API;
-use ipfs_api::IpfsClient;
-use tokio_core::reactor::Core;
+use clap::App;
+use command::CliCommand;
+use futures::Future;
 
-pub fn signature<'a, 'b>() -> App<'a, 'b> {
-    clap_app!(
-        @subcommand dns =>
-            (about: "Resolve a DNS link")
-            (@arg PATH: +required "The domain name to resolve")
-            (@arg recursive: -r --recursive "Resolve until the result is not a DNS link")
-    )
-}
+pub struct Command;
 
-pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
-    let path = args.value_of("PATH").unwrap();
-    let req = client.dns(path, args.is_present("recursive"));
-    let res = core.run(req).expect(EXPECTED_API);
+impl CliCommand for Command {
+    const NAME: &'static str = "dns";
 
-    println!();
-    println!("  path    : {}", res.path);
-    println!();
+    fn signature<'a, 'b>() -> App<'a, 'b> {
+        clap_app!(
+            @subcommand dns =>
+                (about: "Resolve a DNS link")
+                (@arg PATH: +required "The domain name to resolve")
+                (@arg recursive: -r --recursive "Resolve until the result is not a DNS link")
+        )
+    }
+
+    handle!(
+        (args, client) => {
+            let path = args.value_of("PATH").unwrap();
+
+            client
+                .dns(path, args.is_present("recursive"))
+                .map(|res| {
+                    println!();
+                    println!("  path    : {}", res.path);
+                    println!();
+                })
+        }
+    );
 }

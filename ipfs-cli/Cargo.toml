@@ -10,5 +10,5 @@ license                   = "MIT OR Apache-2.0"
 [dependencies]
 clap                      = "2.27"
 futures                   = "0.1"
+hyper                     = "0.12"
 ipfs-api                  = { path = "../ipfs-api" }
-tokio-core                = "0.1"

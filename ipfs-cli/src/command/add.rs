@@ -6,28 +6,38 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use clap::{App, ArgMatches};
-use command::{verify_file, EXPECTED_API, EXPECTED_FILE};
-use ipfs_api::IpfsClient;
+use clap::App;
+use command::{verify_file, CliCommand, EXPECTED_FILE};
+use futures::Future;
 use std::fs::File;
-use tokio_core::reactor::Core;
 
-pub fn signature<'a, 'b>() -> App<'a, 'b> {
-    clap_app!(
-        @subcommand add =>
-            (about: "Add file to IPFS")
-            (@arg INPUT: +required {verify_file} "File to add")
-    )
-}
+pub struct Command;
 
-pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
-    let path = args.value_of("INPUT").unwrap();
-    let file = File::open(path).expect(EXPECTED_FILE);
-    let response = core.run(client.add(file)).expect(EXPECTED_API);
+impl CliCommand for Command {
+    const NAME: &'static str = "add";
 
-    println!();
-    println!("  name    : {}", response.name);
-    println!("  hash    : {}", response.hash);
-    println!("  size    : {}", response.size);
-    println!();
+    fn signature<'a, 'b>() -> App<'a, 'b> {
+        clap_app!(
+            @subcommand add =>
+                (about: "Add file to IPFS")
+                (@arg INPUT: +required {verify_file} "File to add")
+        )
+    }
+
+    handle!(
+        (args, client) => {
+            let path = args.value_of("INPUT").unwrap();
+            let file = File::open(path).expect(EXPECTED_FILE);
+
+            client
+                .add(file)
+                .map(|response| {
+                    println!();
+                    println!("  name    : {}", response.name);
+                    println!("  hash    : {}", response.hash);
+                    println!("  size    : {}", response.size);
+                    println!();
+                })
+        }
+    );
 }

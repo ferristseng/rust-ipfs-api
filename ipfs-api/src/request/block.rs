@@ -26,7 +26,7 @@ impl_skip_serialize!(BlockPut);
 impl ApiRequest for BlockPut {
     const PATH: &'static str = "/block/put";
 
-    const METHOD: &'static Method = &Method::Post;
+    const METHOD: &'static Method = &Method::POST;
 }
 
 #[derive(Serialize)]

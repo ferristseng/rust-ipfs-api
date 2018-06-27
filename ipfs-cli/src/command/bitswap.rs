@@ -6,93 +6,106 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use clap::{App, ArgMatches};
-use command::EXPECTED_API;
-use ipfs_api::IpfsClient;
-use tokio_core::reactor::Core;
+use clap::App;
+use command::CliCommand;
+use futures::Future;
 
-pub fn signature<'a, 'b>() -> App<'a, 'b> {
-    clap_app!(
-        @subcommand bitswap =>
-            (@setting SubcommandRequiredElseHelp)
-            (@subcommand ledger =>
-                (about: "Show the current ledger for a peer")
-                (@arg PEER: +required "Peer to inspect")
-            )
-            (@subcommand reprovide =>
-                (about: "Triggers a reprovide")
-            )
-            (@subcommand stat =>
-                (about: "Show some diagnostic information on the bitswap agent")
-            )
-            (@subcommand unwant =>
-                (about: "Remove a given block from your wantlist")
-                (@arg KEY: +required "Key of the block to remove")
-            )
-            (@subcommand wantlist =>
-                (about: "Shows blocks currently on the wantlist")
-            )
-    )
-}
+pub struct Command;
 
-pub fn handle(core: &mut Core, client: &IpfsClient, args: &ArgMatches) {
-    match args.subcommand() {
-        ("ledger", Some(args)) => {
+impl CliCommand for Command {
+    const NAME: &'static str = "bitswap";
+
+    fn signature<'a, 'b>() -> App<'a, 'b> {
+        clap_app!(
+            @subcommand bitswap =>
+                (@setting SubcommandRequiredElseHelp)
+                (@subcommand ledger =>
+                    (about: "Show the current ledger for a peer")
+                    (@arg PEER: +required "Peer to inspect")
+                )
+                (@subcommand reprovide =>
+                    (about: "Triggers a reprovide")
+                )
+                (@subcommand stat =>
+                    (about: "Show some diagnostic information on the bitswap agent")
+                )
+                (@subcommand unwant =>
+                    (about: "Remove a given block from your wantlist")
+                    (@arg KEY: +required "Key of the block to remove")
+                )
+                (@subcommand wantlist =>
+                    (about: "Shows blocks currently on the wantlist")
+                )
+        )
+    }
+
+    handle!(
+        client;
+        ("ledger", args) => {
             let peer = args.value_of("PEER").unwrap();
-            let ledger = core.run(client.bitswap_ledger(peer)).expect(EXPECTED_API);
 
-            println!();
-            println!("  peer      : {}", ledger.peer);
-            println!("  value     : {}", ledger.value);
-            println!("  sent      : {}", ledger.sent);
-            println!("  recv      : {}", ledger.recv);
-            println!("  exchanged : {}", ledger.exchanged);
-            println!();
-        }
-        ("reprovide", _) => {
-            core.run(client.bitswap_reprovide()).expect(EXPECTED_API);
-        }
-        ("stat", _) => {
-            let stat = core.run(client.bitswap_stat()).expect(EXPECTED_API);
-
-            println!();
-            println!("  provide_buf_len        : {}", stat.provide_buf_len);
-            println!("  wantlist               :");
-            for want in stat.wantlist {
-                println!("    {}", want);
-            }
-            println!("  peers                  :");
-            for peer in stat.peers {
-                println!("    {}", peer);
-            }
-            println!("  blocks_received        : {}", stat.blocks_received);
-            println!("  data_received          : {}", stat.data_received);
-            println!("  blocks_sent            : {}", stat.blocks_sent);
-            println!("  data_sent              : {}", stat.data_sent);
-            println!("  dup_blks_received      : {}", stat.dup_blks_received);
-            println!("  dup_data_received      : {}", stat.dup_data_received);
-            println!();
-        }
-        ("unwant", Some(args)) => {
+            client
+                .bitswap_ledger(peer)
+                .map(|ledger| {
+                    println!();
+                    println!("  peer      : {}", ledger.peer);
+                    println!("  value     : {}", ledger.value);
+                    println!("  sent      : {}", ledger.sent);
+                    println!("  recv      : {}", ledger.recv);
+                    println!("  exchanged : {}", ledger.exchanged);
+                    println!();
+                })
+        },
+        ("reprovide", _args) => {
+            client.bitswap_reprovide().map(|_| ())
+        },
+        ("stat", _args) => {
+            client
+                .bitswap_stat()
+                .map(|stat| {
+                    println!();
+                    println!("  provide_buf_len        : {}", stat.provide_buf_len);
+                    println!("  wantlist               :");
+                    for want in stat.wantlist {
+                        println!("    {}", want);
+                    }
+                    println!("  peers                  :");
+                    for peer in stat.peers {
+                        println!("    {}", peer);
+                    }
+                    println!("  blocks_received        : {}", stat.blocks_received);
+                    println!("  data_received          : {}", stat.data_received);
+                    println!("  blocks_sent            : {}", stat.blocks_sent);
+                    println!("  data_sent              : {}", stat.data_sent);
+                    println!("  dup_blks_received      : {}", stat.dup_blks_received);
+                    println!("  dup_data_received      : {}", stat.dup_data_received);
+                    println!();
+                })
+        },
+        ("unwant", args) => {
             let key = args.value_of("KEY").unwrap();
 
-            core.run(client.bitswap_unwant(key)).expect(EXPECTED_API);
-
-            println!();
-            println!("  OK");
-            println!();
-        }
-        ("wantlist", Some(args)) => {
+            client
+                .bitswap_unwant(key)
+                .map(|_| {
+                    println!();
+                    println!("  OK");
+                    println!();
+                })
+        },
+        ("wantlist", args) => {
             let peer = args.value_of("PEER");
-            let wantlist = core.run(client.bitswap_wantlist(peer)).expect(EXPECTED_API);
 
-            println!();
-            println!("  wantlist               :");
-            for key in wantlist.keys {
-                println!("    {}", key);
-            }
-            println!();
+            client
+                .bitswap_wantlist(peer)
+                .map(|wantlist| {
+                    println!();
+                    println!("  wantlist               :");
+                    for key in wantlist.keys {
+                        println!("    {}", key);
+                    }
+                    println!();
+                })
         }
-        _ => unreachable!(),
-    }
+    );
 }

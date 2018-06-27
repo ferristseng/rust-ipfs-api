@@ -112,5 +112,5 @@ pub struct FilesWrite<'a> {
 impl<'a> ApiRequest for FilesWrite<'a> {
     const PATH: &'static str = "/files/write";
 
-    const METHOD: &'static Method = &Method::Post;
+    const METHOD: &'static Method = &Method::POST;
 }

@@ -7,25 +7,32 @@
 //
 
 use clap::App;
-use ipfs_api::IpfsClient;
-use tokio_core::reactor::Core;
+use command::CliCommand;
+use futures::Future;
 
-pub fn signature<'a, 'b>() -> App<'a, 'b> {
-    clap_app!(
-        @subcommand version =>
-            (about: "Show ipfs version information")
-    )
-}
+pub struct Command;
 
-pub fn handle(core: &mut Core, client: &IpfsClient) {
-    let version = core.run(client.version())
-        .expect("expected response from API");
+impl CliCommand for Command {
+    const NAME: &'static str = "version";
 
-    println!();
-    println!("  version : {}", version.version);
-    println!("  commit  : {}", version.commit);
-    println!("  repo    : {}", version.repo);
-    println!("  system  : {}", version.system);
-    println!("  golang  : {}", version.golang);
-    println!();
+    fn signature<'a, 'b>() -> App<'a, 'b> {
+        clap_app!(
+            @subcommand version =>
+                (about: "Show ipfs version information")
+        )
+    }
+
+    handle!(
+        (_args, client) => {
+            client.version().map(|version| {
+                println!();
+                println!("  version : {}", version.version);
+                println!("  commit  : {}", version.commit);
+                println!("  repo    : {}", version.repo);
+                println!("  system  : {}", version.system);
+                println!("  golang  : {}", version.golang);
+                println!();
+            })
+        }
+    );
 }

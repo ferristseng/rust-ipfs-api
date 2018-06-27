@@ -16,7 +16,7 @@ impl_skip_serialize!(TarAdd);
 impl ApiRequest for TarAdd {
     const PATH: &'static str = "/tar/add";
 
-    const METHOD: &'static Method = &Method::Post;
+    const METHOD: &'static Method = &Method::POST;
 }
 
 #[derive(Serialize)]

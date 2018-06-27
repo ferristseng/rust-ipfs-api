@@ -8,17 +8,14 @@
 
 use bytes::BytesMut;
 use futures::{Async, Stream};
-use header::XStreamError;
+use header::X_STREAM_ERROR;
 use hyper::Chunk;
-use hyper::header::{Header, Raw};
 use response::{Error, ErrorKind};
 use serde::Deserialize;
 use serde_json;
-use std::cmp;
-use std::io::{self, Read};
-use std::marker::PhantomData;
+use std::{cmp, io::{self, Read}, marker::PhantomData};
+use tokio_codec::Decoder;
 use tokio_io::AsyncRead;
-use tokio_io::codec::Decoder;
 
 /// A decoder for a response where each line is a full json object.
 ///
@@ -69,17 +66,12 @@ where
                 Err(e) => {
                     if self.parse_stream_error {
                         match slice.iter().position(|&x| x == b':') {
-                            Some(colon)
-                                if &slice[..colon] == XStreamError::header_name().as_bytes() =>
-                            {
-                                let raw = Raw::from(&slice[colon + 2..]);
+                            Some(colon) if &slice[..colon] == X_STREAM_ERROR.as_bytes() => {
+                                let e = ErrorKind::StreamError(
+                                    String::from_utf8_lossy(&slice[colon + 2..]).into(),
+                                );
 
-                                match XStreamError::parse_header(&raw) {
-                                    Ok(stream_error) => {
-                                        Err(ErrorKind::StreamError(stream_error.error).into())
-                                    }
-                                    Err(_) => Err(e.into()),
-                                }
+                                Err(e.into())
                             }
                             _ => Err(e.into()),
                         }

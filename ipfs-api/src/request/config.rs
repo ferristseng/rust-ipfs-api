@@ -24,7 +24,7 @@ impl_skip_serialize!(ConfigReplace);
 impl ApiRequest for ConfigReplace {
     const PATH: &'static str = "/config/replace";
 
-    const METHOD: &'static Method = &Method::Post;
+    const METHOD: &'static Method = &Method::POST;
 }
 
 pub struct ConfigShow;

@@ -7,17 +7,24 @@
 //
 
 use clap::App;
-use command::EXPECTED_API;
-use ipfs_api::IpfsClient;
-use tokio_core::reactor::Core;
+use command::CliCommand;
+use futures::Future;
 
-pub fn signature<'a, 'b>() -> App<'a, 'b> {
-    clap_app!(
-        @subcommand shutdown =>
-            (about: "Shutdown IPFS daemon")
-    )
-}
+pub struct Command;
 
-pub fn handle(core: &mut Core, client: &IpfsClient) {
-    core.run(client.shutdown()).expect(EXPECTED_API);
+impl CliCommand for Command {
+    const NAME: &'static str = "shutdown";
+
+    fn signature<'a, 'b>() -> App<'a, 'b> {
+        clap_app!(
+            @subcommand shutdown =>
+                (about: "Shutdown IPFS daemon")
+        )
+    }
+
+    handle!(
+        (_args, client) => {
+            client.shutdown().map(|_| ())
+        }
+    );
 }

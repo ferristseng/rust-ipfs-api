@@ -26,5 +26,5 @@ impl_skip_serialize!(DagPut);
 impl ApiRequest for DagPut {
     const PATH: &'static str = "/dag/put";
 
-    const METHOD: &'static Method = &Method::Post;
+    const METHOD: &'static Method = &Method::POST;
 }

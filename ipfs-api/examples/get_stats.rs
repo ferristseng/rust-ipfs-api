@@ -6,52 +6,58 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+extern crate futures;
+extern crate hyper;
 extern crate ipfs_api;
-extern crate tokio_core;
 
+use futures::Future;
 use ipfs_api::IpfsClient;
-use tokio_core::reactor::Core;
 
 // Creates an Ipfs client, and gets some stats about the Ipfs server.
 //
 fn main() {
     println!("connecting to localhost:5001...");
 
-    let mut core = Core::new().expect("expected event loop");
-    let client = IpfsClient::default(&core.handle());
+    let client = IpfsClient::default();
 
-    let bitswap_stats = client.stats_bitswap();
-    let bitswap_stats = core.run(bitswap_stats).expect("expected a valid response");
+    let bitswap_stats = client.stats_bitswap().map(|bitswap_stats| {
+        println!("bitswap stats:");
+        println!("  blocks recv: {}", bitswap_stats.blocks_received);
+        println!("  data   recv: {}", bitswap_stats.data_received);
+        println!("  blocks sent: {}", bitswap_stats.blocks_sent);
+        println!("  data   sent: {}", bitswap_stats.data_sent);
+        println!(
+            "  peers:       {}",
+            bitswap_stats.peers.join("\n               ")
+        );
+        println!(
+            "  wantlist:    {}",
+            bitswap_stats.wantlist.join("\n               ")
+        );
+        println!();
+    });
 
-    let bw_stats = client.stats_bw();
-    let bw_stats = core.run(bw_stats).expect("expected a valid response");
+    let bw_stats = client.stats_bw().map(|bw_stats| {
+        println!("bandwidth stats:");
+        println!("  total    in: {}", bw_stats.total_in);
+        println!("  total   out: {}", bw_stats.total_out);
+        println!("  rate     in: {}", bw_stats.rate_in);
+        println!("  rate    out: {}", bw_stats.rate_out);
+        println!();
+    });
 
-    let repo_stats = client.stats_repo();
-    let repo_stats = core.run(repo_stats).expect("expected a valid response");
+    let repo_stats = client.stats_repo().map(|repo_stats| {
+        println!("repo stats:");
+        println!("  num    objs: {}", repo_stats.num_objects);
+        println!("  repo   size: {}", repo_stats.repo_size);
+        println!("  repo   path: {}", repo_stats.repo_path);
+        println!("  version    : {}", repo_stats.version);
+    });
 
-    println!("bitswap stats:");
-    println!("  blocks recv: {}", bitswap_stats.blocks_received);
-    println!("  data   recv: {}", bitswap_stats.data_received);
-    println!("  blocks sent: {}", bitswap_stats.blocks_sent);
-    println!("  data   sent: {}", bitswap_stats.data_sent);
-    println!(
-        "  peers:       {}",
-        bitswap_stats.peers.join("\n               ")
+    hyper::rt::run(
+        bitswap_stats
+            .and_then(|_| bw_stats)
+            .and_then(|_| repo_stats)
+            .map_err(|e| eprintln!("{}", e)),
     );
-    println!(
-        "  wantlist:    {}",
-        bitswap_stats.wantlist.join("\n               ")
-    );
-    println!();
-    println!("bandwidth stats:");
-    println!("  total    in: {}", bw_stats.total_in);
-    println!("  total   out: {}", bw_stats.total_out);
-    println!("  rate     in: {}", bw_stats.rate_in);
-    println!("  rate    out: {}", bw_stats.rate_out);
-    println!();
-    println!("repo stats:");
-    println!("  num    objs: {}", repo_stats.num_objects);
-    println!("  repo   size: {}", repo_stats.repo_size);
-    println!("  repo   path: {}", repo_stats.repo_path);
-    println!("  version    : {}", repo_stats.version);
 }
