@@ -21,11 +21,11 @@ use tokio_codec::{Decoder, FramedRead};
 
 /// A response returned by the HTTP client.
 ///
-type AsyncResponse<T> = Box<Future<Item = T, Error = Error>>;
+type AsyncResponse<T> = Box<Future<Item = T, Error = Error> + Send + 'static>;
 
 /// A future that returns a stream of responses.
 ///
-type AsyncStreamResponse<T> = Box<Stream<Item = T, Error = Error>>;
+type AsyncStreamResponse<T> = Box<Stream<Item = T, Error = Error> + Send + 'static>;
 
 /// Asynchronous Ipfs client.
 ///
@@ -124,9 +124,9 @@ impl IpfsClient {
     fn process_stream_response<D, Res>(
         res: Response<hyper::Body>,
         decoder: D,
-    ) -> Box<Stream<Item = Res, Error = Error>>
+    ) -> AsyncStreamResponse<Res>
     where
-        D: 'static + Decoder<Item = Res, Error = Error>,
+        D: 'static + Decoder<Item = Res, Error = Error> + Send,
         Res: 'static,
     {
         let stream = FramedRead::new(StreamReader::new(res.into_body().from_err()), decoder);
@@ -172,8 +172,8 @@ impl IpfsClient {
     ) -> AsyncStreamResponse<Res>
     where
         Req: ApiRequest + Serialize,
-        Res: 'static,
-        F: 'static + Fn(hyper::Response<hyper::Body>) -> AsyncStreamResponse<Res>,
+        Res: 'static + Send,
+        F: 'static + Fn(hyper::Response<hyper::Body>) -> AsyncStreamResponse<Res> + Send,
     {
         match self.build_base_request(req, form) {
             Ok(req) => {
@@ -181,7 +181,9 @@ impl IpfsClient {
                     .request(req)
                     .from_err()
                     .map(move |res| {
-                        let stream: Box<Stream<Item = Res, Error = _>> = match res.status() {
+                        let stream: Box<
+                            Stream<Item = Res, Error = _> + Send + 'static,
+                        > = match res.status() {
                             StatusCode::OK => process(res),
                             // If the server responded with an error status code, the body
                             // still needs to be read so an error can be built. This block will
@@ -212,7 +214,7 @@ impl IpfsClient {
     fn request<Req, Res>(&self, req: &Req, form: Option<multipart::Form>) -> AsyncResponse<Res>
     where
         Req: ApiRequest + Serialize,
-        for<'de> Res: 'static + Deserialize<'de>,
+        for<'de> Res: 'static + Deserialize<'de> + Send,
     {
         let res = self.request_raw(req, form)
             .and_then(|(status, chunk)| IpfsClient::process_json_response(status, chunk));
@@ -276,7 +278,7 @@ impl IpfsClient {
     ) -> AsyncStreamResponse<Res>
     where
         Req: ApiRequest + Serialize,
-        for<'de> Res: 'static + Deserialize<'de>,
+        for<'de> Res: 'static + Deserialize<'de> + Send,
     {
         self.request_stream(req, form, |res| {
             let parse_stream_error = if let Some(trailer) = res.headers().get(TRAILER) {
