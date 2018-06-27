@@ -39,7 +39,9 @@ fn main() {
                 println!();
                 println!("publishing message...");
 
-                client.pubsub_pub(TOPIC, "Hello World!").map_err(|e| eprintln!("{}", e))
+                client
+                    .pubsub_pub(TOPIC, "Hello World!")
+                    .map_err(|e| eprintln!("{}", e))
             });
 
         println!();

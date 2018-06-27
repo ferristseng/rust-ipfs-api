@@ -6,12 +6,13 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+extern crate futures;
+extern crate hyper;
 extern crate ipfs_api;
-extern crate tokio_core;
 
+use futures::Future;
 use ipfs_api::IpfsClient;
 use std::io::Cursor;
-use tokio_core::reactor::Core;
 
 // Creates an Ipfs client, and replaces the config file with the default one.
 //
@@ -19,12 +20,12 @@ fn main() {
     println!("note: this must be run in the root of the project repository");
     println!("connecting to localhost:5001...");
 
-    let mut core = Core::new().expect("expected event loop");
-    let client = IpfsClient::default(&core.handle());
+    let client = IpfsClient::default();
     let default_config = include_str!("default_config.json");
-    let req = client.config_replace(Cursor::new(default_config));
+    let req = client
+        .config_replace(Cursor::new(default_config))
+        .map(|_| println!("replaced file"))
+        .map_err(|e| println!("{}", e));
 
-    core.run(req).expect("expected a valid response");
-
-    println!("replaced file");
+    hyper::rt::run(req);
 }

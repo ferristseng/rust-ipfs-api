@@ -6,11 +6,12 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+extern crate futures;
+extern crate hyper;
 extern crate ipfs_api;
-extern crate tokio_core;
 
+use futures::Future;
 use ipfs_api::IpfsClient;
-use tokio_core::reactor::Core;
 
 const IPFS_IPNS: &str = "/ipns/ipfs.io";
 
@@ -20,20 +21,28 @@ const IPFS_IPNS: &str = "/ipns/ipfs.io";
 fn main() {
     println!("connecting to localhost:5001...");
 
-    let mut core = Core::new().expect("expected event loop");
-    let client = IpfsClient::default(&core.handle());
-    let req = client.name_resolve(Some(IPFS_IPNS), true, false);
-    let resolved = core.run(req).expect("expected a valid response");
+    let client = IpfsClient::default();
+    let name_resolve = client
+        .name_resolve(Some(IPFS_IPNS), true, false)
+        .map(|resolved| {
+            println!("{} resolves to: {}", IPFS_IPNS, &resolved.path);
+        });
 
-    println!("{} resolves to: {}", IPFS_IPNS, &resolved.path);
+    let name_publish = client
+        .name_publish(IPFS_IPNS, true, None, None, None)
+        .and_then(move |publish| {
+            println!("published {} to: /ipns/{}", IPFS_IPNS, &publish.name);
 
-    let req = client.name_publish(IPFS_IPNS, true, None, None, None);
-    let publish = core.run(req).expect("expected a valid response");
+            client
+                .name_resolve(Some(&publish.name), true, false)
+                .map(move |resolved| {
+                    println!("/ipns/{} resolves to: {}", &publish.name, &resolved.path);
+                })
+        });
 
-    println!("published {} to: /ipns/{}", IPFS_IPNS, &publish.name);
-
-    let req = client.name_resolve(Some(&publish.name), true, false);
-    let resolved = core.run(req).expect("expected a valid response");
-
-    println!("/ipns/{} resolves to: {}", &publish.name, &resolved.path);
+    hyper::rt::run(
+        name_resolve
+            .and_then(|_| name_publish)
+            .map_err(|e| eprintln!("{}", e)),
+    );
 }
