@@ -10,7 +10,7 @@ use futures::{Future, IntoFuture, stream::{self, Stream}};
 use header::TRAILER;
 use read::{JsonLineDecoder, LineDecoder, StreamReader};
 use request::{self, ApiRequest};
-use response::{self, Error, ErrorKind};
+use response::{self, Error};
 use http::uri::InvalidUri;
 use hyper::{self, Chunk, Request, Response, StatusCode, Uri, client::{Client, HttpConnector}};
 use hyper_multipart::client::multipart;
@@ -98,9 +98,9 @@ impl IpfsClient {
     #[inline]
     fn build_error_from_body(chunk: Chunk) -> Error {
         match serde_json::from_slice(&chunk) {
-            Ok(e) => ErrorKind::Api(e).into(),
+            Ok(e) => Error::Api(e).into(),
             Err(_) => match String::from_utf8(chunk.to_vec()) {
-                Ok(s) => ErrorKind::Uncategorized(s).into(),
+                Ok(s) => Error::Uncategorized(s).into(),
                 Err(e) => e.into(),
             },
         }
@@ -290,7 +290,7 @@ impl IpfsClient {
                 if trailer == "X-Stream-Error" {
                     true
                 } else {
-                    let err = ErrorKind::UnrecognizedTrailerHeader(
+                    let err = Error::UnrecognizedTrailerHeader(
                         String::from_utf8_lossy(trailer.as_ref()).into(),
                     );
 

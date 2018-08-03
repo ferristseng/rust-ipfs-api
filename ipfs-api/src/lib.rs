@@ -84,7 +84,7 @@
 
 extern crate bytes;
 #[macro_use]
-extern crate error_chain;
+extern crate failure;
 extern crate futures;
 extern crate http;
 extern crate hyper;
