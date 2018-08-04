@@ -10,7 +10,7 @@ use bytes::BytesMut;
 use futures::{Async, Stream};
 use header::X_STREAM_ERROR;
 use hyper::Chunk;
-use response::{Error, ErrorKind};
+use response::Error;
 use serde::Deserialize;
 use serde_json;
 use std::{cmp, io::{self, Read}, marker::PhantomData};
@@ -67,7 +67,7 @@ where
                     if self.parse_stream_error {
                         match slice.iter().position(|&x| x == b':') {
                             Some(colon) if &slice[..colon] == X_STREAM_ERROR.as_bytes() => {
-                                let e = ErrorKind::StreamError(
+                                let e = Error::StreamError(
                                     String::from_utf8_lossy(&slice[colon + 2..]).into(),
                                 );
 
@@ -187,7 +187,7 @@ where
                         // Stream could not be read from.
                         //
                         Ok(Async::NotReady) => return Err(io::ErrorKind::WouldBlock.into()),
-                        Err(e) => return Err(io::Error::new(io::ErrorKind::Other, e.description())),
+                        Err(e) => return Err(io::Error::new(io::ErrorKind::Other, e.to_string())),
                     }
                 }
             }

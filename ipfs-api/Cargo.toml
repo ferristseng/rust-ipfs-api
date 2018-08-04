@@ -15,7 +15,7 @@ travis-ci                 = { repository = "ferristseng/rust-ipfs-api" }
 
 [dependencies]
 bytes                     = "0.4"
-error-chain               = "0.12"
+failure                   = "0.1.2"
 futures                   = "0.1"
 http                      = "0.1"
 hyper                     = "0.12"
