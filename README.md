@@ -10,7 +10,7 @@ Rust library for connecting to the IPFS HTTP API using tokio.
 
 ```toml
 [dependencies]
-ipfs-api = "0.5.0-alpha1"
+ipfs-api = "0.5.0-alpha2"
 ```
 
 ### Examples
