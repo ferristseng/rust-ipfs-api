@@ -10,8 +10,8 @@ extern crate futures;
 extern crate hyper;
 extern crate ipfs_api;
 
-use ipfs_api::IpfsClient;
 use futures::Future;
+use ipfs_api::IpfsClient;
 use std::fs::File;
 
 // Creates an Ipfs client, and adds this source file to Ipfs.

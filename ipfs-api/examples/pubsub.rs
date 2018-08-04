@@ -13,7 +13,10 @@ extern crate tokio_timer;
 
 use futures::{Future, Stream};
 use ipfs_api::IpfsClient;
-use std::{thread, time::{Duration, Instant}};
+use std::{
+    thread,
+    time::{Duration, Instant},
+};
 use tokio_timer::Interval;
 
 static TOPIC: &'static str = "test";
@@ -65,8 +68,7 @@ fn main() {
                     println!("received ({:?})", msg);
 
                     Ok(())
-                })
-                .map_err(|e| eprintln!("{}", e)),
+                }).map_err(|e| eprintln!("{}", e)),
         )
     }
 }

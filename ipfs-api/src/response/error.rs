@@ -10,8 +10,8 @@ use http;
 use hyper;
 use serde_json;
 use serde_urlencoded;
-use std::string::FromUtf8Error;
 use std;
+use std::string::FromUtf8Error;
 
 #[derive(Fail, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
@@ -23,32 +23,45 @@ pub struct ApiError {
 
 #[derive(Fail, Debug)]
 pub enum Error {
-        // Foreign errors.
-        #[fail(display = "hyper client error '{}'", _0)]
-        Client(hyper::Error),
-        #[fail(display = "http error '{}'", _0)]
-        Http(http::Error),
-        #[fail(display = "json parse error '{}'", _0)]
-        Parse(serde_json::Error),
-        #[fail(display = "utf8 decoding error '{}'", _0)]
-        ParseUtf8(FromUtf8Error),
-        #[fail(display = "uri error '{}'", _0)]
-        Url(http::uri::InvalidUri),
-        #[fail(display = "io error '{}'", _0)]
-        Io(std::io::Error),
-        #[fail(display = "url encoding error '{}'", _0)]
-        EncodeUrl(serde_urlencoded::ser::Error),
-        /// An error returned by the Ipfs api.
-        #[fail(display = "api returned error '{}'", _0)]
-        Api(ApiError),
-        /// A stream error indicated in the Trailer header.
-        #[fail(display = "api returned an error while streaming: '{}'", _0)]
-        StreamError(String),
-        /// API returned a trailer header with unrecognized value.
-        #[fail(display = "api returned a trailer header with unknown value: '{}'", _0)]
-        UnrecognizedTrailerHeader(String),
-        #[fail(display = "api returned unknwon error '{}'", _0)]
-        Uncategorized(String),
+    // Foreign errors.
+    #[fail(display = "hyper client error '{}'", _0)]
+    Client(hyper::Error),
+
+    #[fail(display = "http error '{}'", _0)]
+    Http(http::Error),
+
+    #[fail(display = "json parse error '{}'", _0)]
+    Parse(serde_json::Error),
+
+    #[fail(display = "utf8 decoding error '{}'", _0)]
+    ParseUtf8(FromUtf8Error),
+
+    #[fail(display = "uri error '{}'", _0)]
+    Url(http::uri::InvalidUri),
+
+    #[fail(display = "io error '{}'", _0)]
+    Io(std::io::Error),
+
+    #[fail(display = "url encoding error '{}'", _0)]
+    EncodeUrl(serde_urlencoded::ser::Error),
+
+    /// An error returned by the Ipfs api.
+    #[fail(display = "api returned error '{}'", _0)]
+    Api(ApiError),
+
+    /// A stream error indicated in the Trailer header.
+    #[fail(display = "api returned an error while streaming: '{}'", _0)]
+    StreamError(String),
+
+    /// API returned a trailer header with unrecognized value.
+    #[fail(
+        display = "api returned a trailer header with unknown value: '{}'",
+        _0
+    )]
+    UnrecognizedTrailerHeader(String),
+
+    #[fail(display = "api returned unknwon error '{}'", _0)]
+    Uncategorized(String),
 }
 
 impl From<hyper::Error> for Error {

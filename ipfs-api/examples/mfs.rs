@@ -53,22 +53,19 @@ fn main() {
                 println!();
 
                 mkdir_recursive
-            })
-            .and_then(|_| {
+            }).and_then(|_| {
                 println!("getting status of /test/does...");
                 println!();
 
                 file_stat
-            })
-            .and_then(|stat| {
+            }).and_then(|stat| {
                 print_stat(stat);
 
                 println!("writing source file to /test/mfs.rs");
                 println!();
 
                 file_write
-            })
-            .and_then(|_| file_write_stat)
+            }).and_then(|_| file_write_stat)
             .and_then(|stat| {
                 print_stat(stat);
 
@@ -76,8 +73,7 @@ fn main() {
                 println!();
 
                 file_rm
-            })
-            .map(|_| println!("done!"))
+            }).map(|_| println!("done!"))
             .map_err(|e| eprintln!("{}", e)),
     )
 }

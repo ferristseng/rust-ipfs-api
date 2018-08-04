@@ -6,14 +6,21 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use futures::{Future, IntoFuture, stream::{self, Stream}};
+use futures::{
+    stream::{self, Stream},
+    Future, IntoFuture,
+};
 use header::TRAILER;
+use http::uri::InvalidUri;
+use hyper::{
+    self,
+    client::{Client, HttpConnector},
+    Chunk, Request, Response, StatusCode, Uri,
+};
+use hyper_multipart::client::multipart;
 use read::{JsonLineDecoder, LineDecoder, StreamReader};
 use request::{self, ApiRequest};
 use response::{self, Error};
-use http::uri::InvalidUri;
-use hyper::{self, Chunk, Request, Response, StatusCode, Uri, client::{Client, HttpConnector}};
-use hyper_multipart::client::multipart;
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::io::Read;
@@ -147,14 +154,14 @@ impl IpfsClient {
     {
         match self.build_base_request(req, form) {
             Ok(req) => {
-                let res = self.client
+                let res = self
+                    .client
                     .request(req)
                     .and_then(|res| {
                         let status = res.status();
 
                         res.into_body().concat2().map(move |chunk| (status, chunk))
-                    })
-                    .from_err();
+                    }).from_err();
 
                 Box::new(res)
             }
@@ -178,7 +185,8 @@ impl IpfsClient {
     {
         match self.build_base_request(req, form) {
             Ok(req) => {
-                let res = self.client
+                let res = self
+                    .client
                     .request(req)
                     .from_err()
                     .map(move |res| {
@@ -200,8 +208,7 @@ impl IpfsClient {
                         };
 
                         stream
-                    })
-                    .flatten_stream();
+                    }).flatten_stream();
 
                 Box::new(res)
             }
@@ -217,7 +224,8 @@ impl IpfsClient {
         Req: ApiRequest + Serialize,
         for<'de> Res: 'static + Deserialize<'de> + Send,
     {
-        let res = self.request_raw(req, form)
+        let res = self
+            .request_raw(req, form)
             .and_then(|(status, chunk)| IpfsClient::process_json_response(status, chunk));
 
         Box::new(res)
@@ -230,7 +238,8 @@ impl IpfsClient {
     where
         Req: ApiRequest + Serialize,
     {
-        let res = self.request_raw(req, form)
+        let res = self
+            .request_raw(req, form)
             .and_then(|(status, chunk)| match status {
                 StatusCode::OK => Ok(()),
                 _ => Err(Self::build_error_from_body(chunk)),
@@ -246,7 +255,8 @@ impl IpfsClient {
     where
         Req: ApiRequest + Serialize,
     {
-        let res = self.request_raw(req, form)
+        let res = self
+            .request_raw(req, form)
             .and_then(|(status, chunk)| match status {
                 StatusCode::OK => String::from_utf8(chunk.to_vec()).map_err(From::from),
                 _ => Err(Self::build_error_from_body(chunk)),
@@ -1396,7 +1406,8 @@ impl IpfsClient {
     /// ```
     ///
     pub fn log_tail(&self) -> AsyncStreamResponse<String> {
-        let res = self.build_base_request(&request::LogTail, None)
+        let res = self
+            .build_base_request(&request::LogTail, None)
             .map(|req| self.client.request(req).from_err())
             .into_future()
             .flatten()

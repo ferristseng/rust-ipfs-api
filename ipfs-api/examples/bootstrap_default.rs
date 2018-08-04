@@ -10,8 +10,8 @@ extern crate futures;
 extern crate hyper;
 extern crate ipfs_api;
 
-use ipfs_api::IpfsClient;
 use futures::Future;
+use ipfs_api::IpfsClient;
 
 // Lists clients in bootstrap list, then adds the default list, then removes
 // them, and readds them.
@@ -49,13 +49,11 @@ fn main() {
                 println!("dropping all bootstrap peers...");
 
                 drop
-            })
-            .and_then(|_| {
+            }).and_then(|_| {
                 println!();
                 println!("adding default peers...");
 
                 add
-            })
-            .map_err(|e| eprintln!("{}", e)),
+            }).map_err(|e| eprintln!("{}", e)),
     );
 }

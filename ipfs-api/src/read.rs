@@ -13,7 +13,11 @@ use hyper::Chunk;
 use response::Error;
 use serde::Deserialize;
 use serde_json;
-use std::{cmp, io::{self, Read}, marker::PhantomData};
+use std::{
+    cmp,
+    io::{self, Read},
+    marker::PhantomData,
+};
 use tokio_codec::Decoder;
 use tokio_io::AsyncRead;
 
@@ -199,8 +203,4 @@ where
     }
 }
 
-impl<S> AsyncRead for StreamReader<S>
-where
-    S: Stream<Item = Chunk, Error = Error>,
-{
-}
+impl<S> AsyncRead for StreamReader<S> where S: Stream<Item = Chunk, Error = Error> {}

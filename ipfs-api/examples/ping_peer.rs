@@ -11,7 +11,7 @@ extern crate hyper;
 extern crate ipfs_api;
 
 use futures::{Future, Stream};
-use ipfs_api::{IpfsClient, response::PingResponse};
+use ipfs_api::{response::PingResponse, IpfsClient};
 
 // Creates an Ipfs client, discovers a connected peer, and pings it using the
 // streaming Api, and by collecting it into a collection.
@@ -51,13 +51,11 @@ fn main() {
 
                 ping_gather
             })
-        })
-        .map(|pings: Vec<PingResponse>| {
+        }).map(|pings: Vec<PingResponse>| {
             for ping in pings.iter() {
                 println!("got response ({:?}) at ({})...", ping.text, ping.time);
             }
-        })
-        .map_err(|e| eprintln!("{}", e));
+        }).map_err(|e| eprintln!("{}", e));
 
     hyper::rt::run(req);
 }

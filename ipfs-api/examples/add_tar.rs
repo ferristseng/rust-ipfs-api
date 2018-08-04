@@ -45,12 +45,10 @@ fn main() {
             println!();
 
             client.tar_cat(&add.hash[..]).concat2()
-        })
-        .map(|cat| {
+        }).map(|cat| {
             println!("{}", String::from_utf8_lossy(&cat[..]));
             println!();
-        })
-        .map_err(|e| eprintln!("{}", e));
+        }).map_err(|e| eprintln!("{}", e));
 
     hyper::rt::run(req)
 }
