@@ -63,7 +63,7 @@ impl Serialize for ObjectTemplate {
         S: Serializer,
     {
         let s = match self {
-            &ObjectTemplate::UnixFsDir => "unixfs-dir",
+            ObjectTemplate::UnixFsDir => "unixfs-dir",
         };
 
         serializer.serialize_str(s)

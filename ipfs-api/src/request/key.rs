@@ -21,8 +21,8 @@ impl Serialize for KeyType {
         S: Serializer,
     {
         let s = match self {
-            &KeyType::Rsa => "rsa",
-            &KeyType::Ed25519 => "ed25519",
+            KeyType::Rsa => "rsa",
+            KeyType::Ed25519 => "ed25519",
         };
 
         serializer.serialize_str(s)

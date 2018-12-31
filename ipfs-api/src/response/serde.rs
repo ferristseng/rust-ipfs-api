@@ -25,14 +25,14 @@ impl<'de> Visitor<'de> for IntegerVisitor {
     where
         E: Error,
     {
-        Ok(num as i64)
+        Ok(num.into())
     }
 
     fn visit_i32<E>(self, num: i32) -> Result<Self::Value, E>
     where
         E: Error,
     {
-        Ok(num as i64)
+        Ok(num.into())
     }
 
     fn visit_i64<E>(self, num: i64) -> Result<Self::Value, E>
@@ -46,14 +46,14 @@ impl<'de> Visitor<'de> for IntegerVisitor {
     where
         E: Error,
     {
-        Ok(num as i64)
+        Ok(num.into())
     }
 
     fn visit_u32<E>(self, num: u32) -> Result<Self::Value, E>
     where
         E: Error,
     {
-        Ok(num as i64)
+        Ok(num.into())
     }
 
     fn visit_u64<E>(self, num: u64) -> Result<Self::Value, E>

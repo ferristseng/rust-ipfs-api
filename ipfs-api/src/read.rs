@@ -75,7 +75,7 @@ where
                                     String::from_utf8_lossy(&slice[colon + 2..]).into(),
                                 );
 
-                                Err(e.into())
+                                Err(e)
                             }
                             _ => Err(e.into()),
                         }
@@ -143,7 +143,7 @@ where
     #[inline]
     pub fn new(stream: S) -> StreamReader<S> {
         StreamReader {
-            stream: stream,
+            stream,
             state: ReadState::NotReady,
         }
     }

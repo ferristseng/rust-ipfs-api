@@ -25,11 +25,11 @@ impl Serialize for LoggingLevel {
         S: Serializer,
     {
         let s = match self {
-            &LoggingLevel::Debug => "debug",
-            &LoggingLevel::Info => "info",
-            &LoggingLevel::Warning => "warning",
-            &LoggingLevel::Error => "error",
-            &LoggingLevel::Critical => "critical",
+            LoggingLevel::Debug => "debug",
+            LoggingLevel::Info => "info",
+            LoggingLevel::Warning => "warning",
+            LoggingLevel::Error => "error",
+            LoggingLevel::Critical => "critical",
         };
 
         serializer.serialize_str(s)
@@ -47,8 +47,8 @@ impl<'a> Serialize for Logger<'a> {
         S: Serializer,
     {
         let s = match self {
-            &Logger::All => "*",
-            &Logger::Specific(ref logger) => logger.as_ref(),
+            Logger::All => "*",
+            Logger::Specific(ref logger) => logger.as_ref(),
         };
 
         serializer.serialize_str(s)

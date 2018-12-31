@@ -107,9 +107,9 @@ impl IpfsClient {
     #[inline]
     fn build_error_from_body(chunk: Chunk) -> Error {
         match serde_json::from_slice(&chunk) {
-            Ok(e) => Error::Api(e).into(),
+            Ok(e) => Error::Api(e),
             Err(_) => match String::from_utf8(chunk.to_vec()) {
-                Ok(s) => Error::Uncategorized(s).into(),
+                Ok(s) => Error::Uncategorized(s),
                 Err(e) => e.into(),
             },
         }
@@ -310,7 +310,7 @@ impl IpfsClient {
                     // There was an unrecognized trailer value. If that is the case,
                     // create a stream that immediately errors.
                     //
-                    return Box::new(stream::once(Err(err.into())));
+                    return Box::new(stream::once(Err(err)));
                 }
             } else {
                 false
