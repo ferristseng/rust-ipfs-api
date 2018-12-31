@@ -7,9 +7,9 @@
 //
 
 use clap::App;
-use command::{verify_file, CliCommand, EXPECTED_FILE};
+use command::{CliCommand, EXPECTED_FILE};
 use futures::Future;
-use std::fs::File;
+use std::path::Path;
 
 pub struct Command;
 
@@ -20,17 +20,19 @@ impl CliCommand for Command {
         clap_app!(
             @subcommand add =>
                 (about: "Add file to IPFS")
-                (@arg INPUT: +required {verify_file} "File to add")
+                (@arg INPUT: +required "File to add")
+                (@arg recursive: -r --recursive "Add directory paths recursively. Default: false")
         )
     }
 
     handle!(
         (args, client) => {
             let path = args.value_of("INPUT").unwrap();
-            let file = File::open(path).expect(EXPECTED_FILE);
-
+            if !args.is_present("recursive") && Path::new(path).is_dir() {
+                panic!(EXPECTED_FILE);
+            }
             client
-                .add(file)
+                .add_path(path)
                 .map(|response| {
                     println!();
                     println!("  name    : {}", response.name);

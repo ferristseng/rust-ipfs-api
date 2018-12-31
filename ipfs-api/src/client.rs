@@ -9,6 +9,7 @@
 use futures::{
     stream::{self, Stream},
     Future, IntoFuture,
+    future,
 };
 use header::TRAILER;
 use http::uri::InvalidUri;
@@ -24,6 +25,7 @@ use response::{self, Error};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::io::Read;
+use std::path::{Path, PathBuf};
 use tokio_codec::{Decoder, FramedRead};
 
 /// A response returned by the HTTP client.
@@ -349,6 +351,85 @@ impl IpfsClient {
         form.add_reader("path", data);
 
         self.request(&request::Add, Some(form))
+    }
+
+    /// Add a path to Ipfs. Can be a file or directory.
+    /// A hard limit of 128 open file descriptors is set such
+    /// that any small additional files are stored in-memory.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # extern crate ipfs_api;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// # fn main() {
+    /// let client = IpfsClient::default();
+    /// let path = "./src";
+    /// let req = client.add_path(path);
+    /// # }
+    /// ```
+    ///
+    #[inline]
+    pub fn add_path<P>(&self, path: P) -> AsyncResponse<response::AddResponse>
+    where
+        P: AsRef<Path>,
+    {
+        let mut form = multipart::Form::default();
+
+        let prefix = path.as_ref().parent();
+
+        let mut paths_to_add: Vec<(PathBuf, u64)> = vec![];
+
+        for path in walkdir::WalkDir::new(path.as_ref()) {
+            match path {
+                Ok(entry) => {
+                    if entry.file_type().is_file() {
+                        let file_size =
+                            entry.metadata().map(|metadata| metadata.len()).unwrap_or(0);
+                        paths_to_add.push((entry.path().to_path_buf(), file_size));
+                    }
+                }
+                Err(err) => {
+                    return Box::new(future::err(Error::Io(err.into())));
+                }
+            }
+        }
+
+        paths_to_add.sort_unstable_by(|(_, a), (_, b)| a.cmp(b).reverse());
+
+        let mut it = 0;
+        const FILE_DESCRIPTOR_LIMIT: usize = 127;
+
+        for (path, file_size) in paths_to_add {
+            let file = std::fs::File::open(&path);
+            if file.is_err() {
+                return Box::new(future::err(file.unwrap_err().into()));
+            }
+            let file_name = match prefix {
+                Some(prefix) => path.strip_prefix(prefix).unwrap(),
+                None => path.as_path(),
+            }
+            .to_string_lossy();
+
+            if it < FILE_DESCRIPTOR_LIMIT {
+                form.add_reader_file("path", file.unwrap(), file_name);
+                it += 1;
+            } else {
+                let mut buf = Vec::with_capacity(file_size as usize);
+                if let Err(err) = file.unwrap().read_to_end(&mut buf) {
+                    return Box::new(future::err(err.into()));
+                }
+                form.add_reader_file("path", std::io::Cursor::new(buf), file_name);
+            }
+        }
+
+        Box::new(
+            self.request_stream_json(&request::Add, Some(form))
+                .collect()
+                .map(|mut responses: Vec<response::AddResponse>| responses.pop().unwrap()),
+        )
     }
 
     /// Returns the current ledger for a peer.
