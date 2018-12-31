@@ -3,3 +3,5 @@ rust:
   - stable
   - beta
   - nightly
+cache:
+  cargo: true
