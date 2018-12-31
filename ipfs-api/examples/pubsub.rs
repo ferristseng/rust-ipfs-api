@@ -68,7 +68,8 @@ fn main() {
                     println!("received ({:?})", msg);
 
                     Ok(())
-                }).map_err(|e| eprintln!("{}", e)),
+                })
+                .map_err(|e| eprintln!("{}", e)),
         )
     }
 }

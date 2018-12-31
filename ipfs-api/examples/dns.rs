@@ -27,14 +27,16 @@ fn main() {
             println!();
 
             client.file_ls(&dns.path[..])
-        }).map(|contents| {
+        })
+        .map(|contents| {
             println!("found contents:");
             for directory in contents.objects.values() {
                 for file in directory.links.iter() {
                     println!("[{}] ({} bytes)", file.name, file.size);
                 }
             }
-        }).map_err(|e| eprintln!("{}", e));
+        })
+        .map_err(|e| eprintln!("{}", e));
 
     hyper::rt::run(req);
 }

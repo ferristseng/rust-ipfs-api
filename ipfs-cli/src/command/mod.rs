@@ -6,12 +6,12 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use std::path::Path;
 use clap::{App, ArgMatches};
 use futures::Future;
 use ipfs_api::IpfsClient;
 use std::error::Error;
 use std::fs;
+use std::path::Path;
 
 pub type CommandExecutable = Box<Future<Item = (), Error = ()> + 'static + Send>;
 
@@ -19,7 +19,10 @@ pub const EXPECTED_FILE: &str = "expected to read input file";
 
 /// Verifies that a path points to a file that exists, and not a directory.
 ///
-pub fn verify_file<P>(path: P) -> Result<(), String> where P: AsRef<Path> {
+pub fn verify_file<P>(path: P) -> Result<(), String>
+where
+    P: AsRef<Path>,
+{
     match fs::metadata(path) {
         Ok(ref metadata) if metadata.is_file() => Ok(()),
         Ok(_) => Err("file must not be a directory".into()),

@@ -54,10 +54,7 @@ pub enum Error {
     StreamError(String),
 
     /// API returned a trailer header with unrecognized value.
-    #[fail(
-        display = "api returned a trailer header with unknown value: '{}'",
-        _0
-    )]
+    #[fail(display = "api returned a trailer header with unknown value: '{}'", _0)]
     UnrecognizedTrailerHeader(String),
 
     #[fail(display = "api returned unknwon error '{}'", _0)]

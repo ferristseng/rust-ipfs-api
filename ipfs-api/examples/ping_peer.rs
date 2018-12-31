@@ -51,11 +51,13 @@ fn main() {
 
                 ping_gather
             })
-        }).map(|pings: Vec<PingResponse>| {
+        })
+        .map(|pings: Vec<PingResponse>| {
             for ping in pings.iter() {
                 println!("got response ({:?}) at ({})...", ping.text, ping.time);
             }
-        }).map_err(|e| eprintln!("{}", e));
+        })
+        .map_err(|e| eprintln!("{}", e));
 
     hyper::rt::run(req);
 }

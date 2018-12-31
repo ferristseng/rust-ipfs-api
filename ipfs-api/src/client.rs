@@ -7,9 +7,9 @@
 //
 
 use futures::{
+    future,
     stream::{self, Stream},
     Future, IntoFuture,
-    future,
 };
 use header::TRAILER;
 use http::uri::InvalidUri;
@@ -163,7 +163,8 @@ impl IpfsClient {
                         let status = res.status();
 
                         res.into_body().concat2().map(move |chunk| (status, chunk))
-                    }).from_err();
+                    })
+                    .from_err();
 
                 Box::new(res)
             }
@@ -192,25 +193,25 @@ impl IpfsClient {
                     .request(req)
                     .from_err()
                     .map(move |res| {
-                        let stream: Box<
-                            Stream<Item = Res, Error = _> + Send + 'static,
-                        > = match res.status() {
-                            StatusCode::OK => process(res),
-                            // If the server responded with an error status code, the body
-                            // still needs to be read so an error can be built. This block will
-                            // read the entire body stream, then immediately return an error.
-                            //
-                            _ => Box::new(
-                                res.into_body()
-                                    .concat2()
-                                    .from_err()
-                                    .and_then(|chunk| Err(Self::build_error_from_body(chunk)))
-                                    .into_stream(),
-                            ),
-                        };
+                        let stream: Box<Stream<Item = Res, Error = _> + Send + 'static> =
+                            match res.status() {
+                                StatusCode::OK => process(res),
+                                // If the server responded with an error status code, the body
+                                // still needs to be read so an error can be built. This block will
+                                // read the entire body stream, then immediately return an error.
+                                //
+                                _ => Box::new(
+                                    res.into_body()
+                                        .concat2()
+                                        .from_err()
+                                        .and_then(|chunk| Err(Self::build_error_from_body(chunk)))
+                                        .into_stream(),
+                                ),
+                            };
 
                         stream
-                    }).flatten_stream();
+                    })
+                    .flatten_stream();
 
                 Box::new(res)
             }

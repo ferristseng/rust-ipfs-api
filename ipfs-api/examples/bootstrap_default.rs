@@ -49,11 +49,13 @@ fn main() {
                 println!("dropping all bootstrap peers...");
 
                 drop
-            }).and_then(|_| {
+            })
+            .and_then(|_| {
                 println!();
                 println!("adding default peers...");
 
                 add
-            }).map_err(|e| eprintln!("{}", e)),
+            })
+            .map_err(|e| eprintln!("{}", e)),
     );
 }
