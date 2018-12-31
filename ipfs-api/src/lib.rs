@@ -97,6 +97,7 @@ extern crate serde_urlencoded;
 extern crate tokio;
 extern crate tokio_codec;
 extern crate tokio_io;
+extern crate walkdir;
 
 pub use client::IpfsClient;
 pub use request::{KeyType, Logger, LoggingLevel, ObjectTemplate};
