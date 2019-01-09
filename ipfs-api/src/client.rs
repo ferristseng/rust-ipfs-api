@@ -25,6 +25,7 @@ use response::{self, Error};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::io::Read;
+use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
 use tokio_codec::{Decoder, FramedRead};
 
@@ -45,10 +46,49 @@ pub struct IpfsClient {
 }
 
 impl Default for IpfsClient {
-    /// Creates an `IpfsClient` connected to `localhost:5001`.
+    /// Creates an `IpfsClient` connected to the endpoint specified in ~/.ipfs/api.
+    /// If not found, tries to connect to `localhost:5001`.
     ///
     fn default() -> IpfsClient {
-        IpfsClient::new("localhost", 5001).unwrap()
+        use multiaddr::{AddrComponent, ToMultiaddr};
+        use std::fs;
+        use std::net::IpAddr;
+
+        dirs::home_dir()
+            .map(|mut home_dir| {
+                home_dir.push(".ipfs");
+                home_dir.push("api");
+                home_dir
+            })
+            .and_then(|multiaddr_path| fs::read_to_string(&multiaddr_path).ok())
+            .and_then(|multiaddr_str| multiaddr_str.to_multiaddr().ok())
+            .and_then(|multiaddr| {
+                let mut addr: Option<IpAddr> = None;
+                let mut port: Option<u16> = None;
+                for addr_component in multiaddr.iter() {
+                    match addr_component {
+                        AddrComponent::IP4(v4addr) => addr = Some(v4addr.into()),
+                        AddrComponent::IP6(v6addr) => addr = Some(v6addr.into()),
+                        AddrComponent::TCP(tcpport) => port = Some(tcpport),
+                        _ => {
+                            return None;
+                        }
+                    }
+                }
+                if let (Some(addr), Some(port)) = (addr, port) {
+                    Some(SocketAddr::new(addr, port))
+                } else {
+                    None
+                }
+            })
+            .map(IpfsClient::from)
+            .unwrap_or_else(|| IpfsClient::new("localhost", 5001).unwrap())
+    }
+}
+
+impl From<SocketAddr> for IpfsClient {
+    fn from(socket_addr: SocketAddr) -> Self {
+        IpfsClient::new(&socket_addr.ip().to_string(), socket_addr.port()).unwrap()
     }
 }
 

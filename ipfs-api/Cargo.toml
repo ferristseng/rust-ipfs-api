@@ -28,6 +28,8 @@ tokio                     = "0.1"
 tokio-codec               = "0.1"
 tokio-io                  = "0.1"
 walkdir                   = "2.2"
+dirs                      = "1.0"
+multiaddr                 = "0.3.1"
 
 [dev-dependencies]
 tokio-timer               = "0.2"

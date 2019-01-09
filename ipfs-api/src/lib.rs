@@ -92,6 +92,8 @@ extern crate hyper_multipart_rfc7578 as hyper_multipart;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+extern crate dirs;
+extern crate multiaddr;
 extern crate serde_json;
 extern crate serde_urlencoded;
 extern crate tokio;
