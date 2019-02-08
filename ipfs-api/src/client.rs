@@ -116,7 +116,7 @@ impl IpfsClient {
     fn build_base_request<Req>(
         &self,
         req: &Req,
-        form: Option<multipart::Form>,
+        form: Option<multipart::Form<'static>>,
     ) -> Result<Request<hyper::Body>, Error>
     where
         Req: ApiRequest + Serialize,
@@ -133,7 +133,7 @@ impl IpfsClient {
             let mut builder = builder.method(Req::METHOD.clone()).uri(url);
 
             let req = if let Some(form) = form {
-                form.set_body(&mut builder)
+                form.set_body_convert::<hyper::Body, multipart::Body>(&mut builder)
             } else {
                 builder.body(hyper::Body::empty())
             };
@@ -189,7 +189,7 @@ impl IpfsClient {
     fn request_raw<Req>(
         &self,
         req: &Req,
-        form: Option<multipart::Form>,
+        form: Option<multipart::Form<'static>>,
     ) -> AsyncResponse<(StatusCode, Chunk)>
     where
         Req: ApiRequest + Serialize,
@@ -218,7 +218,7 @@ impl IpfsClient {
     fn request_stream<Req, Res, F>(
         &self,
         req: &Req,
-        form: Option<multipart::Form>,
+        form: Option<multipart::Form<'static>>,
         process: F,
     ) -> AsyncStreamResponse<Res>
     where
@@ -262,7 +262,7 @@ impl IpfsClient {
     /// Generic method for making a request to the Ipfs server, and getting
     /// a deserializable response.
     ///
-    fn request<Req, Res>(&self, req: &Req, form: Option<multipart::Form>) -> AsyncResponse<Res>
+    fn request<Req, Res>(&self, req: &Req, form: Option<multipart::Form<'static>>) -> AsyncResponse<Res>
     where
         Req: ApiRequest + Serialize,
         for<'de> Res: 'static + Deserialize<'de> + Send,
@@ -277,7 +277,7 @@ impl IpfsClient {
     /// Generic method for making a request to the Ipfs server, and getting
     /// back a response with no body.
     ///
-    fn request_empty<Req>(&self, req: &Req, form: Option<multipart::Form>) -> AsyncResponse<()>
+    fn request_empty<Req>(&self, req: &Req, form: Option<multipart::Form<'static>>) -> AsyncResponse<()>
     where
         Req: ApiRequest + Serialize,
     {
@@ -294,7 +294,7 @@ impl IpfsClient {
     /// Generic method for making a request to the Ipfs server, and getting
     /// back a raw String response.
     ///
-    fn request_string<Req>(&self, req: &Req, form: Option<multipart::Form>) -> AsyncResponse<String>
+    fn request_string<Req>(&self, req: &Req, form: Option<multipart::Form<'static>>) -> AsyncResponse<String>
     where
         Req: ApiRequest + Serialize,
     {
@@ -314,7 +314,7 @@ impl IpfsClient {
     fn request_stream_bytes<Req>(
         &self,
         req: &Req,
-        form: Option<multipart::Form>,
+        form: Option<multipart::Form<'static>>,
     ) -> AsyncStreamResponse<Chunk>
     where
         Req: ApiRequest + Serialize,
@@ -328,7 +328,7 @@ impl IpfsClient {
     fn request_stream_json<Req, Res>(
         &self,
         req: &Req,
-        form: Option<multipart::Form>,
+        form: Option<multipart::Form<'static>>,
     ) -> AsyncStreamResponse<Res>
     where
         Req: ApiRequest + Serialize,
