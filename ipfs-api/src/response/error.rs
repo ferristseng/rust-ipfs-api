@@ -5,8 +5,10 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 //
-
+#[cfg(feature = "actix")]
+use actix_web;
 use http;
+#[cfg(feature = "hyper")]
 use hyper;
 use serde_json;
 use serde_urlencoded;
@@ -23,9 +25,22 @@ pub struct ApiError {
 
 #[derive(Fail, Debug)]
 pub enum Error {
-    // Foreign errors.
+    /// Foreign errors.
+    #[cfg(feature = "hyper")]
     #[fail(display = "hyper client error '{}'", _0)]
     Client(hyper::Error),
+
+    #[cfg(feature = "actix")]
+    #[fail(display = "actix client error '{}'", _0)]
+    Client(actix_web::error::Error),
+
+    #[cfg(feature = "actix")]
+    #[fail(display = "actix client payload error '{}'", _0)]
+    ClientPayload(actix_web::error::PayloadError),
+
+    #[cfg(feature = "actix")]
+    #[fail(display = "actix client send request error '{}'", _0)]
+    ClientSend(actix_web::client::SendRequestError),
 
     #[fail(display = "http error '{}'", _0)]
     Http(http::Error),
@@ -61,9 +76,31 @@ pub enum Error {
     Uncategorized(String),
 }
 
+#[cfg(feature = "hyper")]
 impl From<hyper::Error> for Error {
     fn from(err: hyper::Error) -> Error {
         Error::Client(err)
+    }
+}
+
+#[cfg(feature = "actix")]
+impl From<actix_web::error::Error> for Error {
+    fn from(err: actix_web::error::Error) -> Error {
+        Error::Client(err)
+    }
+}
+
+#[cfg(feature = "actix")]
+impl From<actix_web::client::SendRequestError> for Error {
+    fn from(err: actix_web::client::SendRequestError) -> Error {
+        Error::ClientSend(err)
+    }
+}
+
+#[cfg(feature = "actix")]
+impl From<actix_web::error::PayloadError> for Error {
+    fn from(err: actix_web::error::PayloadError) -> Error {
+        Error::ClientPayload(err)
     }
 }
 

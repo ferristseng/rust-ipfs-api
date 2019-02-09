@@ -6,6 +6,6 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-pub use hyper::header::TRAILER;
+pub use http::header::TRAILER;
 
 pub const X_STREAM_ERROR: &str = "x-stream-error";

@@ -6,7 +6,10 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+#[cfg(feature = "actix")]
+extern crate actix_web;
 extern crate futures;
+#[cfg(feature = "hyper")]
 extern crate hyper;
 extern crate ipfs_api;
 
@@ -46,7 +49,7 @@ fn main() {
 
     let file_rm = client.files_rm("/test", true);
 
-    hyper::rt::run(
+    let fut =
         mkdir
             .and_then(|_| {
                 println!("making dirs /test/does/not/exist/yet...");
@@ -78,6 +81,16 @@ fn main() {
                 file_rm
             })
             .map(|_| println!("done!"))
-            .map_err(|e| eprintln!("{}", e)),
-    )
+            .map_err(|e| eprintln!("{}", e))
+    ;
+
+       #[cfg(feature = "hyper")]
+    hyper::rt::run(fut);
+    #[cfg(feature = "actix")]
+    actix_web::actix::run(|| {
+        fut.then(|_| {
+            actix_web::actix::System::current().stop();
+            Ok(())
+        })
+    });
 }
