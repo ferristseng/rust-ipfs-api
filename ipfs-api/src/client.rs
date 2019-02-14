@@ -22,14 +22,18 @@ use http::StatusCode;
 use hyper::client::{Client, HttpConnector};
 #[cfg(feature = "hyper")]
 use hyper_multipart::client::multipart;
+use multiaddr::{AddrComponent, ToMultiaddr};
 use read::{JsonLineDecoder, LineDecoder, StreamReader};
 use request::{self, ApiRequest};
 use response::{self, Error};
 use serde::{Deserialize, Serialize};
 use serde_json;
-use std::io::Read;
-use std::net::SocketAddr;
-use std::path::{Path, PathBuf};
+use std::{
+    fs,
+    io::Read,
+    net::{IpAddr, SocketAddr},
+    path::{Path, PathBuf},
+};
 use tokio_codec::{Decoder, FramedRead};
 
 /// A response returned by the HTTP client.
@@ -70,16 +74,8 @@ impl Default for IpfsClient {
     /// If not found, tries to connect to `localhost:5001`.
     ///
     fn default() -> IpfsClient {
-        use multiaddr::{AddrComponent, ToMultiaddr};
-        use std::fs;
-        use std::net::IpAddr;
-
         dirs::home_dir()
-            .map(|mut home_dir| {
-                home_dir.push(".ipfs");
-                home_dir.push("api");
-                home_dir
-            })
+            .map(|home_dir| home_dir.join(".ipfs").join("api"))
             .and_then(|multiaddr_path| fs::read_to_string(&multiaddr_path).ok())
             .and_then(|multiaddr_str| multiaddr_str.to_multiaddr().ok())
             .and_then(|multiaddr| {

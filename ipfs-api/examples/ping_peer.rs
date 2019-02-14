@@ -62,7 +62,7 @@ fn main() {
         })
         .map_err(|e| eprintln!("{}", e));
 
-   #[cfg(feature = "hyper")]
+    #[cfg(feature = "hyper")]
     hyper::rt::run(req);
     #[cfg(feature = "actix")]
     actix_web::actix::run(|| {

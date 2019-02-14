@@ -46,19 +46,19 @@ fn main() {
     });
 
     let fut = bootstrap
-            .and_then(|_| {
-                println!();
-                println!("dropping all bootstrap peers...");
+        .and_then(|_| {
+            println!();
+            println!("dropping all bootstrap peers...");
 
-                drop
-            })
-            .and_then(|_| {
-                println!();
-                println!("adding default peers...");
+            drop
+        })
+        .and_then(|_| {
+            println!();
+            println!("adding default peers...");
 
-                add
-            })
-            .map_err(|e| eprintln!("{}", e));
+            add
+        })
+        .map_err(|e| eprintln!("{}", e));
 
     #[cfg(feature = "hyper")]
     hyper::rt::run(fut);

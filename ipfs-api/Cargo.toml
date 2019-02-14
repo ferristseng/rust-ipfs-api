@@ -6,7 +6,7 @@ documentation             = "https://docs.rs/ipfs-api"
 repository                = "https://github.com/ferristseng/rust-ipfs-api"
 keywords                  = ["ipfs"]
 categories                = ["filesystem", "web-programming"]
-version                   = "0.5.0-alpha2"
+version                   = "0.5.1"
 readme                    = "../README.md"
 license                   = "MIT OR Apache-2.0"
 
@@ -38,5 +38,7 @@ dirs                      = "1.0"
 multiaddr                 = "0.3.1"
 
 [dev-dependencies]
+actix-multipart-rfc7578   = "0.1"
+actix-web                 = "0.7"
 tokio-timer               = "0.2"
 tar                       = "0.4"

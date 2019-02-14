@@ -27,7 +27,7 @@ fn main() {
         .map(|version| println!("version: {:?}", version.version));
 
     let fut = req.map_err(|e| eprintln!("{}", e));
-    
+
     #[cfg(feature = "hyper")]
     hyper::rt::run(fut);
     #[cfg(feature = "actix")]

@@ -49,42 +49,40 @@ fn main() {
 
     let file_rm = client.files_rm("/test", true);
 
-    let fut =
-        mkdir
-            .and_then(|_| {
-                println!("making dirs /test/does/not/exist/yet...");
-                println!();
+    let fut = mkdir
+        .and_then(|_| {
+            println!("making dirs /test/does/not/exist/yet...");
+            println!();
 
-                mkdir_recursive
-            })
-            .and_then(|_| {
-                println!("getting status of /test/does...");
-                println!();
+            mkdir_recursive
+        })
+        .and_then(|_| {
+            println!("getting status of /test/does...");
+            println!();
 
-                file_stat
-            })
-            .and_then(|stat| {
-                print_stat(stat);
+            file_stat
+        })
+        .and_then(|stat| {
+            print_stat(stat);
 
-                println!("writing source file to /test/mfs.rs");
-                println!();
+            println!("writing source file to /test/mfs.rs");
+            println!();
 
-                file_write
-            })
-            .and_then(|_| file_write_stat)
-            .and_then(|stat| {
-                print_stat(stat);
+            file_write
+        })
+        .and_then(|_| file_write_stat)
+        .and_then(|stat| {
+            print_stat(stat);
 
-                println!("removing /test...");
-                println!();
+            println!("removing /test...");
+            println!();
 
-                file_rm
-            })
-            .map(|_| println!("done!"))
-            .map_err(|e| eprintln!("{}", e))
-    ;
+            file_rm
+        })
+        .map(|_| println!("done!"))
+        .map_err(|e| eprintln!("{}", e));
 
-       #[cfg(feature = "hyper")]
+    #[cfg(feature = "hyper")]
     hyper::rt::run(fut);
     #[cfg(feature = "actix")]
     actix_web::actix::run(|| {
