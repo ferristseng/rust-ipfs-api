@@ -6,7 +6,10 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+#[cfg(feature = "actix")]
+extern crate actix_web;
 extern crate futures;
+#[cfg(feature = "hyper")]
 extern crate hyper;
 extern crate ipfs_api;
 
@@ -54,10 +57,18 @@ fn main() {
         println!("  version    : {}", repo_stats.version);
     });
 
-    hyper::rt::run(
-        bitswap_stats
-            .and_then(|_| bw_stats)
-            .and_then(|_| repo_stats)
-            .map_err(|e| eprintln!("{}", e)),
-    );
+    let fut = bitswap_stats
+        .and_then(|_| bw_stats)
+        .and_then(|_| repo_stats)
+        .map_err(|e| eprintln!("{}", e));
+
+    #[cfg(feature = "hyper")]
+    hyper::rt::run(fut);
+    #[cfg(feature = "actix")]
+    actix_web::actix::run(|| {
+        fut.then(|_| {
+            actix_web::actix::System::current().stop();
+            Ok(())
+        })
+    });
 }

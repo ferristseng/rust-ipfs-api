@@ -6,7 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use hyper::Method;
+use http::Method;
 use request::ApiRequest;
 
 pub struct ConfigEdit;

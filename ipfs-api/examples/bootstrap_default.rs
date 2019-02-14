@@ -6,7 +6,10 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+#[cfg(feature = "actix")]
+extern crate actix_web;
 extern crate futures;
+#[cfg(feature = "hyper")]
 extern crate hyper;
 extern crate ipfs_api;
 
@@ -42,8 +45,7 @@ fn main() {
         }
     });
 
-    hyper::rt::run(
-        bootstrap
+    let fut = bootstrap
             .and_then(|_| {
                 println!();
                 println!("dropping all bootstrap peers...");
@@ -56,6 +58,15 @@ fn main() {
 
                 add
             })
-            .map_err(|e| eprintln!("{}", e)),
-    );
+            .map_err(|e| eprintln!("{}", e));
+
+    #[cfg(feature = "hyper")]
+    hyper::rt::run(fut);
+    #[cfg(feature = "actix")]
+    actix_web::actix::run(|| {
+        fut.then(|_| {
+            actix_web::actix::System::current().stop();
+            Ok(())
+        })
+    });
 }

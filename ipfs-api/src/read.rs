@@ -6,10 +6,9 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use bytes::BytesMut;
+use bytes::{Bytes, BytesMut};
 use futures::{Async, Stream};
 use header::X_STREAM_ERROR;
-use hyper::Chunk;
 use response::Error;
 use serde::Deserialize;
 use serde_json;
@@ -122,7 +121,7 @@ impl Decoder for LineDecoder {
 enum ReadState {
     /// A chunk is ready to be read from.
     ///
-    Ready(Chunk, usize),
+    Ready(Bytes, usize),
 
     /// The next chunk isn't ready yet.
     ///
@@ -138,7 +137,7 @@ pub struct StreamReader<S> {
 
 impl<S> StreamReader<S>
 where
-    S: Stream<Item = Chunk, Error = Error>,
+    S: Stream<Item = Bytes, Error = Error>,
 {
     #[inline]
     pub fn new(stream: S) -> StreamReader<S> {
@@ -151,7 +150,7 @@ where
 
 impl<S> Read for StreamReader<S>
 where
-    S: Stream<Item = Chunk, Error = Error>,
+    S: Stream<Item = Bytes, Error = Error>,
 {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         loop {
@@ -203,4 +202,4 @@ where
     }
 }
 
-impl<S> AsyncRead for StreamReader<S> where S: Stream<Item = Chunk, Error = Error> {}
+impl<S> AsyncRead for StreamReader<S> where S: Stream<Item = Bytes, Error = Error> {}

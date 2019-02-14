@@ -6,7 +6,10 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+#[cfg(feature = "actix")]
+extern crate actix_web;
 extern crate futures;
+#[cfg(feature = "hyper")]
 extern crate hyper;
 extern crate ipfs_api;
 extern crate tokio_timer;
@@ -49,7 +52,11 @@ fn main() {
 
         println!();
         println!("starting task to publish messages to ({})...", TOPIC);
+
+        #[cfg(feature = "hyper")]
         hyper::rt::run(publish);
+        #[cfg(feature = "actix")]
+        actix_web::actix::spawn(publish);
     });
 
     // This block will execute a future that suscribes to a topic,
@@ -61,15 +68,24 @@ fn main() {
 
         println!();
         println!("waiting for messages on ({})...", TOPIC);
-        hyper::rt::run(
-            req.take(5)
-                .for_each(|msg| {
-                    println!();
-                    println!("received ({:?})", msg);
+        let fut = req
+            .take(5)
+            .for_each(|msg| {
+                println!();
+                println!("received ({:?})", msg);
 
-                    Ok(())
-                })
-                .map_err(|e| eprintln!("{}", e)),
-        )
+                Ok(())
+            })
+            .map_err(|e| eprintln!("{}", e));
+
+        #[cfg(feature = "hyper")]
+        hyper::rt::run(fut);
+        #[cfg(feature = "actix")]
+        actix_web::actix::run(|| {
+            fut.then(|_| {
+                actix_web::actix::System::current().stop();
+                Ok(())
+            })
+        });
     }
 }

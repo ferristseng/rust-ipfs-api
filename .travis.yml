@@ -5,3 +5,10 @@ rust:
   - nightly
 cache:
   cargo: true
+script:
+  - cargo build --verbose
+  - cargo test --verbose
+  - cd ipfs-api
+  - cargo build --verbose --features actix --no-default-features
+  - cargo test --verbose --features actix --no-default-features
+  - cd ..
