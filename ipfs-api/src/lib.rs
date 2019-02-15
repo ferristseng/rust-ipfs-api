@@ -206,5 +206,5 @@ pub use request::{KeyType, Logger, LoggingLevel, ObjectTemplate};
 mod client;
 mod header;
 mod read;
-mod request;
+pub mod request;
 pub mod response;
