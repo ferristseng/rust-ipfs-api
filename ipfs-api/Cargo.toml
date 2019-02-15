@@ -40,5 +40,6 @@ multiaddr                 = "0.3.1"
 [dev-dependencies]
 actix-multipart-rfc7578   = "0.1"
 actix-web                 = "0.7"
+hyper                     = "0.12"
 tokio-timer               = "0.2"
 tar                       = "0.4"
