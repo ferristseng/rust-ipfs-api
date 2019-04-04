@@ -14,7 +14,7 @@ license                   = "MIT OR Apache-2.0"
 travis-ci                 = { repository = "ferristseng/rust-ipfs-api" }
 
 [features]
-default                   = ["hyper", "hyper-multipart-rfc7578"]
+default                   = ["hyper", "hyper-multipart-rfc7578", "hyper-tls"]
 actix                     = ["actix-web", "actix-multipart-rfc7578"]
 
 [dependencies]
@@ -25,6 +25,7 @@ failure                   = "0.1.2"
 futures                   = "0.1"
 http                      = "0.1"
 hyper                     = { version = "0.12", optional = true }
+hyper-tls                 = { version = "0.3.2", optional = true }
 hyper-multipart-rfc7578   = { version = "0.3", optional = true }
 serde                     = "1.0"
 serde_derive              = "1.0"
@@ -41,5 +42,6 @@ multiaddr                 = "0.3.1"
 actix-multipart-rfc7578   = "0.1"
 actix-web                 = "0.7"
 hyper                     = "0.12"
+hyper-tls                 = "0.3.2"
 tokio-timer               = "0.2"
 tar                       = "0.4"

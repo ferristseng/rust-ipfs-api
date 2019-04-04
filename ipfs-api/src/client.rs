@@ -22,6 +22,8 @@ use http::StatusCode;
 use hyper::client::{Client, HttpConnector};
 #[cfg(feature = "hyper")]
 use hyper_multipart::client::multipart;
+#[cfg(feature = "hyper")]
+use hyper_tls::HttpsConnector;
 use multiaddr::{AddrComponent, ToMultiaddr};
 use read::{JsonLineDecoder, LineDecoder, StreamReader};
 use request::{self, ApiRequest};
@@ -66,7 +68,7 @@ type Response = http::Response<hyper::Body>;
 pub struct IpfsClient {
     base: Uri,
     #[cfg(feature = "hyper")]
-    client: Client<HttpConnector, hyper::Body>,
+    client: Client<HttpsConnector<HttpConnector>, hyper::Body>,
 }
 
 impl Default for IpfsClient {
@@ -113,19 +115,28 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn new(host: &str, port: u16) -> Result<IpfsClient, InvalidUri> {
-        let base_path = IpfsClient::build_base_path(host, port)?;
+        Self::new_from_uri(format!("http://{}:{}", host, port).as_str())
+    }
+
+    /// Creates a new `IpfsClient` for any given URI.
+    #[inline]
+    pub fn new_from_uri(uri: &str) -> Result<IpfsClient, InvalidUri> {
+        let base_path = IpfsClient::build_base_path(uri)?;
 
         Ok(IpfsClient {
             base: base_path,
             #[cfg(feature = "hyper")]
-            client: Client::builder().keep_alive(false).build_http(),
+            client: {
+                let connector = HttpsConnector::new(4).unwrap();
+                Client::builder().keep_alive(false).build(connector)
+            },
         })
     }
 
     /// Builds the base url path for the Ipfs api.
     ///
-    fn build_base_path(host: &str, port: u16) -> Result<Uri, InvalidUri> {
-        format!("http://{}:{}/api/v0", host, port).parse()
+    fn build_base_path(uri: &str) -> Result<Uri, InvalidUri> {
+        format!("{}/api/v0", uri).parse()
     }
 
     /// Builds the url for an api call.
