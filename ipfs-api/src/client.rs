@@ -455,7 +455,7 @@ impl IpfsClient {
 }
 
 impl IpfsClient {
-    /// Add file to Ipfs.
+    /// Add a file to IPFS.
     ///
     /// # Examples
     ///
@@ -481,7 +481,38 @@ impl IpfsClient {
 
         form.add_reader("path", data);
 
-        self.request(&request::Add, Some(form))
+        self.request(&request::Add::default(), Some(form))
+    }
+
+    /// Add a file to IPFS with options.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # extern crate ipfs_api;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use std::io::Cursor;
+    ///
+    /// # fn main() {
+    /// let client = IpfsClient::default();
+    /// let data = Cursor::new("Hello World!");
+    /// let mut add = ipfs_api::request::Add::default();
+    /// add.chunker = Some("rabin-512-1024-2048");
+    /// let req = client.add_with_options(data, &add);
+    /// # }
+    /// ```
+    ///
+    #[inline]
+    pub fn add_with_options<R>(&self, data: R, add: &request::Add) -> AsyncResponse<response::AddResponse>
+    where
+        R: 'static + Read + Send,
+    {
+        let mut form = multipart::Form::default();
+
+        form.add_reader("path", data);
+
+        self.request(add, Some(form))
     }
 
     /// Add a path to Ipfs. Can be a file or directory.
@@ -557,7 +588,7 @@ impl IpfsClient {
         }
 
         Box::new(
-            self.request_stream_json(&request::Add, Some(form))
+            self.request_stream_json(&request::Add::default(), Some(form))
                 .collect()
                 .map(|mut responses: Vec<response::AddResponse>| responses.pop().unwrap()),
         )

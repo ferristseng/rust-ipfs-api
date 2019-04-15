@@ -9,11 +9,43 @@
 use http::Method;
 use request::ApiRequest;
 
-pub struct Add;
+#[derive(Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub struct Add<'a, 'b> {
+    pub recursive: Option<bool>,
+    pub progress: Option<bool>,
+    pub trickle: Option<bool>,
+    pub only_hash: Option<bool>,
+    pub chunker: Option<&'a str>,
+    pub pin: Option<bool>,
+    pub raw_leaves: Option<bool>,
+    pub fscache: Option<bool>,
+    pub cid_version: Option<isize>,
+    pub hash: Option<&'b str>,
+    pub inline: Option<bool>,
+    pub inline_limit: Option<isize>
+}
 
-impl_skip_serialize!(Add);
+impl<'a,'b> Default for Add<'a,'b> {
+    fn default() -> Self {
+        Self {
+            recursive: None,
+            progress: None,
+            trickle: None,
+            only_hash: None,
+            chunker: None,
+            pin: None,
+            raw_leaves: None,
+            fscache: None,
+            cid_version: None,
+            hash: None,
+            inline: None,
+            inline_limit: None,
+        }
+    }
+}
 
-impl ApiRequest for Add {
+impl<'a, 'b> ApiRequest for Add<'a,'b> {
     const PATH: &'static str = "/add";
 
     const METHOD: &'static Method = &Method::POST;
