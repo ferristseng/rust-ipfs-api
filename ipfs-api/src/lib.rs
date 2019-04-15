@@ -182,6 +182,8 @@ extern crate actix_web;
 extern crate hyper;
 #[cfg(feature = "hyper")]
 extern crate hyper_multipart_rfc7578 as hyper_multipart;
+#[cfg(feature = "hyper")]
+extern crate hyper_tls;
 
 extern crate bytes;
 #[macro_use]
