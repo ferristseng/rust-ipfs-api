@@ -942,22 +942,19 @@ impl IpfsClient {
         self.request(&request::DagGet { path }, None)
     }
 
-    // TODO /dag routes are experimental, and there isn't a whole lot of
-    // documentation available for how this route works.
-    //
-    // /// Add a DAG node to Ipfs.
-    // ///
-    // #[inline]
-    // pub fn dag_put<R>(&self, data: R) -> AsyncResponse<response::DagPutResponse>
-    // where
-    //     R: 'static + Read + Send,
-    // {
-    //     let mut form = multipart::Form::default();
-    //
-    //     form.add_reader("arg", data);
-    //
-    //     self.request(&request::DagPut, Some(form))
-    // }
+    /// Add a DAG node to Ipfs.
+    ///
+    #[inline]
+    pub fn dag_put<R>(&self, data: R) -> AsyncResponse<response::DagPutResponse>
+    where
+        R: 'static + Read + Send,
+    {
+        let mut form = multipart::Form::default();
+
+        form.add_reader("arg", data);
+
+        self.request(&request::DagPut, Some(form))
+    }
 
     // TODO /dag/resolve
 
