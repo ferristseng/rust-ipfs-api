@@ -6,7 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 #[cfg(feature = "actix")]
-use actix_web;
+use awc;
 use http;
 #[cfg(feature = "hyper")]
 use hyper;
@@ -15,64 +15,97 @@ use serde_urlencoded;
 use std;
 use std::string::FromUtf8Error;
 
-#[derive(Fail, Debug, Deserialize)]
+#[cfg_attr(feature = "actix", derive(Display), display(fmt = "{}", message))]
+#[cfg_attr(feature = "hyper", derive(Fail), fail(display = "{}", message))]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
-#[fail(display = "{}", message)]
 pub struct ApiError {
     pub message: String,
     pub code: u8,
 }
 
-#[derive(Fail, Debug)]
+#[cfg_attr(feature = "actix", derive(Display))]
+#[cfg_attr(feature = "hyper", derive(Fail))]
+#[derive(Debug)]
 pub enum Error {
     /// Foreign errors.
     #[cfg(feature = "hyper")]
-    #[fail(display = "hyper client error '{}'", _0)]
+    #[cfg_attr(feature = "hyper", fail(display = "hyper client error '{}'", _0))]
     Client(hyper::Error),
 
     #[cfg(feature = "actix")]
-    #[fail(display = "actix client error '{}'", _0)]
-    Client(actix_web::error::Error),
+    #[cfg_attr(
+        feature = "actix",
+        display(fmt = "actix client payload error '{}'", _0)
+    )]
+    ClientPayload(awc::error::PayloadError),
 
     #[cfg(feature = "actix")]
-    #[fail(display = "actix client payload error '{}'", _0)]
-    ClientPayload(actix_web::error::PayloadError),
+    #[cfg_attr(
+        feature = "actix",
+        display(fmt = "actix client send request error '{}'", _0)
+    )]
+    ClientSend(awc::error::SendRequestError),
 
-    #[cfg(feature = "actix")]
-    #[fail(display = "actix client send request error '{}'", _0)]
-    ClientSend(actix_web::client::SendRequestError),
-
-    #[fail(display = "http error '{}'", _0)]
+    #[cfg_attr(feature = "actix", display(fmt = "http error '{}'", _0))]
+    #[cfg_attr(feature = "hyper", fail(display = "http error '{}'", _0))]
     Http(http::Error),
 
-    #[fail(display = "json parse error '{}'", _0)]
+    #[cfg_attr(feature = "actix", display(fmt = "json parse error '{}'", _0))]
+    #[cfg_attr(feature = "hyper", fail(display = "json parse error '{}'", _0))]
     Parse(serde_json::Error),
 
-    #[fail(display = "utf8 decoding error '{}'", _0)]
+    #[cfg_attr(feature = "actix", display(fmt = "utf8 decoding error '{}'", _0))]
+    #[cfg_attr(feature = "hyper", fail(display = "utf8 decoding error '{}'", _0))]
     ParseUtf8(FromUtf8Error),
 
-    #[fail(display = "uri error '{}'", _0)]
+    #[cfg_attr(feature = "actix", display(fmt = "uri error '{}'", _0))]
+    #[cfg_attr(feature = "hyper", fail(display = "uri error '{}'", _0))]
     Url(http::uri::InvalidUri),
 
-    #[fail(display = "io error '{}'", _0)]
+    #[cfg_attr(feature = "actix", display(fmt = "io error '{}'", _0))]
+    #[cfg_attr(feature = "hyper", fail(display = "io error '{}'", _0))]
     Io(std::io::Error),
 
-    #[fail(display = "url encoding error '{}'", _0)]
+    #[cfg_attr(feature = "actix", display(fmt = "url encoding error '{}'", _0))]
+    #[cfg_attr(feature = "hyper", fail(display = "url encoding error '{}'", _0))]
     EncodeUrl(serde_urlencoded::ser::Error),
 
     /// An error returned by the Ipfs api.
-    #[fail(display = "api returned error '{}'", _0)]
+    #[cfg_attr(feature = "actix", display(fmt = "api returned error '{}'", _0))]
+    #[cfg_attr(feature = "hyper", fail(display = "api returned error '{}'", _0))]
     Api(ApiError),
 
     /// A stream error indicated in the Trailer header.
-    #[fail(display = "api returned an error while streaming: '{}'", _0)]
+    #[cfg_attr(
+        feature = "actix",
+        display(fmt = "api returned an error while streaming: '{}'", _0)
+    )]
+    #[cfg_attr(
+        feature = "hyper",
+        fail(display = "api returned an error while streaming: '{}'", _0)
+    )]
     StreamError(String),
 
     /// API returned a trailer header with unrecognized value.
-    #[fail(display = "api returned a trailer header with unknown value: '{}'", _0)]
+    #[cfg_attr(
+        feature = "actix",
+        display(fmt = "api returned a trailer header with unknown value: '{}'", _0)
+    )]
+    #[cfg_attr(
+        feature = "hyper",
+        fail(display = "api returned a trailer header with unknown value: '{}'", _0)
+    )]
     UnrecognizedTrailerHeader(String),
 
-    #[fail(display = "api returned unknwon error '{}'", _0)]
+    #[cfg_attr(
+        feature = "actix",
+        display(fmt = "api returned unknwon error '{}'", _0)
+    )]
+    #[cfg_attr(
+        feature = "hyper",
+        fail(display = "api returned unknwon error '{}'", _0)
+    )]
     Uncategorized(String),
 }
 
@@ -84,22 +117,15 @@ impl From<hyper::Error> for Error {
 }
 
 #[cfg(feature = "actix")]
-impl From<actix_web::error::Error> for Error {
-    fn from(err: actix_web::error::Error) -> Error {
-        Error::Client(err)
-    }
-}
-
-#[cfg(feature = "actix")]
-impl From<actix_web::client::SendRequestError> for Error {
-    fn from(err: actix_web::client::SendRequestError) -> Error {
+impl From<awc::error::SendRequestError> for Error {
+    fn from(err: awc::error::SendRequestError) -> Error {
         Error::ClientSend(err)
     }
 }
 
 #[cfg(feature = "actix")]
-impl From<actix_web::error::PayloadError> for Error {
-    fn from(err: actix_web::error::PayloadError) -> Error {
+impl From<awc::error::PayloadError> for Error {
+    fn from(err: awc::error::PayloadError) -> Error {
         Error::ClientPayload(err)
     }
 }
