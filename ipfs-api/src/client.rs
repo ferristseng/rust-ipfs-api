@@ -535,8 +535,8 @@ impl IpfsClient {
 
         for (path, file_size) in paths_to_add {
             let file = std::fs::File::open(&path);
-            if file.is_err() {
-                return Box::new(future::err(file.unwrap_err().into()));
+            if let Err(err) = file {
+                return Box::new(future::err(err.into()));
             }
             let file_name = match prefix {
                 Some(prefix) => path.strip_prefix(prefix).unwrap(),
