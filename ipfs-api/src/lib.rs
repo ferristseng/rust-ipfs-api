@@ -202,8 +202,8 @@ extern crate tokio_codec;
 extern crate tokio_io;
 extern crate walkdir;
 
-pub use client::IpfsClient;
-pub use request::{KeyType, Logger, LoggingLevel, ObjectTemplate};
+pub use crate::client::IpfsClient;
+pub use crate::request::{KeyType, Logger, LoggingLevel, ObjectTemplate};
 
 mod client;
 mod header;

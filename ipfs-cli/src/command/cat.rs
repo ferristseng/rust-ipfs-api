@@ -7,7 +7,7 @@
 //
 
 use clap::App;
-use command::CliCommand;
+use crate::command::CliCommand;
 use futures::{Future, Stream};
 use std::io::{self, Write};
 

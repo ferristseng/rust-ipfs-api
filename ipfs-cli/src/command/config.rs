@@ -7,7 +7,7 @@
 //
 
 use clap::App;
-use command::{verify_file, CliCommand, EXPECTED_FILE};
+use crate::command::{verify_file, CliCommand, EXPECTED_FILE};
 use futures::Future;
 use std::fs::File;
 

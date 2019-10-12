@@ -12,7 +12,7 @@ extern crate futures;
 extern crate hyper;
 extern crate ipfs_api;
 
-use command::CliCommand;
+use crate::command::CliCommand;
 use ipfs_api::IpfsClient;
 
 mod command;

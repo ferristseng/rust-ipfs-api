@@ -6,7 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use response::{BitswapStatResponse, RepoStatResponse};
+use crate::response::{BitswapStatResponse, RepoStatResponse};
 
 pub type StatsBitswapResponse = BitswapStatResponse;
 

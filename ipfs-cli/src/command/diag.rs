@@ -7,7 +7,7 @@
 //
 
 use clap::{App, Arg, SubCommand};
-use command::CliCommand;
+use crate::command::CliCommand;
 use futures::Future;
 
 pub struct Command;

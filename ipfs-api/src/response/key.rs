@@ -6,7 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use response::serde;
+use crate::response::serde;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]

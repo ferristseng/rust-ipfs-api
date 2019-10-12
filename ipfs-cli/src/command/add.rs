@@ -7,7 +7,7 @@
 //
 
 use clap::App;
-use command::{CliCommand, EXPECTED_FILE};
+use crate::command::{CliCommand, EXPECTED_FILE};
 use futures::Future;
 use std::path::Path;
 

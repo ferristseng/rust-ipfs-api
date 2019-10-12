@@ -15,19 +15,19 @@ use futures::{
     stream::{self, Stream},
     Future, IntoFuture,
 };
-use header::TRAILER;
+use crate::header::TRAILER;
 use http::uri::{InvalidUri, Uri};
 use http::StatusCode;
 #[cfg(feature = "hyper")]
 use hyper::client::{Client, HttpConnector};
 #[cfg(feature = "hyper")]
-use hyper_multipart::client::multipart;
+use crate::hyper_multipart::client::multipart;
 #[cfg(feature = "hyper")]
 use hyper_tls::HttpsConnector;
 use multiaddr::{AddrComponent, ToMultiaddr};
-use read::{JsonLineDecoder, LineDecoder, StreamReader};
-use request::{self, ApiRequest};
-use response::{self, Error};
+use crate::read::{JsonLineDecoder, LineDecoder, StreamReader};
+use crate::request::{self, ApiRequest};
+use crate::response::{self, Error};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::{
@@ -43,14 +43,14 @@ use tokio_codec::{Decoder, FramedRead};
 #[cfg(feature = "actix")]
 type AsyncResponse<T> = Box<Future<Item = T, Error = Error> + 'static>;
 #[cfg(feature = "hyper")]
-type AsyncResponse<T> = Box<Future<Item = T, Error = Error> + Send + 'static>;
+type AsyncResponse<T> = Box<dyn Future<Item = T, Error = Error> + Send + 'static>;
 
 /// A future that returns a stream of responses.
 ///
 #[cfg(feature = "actix")]
 type AsyncStreamResponse<T> = Box<Stream<Item = T, Error = Error> + 'static>;
 #[cfg(feature = "hyper")]
-type AsyncStreamResponse<T> = Box<Stream<Item = T, Error = Error> + Send + 'static>;
+type AsyncStreamResponse<T> = Box<dyn Stream<Item = T, Error = Error> + Send + 'static>;
 
 #[cfg(feature = "actix")]
 type Request = actix_web::client::ClientRequest;
@@ -293,7 +293,7 @@ impl IpfsClient {
                     .request(req)
                     .from_err()
                     .map(move |res| {
-                        let stream: Box<Stream<Item = Res, Error = _> + Send + 'static> =
+                        let stream: Box<dyn Stream<Item = Res, Error = _> + Send + 'static> =
                             match res.status() {
                                 StatusCode::OK => process(res),
                                 // If the server responded with an error status code, the body

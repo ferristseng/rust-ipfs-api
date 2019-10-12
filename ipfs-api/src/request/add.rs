@@ -7,7 +7,7 @@
 //
 
 use http::Method;
-use request::ApiRequest;
+use crate::request::ApiRequest;
 
 pub struct Add;
 
