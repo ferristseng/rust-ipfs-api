@@ -63,11 +63,7 @@ let req = client
     })
     .map_err(|e| eprintln!("{}", e));
 
-actix_rt::System::new("test").block_on(lazy(|| {
-    req.and_then(|_| {
-        Ok(())
-    })
-}));
+actix_rt::System::new("test").block_on(req);
 ```
 
 #### Reading a file from IPFS
@@ -117,11 +113,7 @@ let req = client
     })
     .map_err(|e| eprintln!("{}", e));
 
-actix_rt::System::new("test").block_on(lazy(|| {
-    req.and_then(|_| {
-        Ok(())
-    })
-}));
+actix_rt::System::new("test").block_on(req);
 ```
 
 #### Additional Examples

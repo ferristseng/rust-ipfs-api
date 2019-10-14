@@ -49,6 +49,7 @@
 //!     })
 //!     .map_err(|e| eprintln!("{}", e));
 //!
+//! # #[cfg(feature = "hyper")]
 //! hyper::rt::run(req);
 //! # }
 //! ```
@@ -75,11 +76,8 @@
 //!     })
 //!     .map_err(|e| eprintln!("{}", e));
 //!
-//! actix_rt::System::new("test").block_on(lazy(|| {
-//!     req.and_then(|_| {
-//!         Ok(())
-//!     })
-//! }));
+//! # #[cfg(feature = "actix")]
+//! actix_rt::System::new("test").block_on(req);
 //! # }
 //! ```
 //!
@@ -110,6 +108,7 @@
 //!     })
 //!     .map_err(|e| eprintln!("{}", e));
 //!
+//! # #[cfg(feature = "hyper")]
 //! hyper::rt::run(req);
 //! # }
 //! ```
@@ -117,8 +116,8 @@
 //! #### With Actix
 //!
 //! ```no_run
-//! # extern crate futures;
 //! # extern crate actix_rt;
+//! # extern crate futures;
 //! # extern crate ipfs_api;
 //! #
 //! use futures::{Future, lazy, Stream};
@@ -139,11 +138,8 @@
 //!     })
 //!     .map_err(|e| eprintln!("{}", e));
 //!
-//! actix_rt::System::new("test").block_on(lazy(|| {
-//!     req.and_then(|_| {
-//!         Ok(())
-//!     })
-//! }));
+//! # #[cfg(feature = "actix")]
+//! actix_rt::System::new("test").block_on(req);
 //! # }
 //! ```
 //!
