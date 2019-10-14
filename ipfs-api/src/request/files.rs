@@ -6,8 +6,8 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+use crate::request::ApiRequest;
 use http::Method;
-use request::ApiRequest;
 
 #[derive(Serialize)]
 pub struct FilesCp<'a> {

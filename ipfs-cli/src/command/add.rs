@@ -6,8 +6,8 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+use crate::command::{CliCommand, EXPECTED_FILE};
 use clap::App;
-use command::{CliCommand, EXPECTED_FILE};
 use futures::Future;
 use std::path::Path;
 

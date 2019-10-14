@@ -6,7 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use response::{serde, IpfsHeader};
+use crate::response::{serde, IpfsHeader};
 use std::collections::HashMap;
 
 #[derive(Debug, Deserialize)]

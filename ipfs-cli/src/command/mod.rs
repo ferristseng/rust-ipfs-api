@@ -13,7 +13,7 @@ use std::error::Error;
 use std::fs;
 use std::path::Path;
 
-pub type CommandExecutable = Box<Future<Item = (), Error = ()> + 'static + Send>;
+pub type CommandExecutable = Box<dyn Future<Item = (), Error = ()> + 'static + Send>;
 
 pub const EXPECTED_FILE: &str = "expected to read input file";
 
@@ -115,7 +115,7 @@ macro_rules! handle {
         fn handle(
             client: &::ipfs_api::IpfsClient,
             args: &::clap::ArgMatches,
-        ) -> ::command::CommandExecutable {
+        ) -> crate::command::CommandExecutable {
             let $args = args;
             let $client = client;
 
@@ -131,7 +131,7 @@ macro_rules! handle {
         fn handle(
             client: &::ipfs_api::IpfsClient,
             args: &::clap::ArgMatches,
-        ) -> ::command::CommandExecutable {
+        ) -> crate::command::CommandExecutable {
             let $client = client;
             let subcommand = args.subcommand();
 

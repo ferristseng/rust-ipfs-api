@@ -6,10 +6,10 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+use crate::header::X_STREAM_ERROR;
+use crate::response::Error;
 use bytes::{Bytes, BytesMut};
 use futures::{Async, Stream};
-use header::X_STREAM_ERROR;
-use response::Error;
 use serde::Deserialize;
 use serde_json;
 use std::{

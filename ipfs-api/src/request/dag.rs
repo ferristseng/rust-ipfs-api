@@ -6,8 +6,8 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+use crate::request::ApiRequest;
 use http::Method;
-use request::ApiRequest;
 
 #[derive(Serialize)]
 pub struct DagGet<'a> {
@@ -19,6 +19,7 @@ impl<'a> ApiRequest for DagGet<'a> {
     const PATH: &'static str = "/dag/get";
 }
 
+#[allow(dead_code)]
 pub struct DagPut;
 
 impl_skip_serialize!(DagPut);

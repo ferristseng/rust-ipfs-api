@@ -6,7 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use request::ApiRequest;
+use crate::request::ApiRequest;
 
 pub struct DiagCmdsClear;
 
