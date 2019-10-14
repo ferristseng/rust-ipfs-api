@@ -41,14 +41,14 @@ use tokio_codec::{Decoder, FramedRead};
 /// A response returned by the HTTP client.
 ///
 #[cfg(feature = "actix")]
-type AsyncResponse<T> = Box<Future<Item = T, Error = Error> + 'static>;
+type AsyncResponse<T> = Box<dyn Future<Item = T, Error = Error> + 'static>;
 #[cfg(feature = "hyper")]
 type AsyncResponse<T> = Box<dyn Future<Item = T, Error = Error> + Send + 'static>;
 
 /// A future that returns a stream of responses.
 ///
 #[cfg(feature = "actix")]
-type AsyncStreamResponse<T> = Box<Stream<Item = T, Error = Error> + 'static>;
+type AsyncStreamResponse<T> = Box<dyn Stream<Item = T, Error = Error> + 'static>;
 #[cfg(feature = "hyper")]
 type AsyncStreamResponse<T> = Box<dyn Stream<Item = T, Error = Error> + Send + 'static>;
 
