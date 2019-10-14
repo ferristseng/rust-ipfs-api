@@ -12,9 +12,9 @@ use crate::read::{JsonLineDecoder, LineDecoder, StreamReader};
 use crate::request::{self, ApiRequest};
 use crate::response::{self, Error};
 #[cfg(feature = "actix")]
-use actix_multipart::client::multipart;
+use actix_http::{encoding, Payload, PayloadStream};
 #[cfg(feature = "actix")]
-use actix_web::HttpMessage;
+use actix_multipart::client::multipart;
 use bytes::Bytes;
 use futures::{
     future,
@@ -24,7 +24,7 @@ use futures::{
 use http::uri::{InvalidUri, Uri};
 use http::StatusCode;
 #[cfg(feature = "hyper")]
-use hyper::client::{Client, HttpConnector};
+use hyper::client::{self, Builder, HttpConnector};
 #[cfg(feature = "hyper")]
 use hyper_tls::HttpsConnector;
 use multiaddr::{AddrComponent, ToMultiaddr};
@@ -53,22 +53,26 @@ type AsyncStreamResponse<T> = Box<Stream<Item = T, Error = Error> + 'static>;
 type AsyncStreamResponse<T> = Box<dyn Stream<Item = T, Error = Error> + Send + 'static>;
 
 #[cfg(feature = "actix")]
-type Request = actix_web::client::ClientRequest;
+type Request = awc::ClientRequest;
 #[cfg(feature = "hyper")]
 type Request = http::Request<hyper::Body>;
 
 #[cfg(feature = "actix")]
-type Response = actix_web::client::ClientResponse;
+type Response = awc::ClientResponse<encoding::Decoder<Payload<PayloadStream>>>;
 #[cfg(feature = "hyper")]
 type Response = http::Response<hyper::Body>;
+
+#[cfg(feature = "actix")]
+type Client = awc::Client;
+#[cfg(feature = "hyper")]
+type Client = client::Client<HttpsConnector<HttpConnector>, hyper::Body>;
 
 /// Asynchronous Ipfs client.
 ///
 #[derive(Clone)]
 pub struct IpfsClient {
     base: Uri,
-    #[cfg(feature = "hyper")]
-    client: Client<HttpsConnector<HttpConnector>, hyper::Body>,
+    client: Client,
 }
 
 impl Default for IpfsClient {
@@ -128,8 +132,10 @@ impl IpfsClient {
             #[cfg(feature = "hyper")]
             client: {
                 let connector = HttpsConnector::new(4).unwrap();
-                Client::builder().keep_alive(false).build(connector)
+                Builder::default().keep_alive(false).build(connector)
             },
+            #[cfg(feature = "actix")]
+            client: Client::default(),
         })
     }
 
@@ -170,19 +176,14 @@ impl IpfsClient {
         });
         #[cfg(feature = "actix")]
         let req = if let Some(form) = form {
-            Request::build()
-                .method(Req::METHOD.clone())
-                .uri(url)
-                .content_type(form.content_type())
-                .streaming(multipart::Body::from(form))
-                .map_err(From::from)
+            Ok(self
+                .client
+                .request(Req::METHOD.clone(), url)
+                .content_type(form.content_type()))
         } else {
-            Request::build()
-                .method(Req::METHOD.clone())
-                .uri(url)
-                .finish()
-                .map_err(From::from)
+            Ok(self.client.request(Req::METHOD.clone(), url))
         };
+
         req
     }
 
@@ -227,7 +228,7 @@ impl IpfsClient {
         );
 
         #[cfg(feature = "actix")]
-        let stream = FramedRead::new(StreamReader::new(res.payload().from_err()), decoder);
+        let stream = FramedRead::new(StreamReader::new(res.from_err()), decoder);
 
         Box::new(stream)
     }
@@ -258,10 +259,10 @@ impl IpfsClient {
                     .from_err();
                 #[cfg(feature = "actix")]
                 let res = req
-                    .send()
                     .timeout(std::time::Duration::from_secs(90))
+                    .send()
                     .from_err()
-                    .and_then(|x| {
+                    .and_then(|mut x| {
                         let status = x.status();
                         x.body().map(move |body| (status, body)).from_err()
                     });
@@ -322,8 +323,8 @@ impl IpfsClient {
         match self.build_base_request(req, form) {
             Ok(req) => {
                 let res = req
-                    .send()
                     .timeout(std::time::Duration::from_secs(90))
+                    .send()
                     .from_err();
                 Box::new(res.map(process).flatten_stream())
             }
@@ -408,7 +409,7 @@ impl IpfsClient {
             Box::new(res.into_body().from_err().map(|c| c.into_bytes()))
         });
         #[cfg(feature = "actix")]
-        let res = self.request_stream(req, form, |res| Box::new(res.payload().from_err()));
+        let res = self.request_stream(req, form, |res| Box::new(res.from_err()));
         res
     }
 
@@ -1631,8 +1632,8 @@ impl IpfsClient {
             .build_base_request(&request::LogTail, None)
             .into_future()
             .and_then(|req| {
-                req.send()
-                    .timeout(std::time::Duration::from_secs(90))
+                req.timeout(std::time::Duration::from_secs(90))
+                    .send()
                     .from_err()
             })
             .map(|res| IpfsClient::process_stream_response(res, LineDecoder))

@@ -56,11 +56,11 @@
 //! #### With Actix
 //!
 //! ```no_run
-//! # extern crate actix_web;
+//! # extern crate actix_rt;
 //! # extern crate futures;
 //! # extern crate ipfs_api;
 //! #
-//! use futures::future::Future;
+//! use futures::future::{Future, lazy};
 //! use ipfs_api::IpfsClient;
 //! use std::io::Cursor;
 //!
@@ -75,12 +75,11 @@
 //!     })
 //!     .map_err(|e| eprintln!("{}", e));
 //!
-//! actix_web::actix::run(|| {
-//!     req.then(|_| {
-//!         actix_web::actix::System::current().stop();
+//! actix_rt::System::new("test").block_on(lazy(|| {
+//!     req.and_then(|_| {
 //!         Ok(())
 //!     })
-//! });
+//! }));
 //! # }
 //! ```
 //!
@@ -119,10 +118,10 @@
 //!
 //! ```no_run
 //! # extern crate futures;
-//! # extern crate actix_web;
+//! # extern crate actix_rt;
 //! # extern crate ipfs_api;
 //! #
-//! use futures::{Future, Stream};
+//! use futures::{Future, lazy, Stream};
 //! use ipfs_api::IpfsClient;
 //! use std::io::{self, Write};
 //!
@@ -140,12 +139,11 @@
 //!     })
 //!     .map_err(|e| eprintln!("{}", e));
 //!
-//! actix_web::actix::run(|| {
-//!     req.then(|_| {
-//!         actix_web::actix::System::current().stop();
+//! actix_rt::System::new("test").block_on(lazy(|| {
+//!     req.and_then(|_| {
 //!         Ok(())
 //!     })
-//! });
+//! }));
 //! # }
 //! ```
 //!
@@ -174,9 +172,11 @@
 //!
 
 #[cfg(feature = "actix")]
+extern crate actix_http;
+#[cfg(feature = "actix")]
 extern crate actix_multipart_rfc7578 as actix_multipart;
 #[cfg(feature = "actix")]
-extern crate actix_web;
+extern crate awc;
 
 #[cfg(feature = "hyper")]
 extern crate hyper;
@@ -186,7 +186,11 @@ extern crate hyper_multipart_rfc7578 as hyper_multipart;
 extern crate hyper_tls;
 
 extern crate bytes;
+#[cfg(feature = "actix")]
 #[macro_use]
+extern crate derive_more;
+#[macro_use]
+#[cfg(feature = "hyper")]
 extern crate failure;
 extern crate futures;
 extern crate http;

@@ -6,7 +6,7 @@ documentation             = "https://docs.rs/ipfs-api"
 repository                = "https://github.com/ferristseng/rust-ipfs-api"
 keywords                  = ["ipfs"]
 categories                = ["filesystem", "web-programming"]
-version                   = "0.5.1"
+version                   = "0.5.2"
 readme                    = "../README.md"
 license                   = "MIT OR Apache-2.0"
 
@@ -14,14 +14,16 @@ license                   = "MIT OR Apache-2.0"
 travis-ci                 = { repository = "ferristseng/rust-ipfs-api" }
 
 [features]
-default                   = ["hyper", "hyper-multipart-rfc7578", "hyper-tls"]
-actix                     = ["actix-web", "actix-multipart-rfc7578"]
+default                   = ["hyper", "hyper-multipart-rfc7578", "hyper-tls", "failure"]
+actix                     = ["actix-http", "actix-multipart-rfc7578", "awc", "derive_more"]
 
 [dependencies]
-actix-multipart-rfc7578   = { version = "0.1", optional = true }
-actix-web                 = { version = "0.7", optional = true }
+actix-http                = { version = "0.2", optional = true }
+actix-multipart-rfc7578   = { version = "0.2", optional = true }
+awc                       = { version = "0.2", optional = true }
 bytes                     = "0.4"
-failure                   = "0.1.2"
+derive_more               = { version = "0.15.0", optional = true }
+failure                   = { version = "0.1.2", optional = true }
 futures                   = "0.1"
 http                      = "0.1"
 hyper                     = { version = "0.12", optional = true }
@@ -39,8 +41,10 @@ dirs                      = "1.0"
 multiaddr                 = "0.3.1"
 
 [dev-dependencies]
-actix-multipart-rfc7578   = "0.1"
-actix-web                 = "0.7"
+actix-http                = "0.2"
+actix-multipart-rfc7578   = "0.2"
+actix-rt                  = "0.2"
+awc                       = "0.2"
 hyper                     = "0.12"
 hyper-tls                 = "0.3.2"
 tokio-timer               = "0.2"
