@@ -5,6 +5,12 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 //
+use crate::header::TRAILER;
+#[cfg(feature = "hyper")]
+use crate::hyper_multipart::client::multipart;
+use crate::read::{JsonLineDecoder, LineDecoder, StreamReader};
+use crate::request::{self, ApiRequest};
+use crate::response::{self, Error};
 #[cfg(feature = "actix")]
 use actix_multipart::client::multipart;
 #[cfg(feature = "actix")]
@@ -15,19 +21,13 @@ use futures::{
     stream::{self, Stream},
     Future, IntoFuture,
 };
-use crate::header::TRAILER;
 use http::uri::{InvalidUri, Uri};
 use http::StatusCode;
 #[cfg(feature = "hyper")]
 use hyper::client::{Client, HttpConnector};
 #[cfg(feature = "hyper")]
-use crate::hyper_multipart::client::multipart;
-#[cfg(feature = "hyper")]
 use hyper_tls::HttpsConnector;
 use multiaddr::{AddrComponent, ToMultiaddr};
-use crate::read::{JsonLineDecoder, LineDecoder, StreamReader};
-use crate::request::{self, ApiRequest};
-use crate::response::{self, Error};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::{

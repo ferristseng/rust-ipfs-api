@@ -6,8 +6,8 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use clap::{App, Arg, SubCommand};
 use crate::command::CliCommand;
+use clap::{App, Arg, SubCommand};
 use futures::Future;
 
 pub struct Command;

@@ -6,8 +6,8 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use http::Method;
 use crate::request::ApiRequest;
+use http::Method;
 
 #[derive(Serialize)]
 pub struct BlockGet<'a> {

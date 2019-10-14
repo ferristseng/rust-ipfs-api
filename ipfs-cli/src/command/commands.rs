@@ -5,8 +5,8 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use clap::App;
 use crate::command::CliCommand;
+use clap::App;
 use futures::Future;
 use ipfs_api::response::CommandsResponse;
 

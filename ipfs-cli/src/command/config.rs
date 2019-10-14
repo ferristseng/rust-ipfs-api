@@ -6,8 +6,8 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use clap::App;
 use crate::command::{verify_file, CliCommand, EXPECTED_FILE};
+use clap::App;
 use futures::Future;
 use std::fs::File;
 
