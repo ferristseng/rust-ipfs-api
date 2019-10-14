@@ -1,8 +1,6 @@
-# ipfs-api
+[![Build Status](https://travis-ci.org/ferristseng/rust-ipfs-api.svg?branch=master)](https://travis-ci.org/ferristseng/rust-ipfs-api)
 
-[![Travis](https://img.shields.io/travis/ferristseng/rust-ipfs-api.svg)](https://travis-ci.org/ferristseng/rust-ipfs-api)
-[![Crates.io](https://img.shields.io/crates/v/ipfs-api.svg)](https://crates.io/crates/ipfs-api)
-[![Docs.rs](https://docs.rs/ipfs-api/badge.svg)](https://docs.rs/ipfs-api/)
+# ipfs-api
 
 Rust library for connecting to the IPFS HTTP API using tokio.
 
@@ -10,14 +8,14 @@ Rust library for connecting to the IPFS HTTP API using tokio.
 
 ```toml
 [dependencies]
-ipfs-api = "0.5.1"
+ipfs-api = "0.5.2"
 ```
 
 You can use `actix-web` as a backend instead of `hyper`.
 
 ```toml
 [dependencies]
-ipfs-api = { version = "0.5.1", features = ["actix"], default-features = false }
+ipfs-api = { version = "0.5.2", features = ["actix"], default-features = false }
 ```
 
 ### Examples
@@ -49,7 +47,7 @@ hyper::rt::run(req);
 
 ```rust
 #
-use futures::future::Future;
+use futures::future::{Future, lazy};
 use ipfs_api::IpfsClient;
 use std::io::Cursor;
 
@@ -63,12 +61,11 @@ let req = client
     })
     .map_err(|e| eprintln!("{}", e));
 
-actix_web::actix::run(|| {
-    req.then(|_| {
-        actix_web::actix::System::current().stop();
+actix_rt::System::new("test").block_on(lazy(|| {
+    req.and_then(|_| {
         Ok(())
     })
-});
+}));
 ```
 
 #### Reading a file from IPFS
@@ -101,7 +98,7 @@ hyper::rt::run(req);
 
 ```rust
 #
-use futures::{Future, Stream};
+use futures::{Future, lazy, Stream};
 use ipfs_api::IpfsClient;
 use std::io::{self, Write};
 
@@ -118,12 +115,11 @@ let req = client
     })
     .map_err(|e| eprintln!("{}", e));
 
-actix_web::actix::run(|| {
-    req.then(|_| {
-        actix_web::actix::System::current().stop();
+actix_rt::System::new("test").block_on(lazy(|| {
+    req.and_then(|_| {
         Ok(())
     })
-});
+}));
 ```
 
 #### Additional Examples
@@ -150,15 +146,4 @@ $ cargo run -p ipfs-api --features actix --no-default-features --example add_fil
 ```
 
 
-## License
-
-Licensed under either of
-
- * Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
- * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
-
-at your option.
-
-### Contribution
-
-Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
+License: MIT OR Apache-2.0
