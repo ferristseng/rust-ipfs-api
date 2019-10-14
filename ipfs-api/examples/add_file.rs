@@ -6,16 +6,14 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-#[cfg(feature = "actix")]
-extern crate actix_web;
 extern crate futures;
-#[cfg(feature = "hyper")]
-extern crate hyper;
 extern crate ipfs_api;
+extern crate tokio;
 
 use futures::Future;
 use ipfs_api::IpfsClient;
 use std::fs::File;
+use tokio::runtime::current_thread::Runtime;
 
 // Creates an Ipfs client, and adds this source file to Ipfs.
 //
@@ -30,13 +28,8 @@ fn main() {
         .map(|add| println!("added file: {:?}", add))
         .map_err(|e| eprintln!("{}", e));
 
-    #[cfg(feature = "hyper")]
-    hyper::rt::run(req);
-    #[cfg(feature = "actix")]
-    actix_web::actix::run(|| {
-        req.then(|_| {
-            actix_web::actix::System::current().stop();
-            Ok(())
-        })
-    });
+    Runtime::new()
+        .expect("tokio runtime")
+        .block_on(req)
+        .expect("successful response");
 }

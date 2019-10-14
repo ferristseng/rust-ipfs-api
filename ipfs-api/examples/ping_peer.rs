@@ -6,15 +6,13 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-#[cfg(feature = "actix")]
-extern crate actix_web;
 extern crate futures;
-#[cfg(feature = "hyper")]
-extern crate hyper;
 extern crate ipfs_api;
+extern crate tokio;
 
 use futures::{Future, Stream};
 use ipfs_api::{response::PingResponse, IpfsClient};
+use tokio::runtime::current_thread::Runtime;
 
 // Creates an Ipfs client, discovers a connected peer, and pings it using the
 // streaming Api, and by collecting it into a collection.
@@ -62,13 +60,8 @@ fn main() {
         })
         .map_err(|e| eprintln!("{}", e));
 
-    #[cfg(feature = "hyper")]
-    hyper::rt::run(req);
-    #[cfg(feature = "actix")]
-    actix_web::actix::run(|| {
-        req.then(|_| {
-            actix_web::actix::System::current().stop();
-            Ok(())
-        })
-    });
+    Runtime::new()
+        .expect("tokio runtime")
+        .block_on(req)
+        .expect("successful response");
 }
