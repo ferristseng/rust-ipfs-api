@@ -7,6 +7,7 @@
 //
 
 use crate::response::serde;
+use crate::serde::Deserialize;
 
 pub type FilesCpResponse = ();
 

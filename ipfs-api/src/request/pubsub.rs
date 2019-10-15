@@ -7,6 +7,7 @@
 //
 
 use crate::request::ApiRequest;
+use crate::serde::Serialize;
 
 pub struct PubsubLs;
 

@@ -7,6 +7,7 @@
 //
 
 use crate::request::ApiRequest;
+use crate::serde::Serialize;
 use http::Method;
 
 #[derive(Serialize)]

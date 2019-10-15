@@ -6,6 +6,8 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+use crate::serde::Deserialize;
+
 #[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ResolveResponse {

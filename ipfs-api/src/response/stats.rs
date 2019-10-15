@@ -7,6 +7,7 @@
 //
 
 use crate::response::{BitswapStatResponse, RepoStatResponse};
+use crate::serde::Deserialize;
 
 pub type StatsBitswapResponse = BitswapStatResponse;
 

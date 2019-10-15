@@ -8,6 +8,8 @@
 
 //! This module contains structures returned by the IPFS API.
 
+use crate::serde::Deserialize;
+
 pub use self::add::*;
 pub use self::bitswap::*;
 pub use self::block::*;

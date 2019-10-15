@@ -7,6 +7,7 @@
 //
 
 use crate::request::ApiRequest;
+use crate::serde::Serialize;
 
 #[derive(Serialize)]
 pub struct Get<'a> {

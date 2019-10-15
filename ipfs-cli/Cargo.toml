@@ -2,6 +2,7 @@
 name                      = "ipfs-cli"
 description               = "A CLI to interact with IPFS"
 authors                   = ["Ferris Tseng <ferristseng@fastmail.fm>"]
+edition                   = "2018"
 repository                = "https://github.com/ferristseng/rust-ipfs-api"
 version                   = "0.4.1"
 readme                    = "../README.md"

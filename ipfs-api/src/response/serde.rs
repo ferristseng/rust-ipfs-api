@@ -6,7 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use serde::de::{Deserialize, Deserializer, MapAccess, SeqAccess, Visitor};
+use crate::serde::de::{Deserialize, Deserializer, MapAccess, SeqAccess, Visitor};
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt;
