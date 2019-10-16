@@ -6,10 +6,6 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-extern crate futures;
-extern crate ipfs_api;
-extern crate tokio;
-
 use futures::{Future, Stream};
 use ipfs_api::{response::PingResponse, IpfsClient};
 use tokio::runtime::current_thread::Runtime;

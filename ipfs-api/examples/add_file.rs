@@ -6,10 +6,6 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-extern crate futures;
-extern crate ipfs_api;
-extern crate tokio;
-
 use futures::Future;
 use ipfs_api::IpfsClient;
 use std::fs::File;

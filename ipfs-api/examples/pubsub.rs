@@ -6,11 +6,6 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-extern crate futures;
-extern crate ipfs_api;
-extern crate tokio;
-extern crate tokio_timer;
-
 use futures::{Future, Stream};
 use ipfs_api::IpfsClient;
 use std::time::{Duration, Instant};
