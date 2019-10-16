@@ -7,7 +7,7 @@
 //
 
 use crate::request::ApiRequest;
-use serde::ser::{Serialize, Serializer};
+use crate::serde::{Serialize, Serializer};
 use std::borrow::Cow;
 
 #[derive(Copy, Clone)]

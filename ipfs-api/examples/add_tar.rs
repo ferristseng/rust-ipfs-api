@@ -6,11 +6,6 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-extern crate futures;
-extern crate ipfs_api;
-extern crate tar;
-extern crate tokio;
-
 use futures::{Future, Stream};
 use ipfs_api::IpfsClient;
 use std::io::Cursor;

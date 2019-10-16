@@ -7,6 +7,7 @@
 //
 
 use crate::response::{serde, IpfsHeader};
+use crate::serde::Deserialize;
 use std::collections::HashMap;
 
 #[derive(Debug, Deserialize)]

@@ -7,7 +7,10 @@
 //
 
 use crate::response::serde;
-use serde::de::{Deserialize, Deserializer, Error};
+use crate::serde::{
+    de::{Deserializer, Error},
+    Deserialize,
+};
 
 /// See
 /// [libp2p](https://github.com/libp2p/go-libp2p-routing/blob/master/notifications/query.go#L16).

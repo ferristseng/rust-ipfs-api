@@ -188,19 +188,7 @@ extern crate derive_more;
 #[macro_use]
 #[cfg(feature = "hyper")]
 extern crate failure;
-extern crate futures;
-extern crate http;
 extern crate serde;
-#[macro_use]
-extern crate serde_derive;
-extern crate dirs;
-extern crate multiaddr;
-extern crate serde_json;
-extern crate serde_urlencoded;
-extern crate tokio;
-extern crate tokio_codec;
-extern crate tokio_io;
-extern crate walkdir;
 
 pub use crate::client::IpfsClient;
 pub use crate::request::{KeyType, Logger, LoggingLevel, ObjectTemplate};
