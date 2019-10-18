@@ -27,7 +27,6 @@ ipfs-api = { version = "0.5.2", features = ["actix"], default-features = false }
 ##### With Hyper
 
 ```rust
-#
 use hyper::rt::Future;
 use ipfs_api::IpfsClient;
 use std::io::Cursor;
@@ -48,7 +47,6 @@ hyper::rt::run(req);
 ##### With Actix
 
 ```rust
-#
 use futures::future::{Future, lazy};
 use ipfs_api::IpfsClient;
 use std::io::Cursor;
@@ -71,7 +69,6 @@ actix_rt::System::new("test").block_on(req);
 ##### With Hyper
 
 ```rust
-#
 use futures::{Future, Stream};
 use ipfs_api::IpfsClient;
 use std::io::{self, Write};
@@ -95,7 +92,6 @@ hyper::rt::run(req);
 ##### With Actix
 
 ```rust
-#
 use futures::{Future, lazy, Stream};
 use ipfs_api::IpfsClient;
 use std::io::{self, Write};
