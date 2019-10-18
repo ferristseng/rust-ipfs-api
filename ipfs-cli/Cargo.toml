@@ -9,7 +9,7 @@ readme                    = "../README.md"
 license                   = "MIT OR Apache-2.0"
 
 [dependencies]
-clap                      = "2.32"
-futures                   = "0.1"
-hyper                     = "0.12"
+clap                      = "2.33.0"
+futures                   = "0.1.29"
+hyper                     = "0.12.35"
 ipfs-api                  = { path = "../ipfs-api" }

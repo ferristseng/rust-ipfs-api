@@ -19,33 +19,33 @@ default                   = ["hyper", "hyper-multipart-rfc7578", "hyper-tls", "f
 actix                     = ["actix-http", "actix-multipart-rfc7578", "awc", "derive_more"]
 
 [dependencies]
-actix-http                = { version = "0.2", optional = true }
-actix-multipart-rfc7578   = { version = "0.2", optional = true }
-awc                       = { version = "0.2", optional = true }
-bytes                     = "0.4"
+actix-http                = { version = "0.2.10", optional = true }
+actix-multipart-rfc7578   = { version = "0.2.1", optional = true }
+awc                       = { version = "0.2.7", optional = true }
+bytes                     = "0.4.12"
 derive_more               = { version = "0.15.0", optional = true }
-failure                   = { version = "0.1.2", optional = true }
-futures                   = "0.1"
-http                      = "0.1"
-hyper                     = { version = "0.12", optional = true }
+failure                   = { version = "0.1.6", optional = true }
+futures                   = "0.1.29"
+http                      = "0.1.19"
+hyper                     = { version = "0.12.35", optional = true }
 hyper-tls                 = { version = "0.3.2", optional = true }
-hyper-multipart-rfc7578   = { version = "0.3", optional = true }
-serde                     = { version = "1.0", features = ["derive"] }
-serde_json                = "1.0"
-serde_urlencoded          = "0.5"
-tokio                     = "0.1"
-tokio-codec               = "0.1"
-tokio-io                  = "0.1"
-walkdir                   = "2.2"
-dirs                      = "1.0"
+hyper-multipart-rfc7578   = { version = "0.3.1", optional = true }
+serde                     = { version = "1.0.101", features = ["derive"] }
+serde_json                = "1.0.41"
+serde_urlencoded          = "0.6.1"
+tokio                     = "0.1.22"
+tokio-codec               = "0.1.1"
+tokio-io                  = "0.1.12"
+walkdir                   = "2.2.9"
+dirs                      = "2.0.2"
 multiaddr                 = "0.3.1"
 
 [dev-dependencies]
-actix-http                = "0.2"
-actix-multipart-rfc7578   = "0.2"
-actix-rt                  = "0.2"
-awc                       = "0.2"
-hyper                     = "0.12"
+actix-http                = "0.2.10"
+actix-multipart-rfc7578   = "0.2.1"
+actix-rt                  = "0.2.5"
+awc                       = "0.2.7"
+hyper                     = "0.12.35"
 hyper-tls                 = "0.3.2"
-tokio-timer               = "0.2"
-tar                       = "0.4"
+tokio-timer               = "0.2.11"
+tar                       = "0.4.26"
