@@ -178,8 +178,10 @@ extern crate awc;
 extern crate hyper;
 #[cfg(feature = "hyper")]
 extern crate hyper_multipart_rfc7578 as hyper_multipart;
-#[cfg(feature = "hyper")]
+#[cfg(feature = "hyper-tls")]
 extern crate hyper_tls;
+#[cfg(feature = "hyper-rustls")]
+extern crate hyper_rustls;
 
 extern crate bytes;
 #[cfg(feature = "actix")]

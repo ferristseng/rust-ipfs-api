@@ -25,8 +25,10 @@ use http::uri::{InvalidUri, Uri};
 use http::StatusCode;
 #[cfg(feature = "hyper")]
 use hyper::client::{self, Builder, HttpConnector};
-#[cfg(feature = "hyper")]
+#[cfg(feature = "hyper-tls")]
 use hyper_tls::HttpsConnector;
+#[cfg(feature = "hyper-rustls")]
+use hyper_rustls::HttpsConnector;
 use multiaddr::{AddrComponent, ToMultiaddr};
 use serde::{Deserialize, Serialize};
 use serde_json;
@@ -131,7 +133,11 @@ impl IpfsClient {
             base: base_path,
             #[cfg(feature = "hyper")]
             client: {
+                #[cfg(feature = "hyper-tls")]
                 let connector = HttpsConnector::new(4).unwrap();
+                #[cfg(feature = "hyper-rustls")]
+                let connector = HttpsConnector::new(4);
+
                 Builder::default().keep_alive(false).build(connector)
             },
             #[cfg(feature = "actix")]
