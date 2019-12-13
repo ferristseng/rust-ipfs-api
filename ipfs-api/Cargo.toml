@@ -22,18 +22,19 @@ actix                     = ["actix-http", "actix-multipart-rfc7578", "awc", "de
 actix-http                = { version = "0.2", optional = true }
 actix-multipart-rfc7578   = { version = "0.2", optional = true }
 awc                       = { version = "0.2", optional = true }
-bytes                     = "0.4"
+bytes                     = "0.5"
+bytes04                   = { version = "0.4", package = "bytes" }
 derive_more               = { version = "0.15.0", optional = true }
 failure                   = { version = "0.1.2", optional = true }
 futures                   = "0.1"
-http                      = "0.1"
-hyper                     = { version = "0.12", optional = true }
-hyper-tls                 = { version = "0.3.2", optional = true }
-hyper-multipart-rfc7578   = { version = "0.3", optional = true }
+futures03                 = { version = "0.3.1", package = "futures", features = ["compat"] }
+http                      = "0.2"
+hyper                     = { version = "0.13", optional = true }
+hyper-tls                 = { version = "0.4", optional = true }
+hyper-multipart-rfc7578   = { git = "https://github.com/graphprotocol/rust-multipart-rfc7578", branch = "update-to-hyper-013", optional = true }
 serde                     = { version = "1.0", features = ["derive"] }
 serde_json                = "1.0"
 serde_urlencoded          = "0.5"
-tokio                     = "0.1"
 tokio-codec               = "0.1"
 tokio-io                  = "0.1"
 walkdir                   = "2.2"
@@ -45,7 +46,8 @@ actix-http                = "0.2"
 actix-multipart-rfc7578   = "0.2"
 actix-rt                  = "0.2"
 awc                       = "0.2"
-hyper                     = "0.12"
-hyper-tls                 = "0.3.2"
+hyper                     = "0.13"
+tokio                     = "0.1"
+hyper-tls                 = "0.4"
 tokio-timer               = "0.2"
 tar                       = "0.4"

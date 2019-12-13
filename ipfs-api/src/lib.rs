@@ -34,9 +34,9 @@
 //! # extern crate hyper;
 //! # extern crate ipfs_api;
 //! #
-//! use hyper::rt::Future;
 //! use ipfs_api::IpfsClient;
 //! use std::io::Cursor;
+//! use futures::future::Future;
 //!
 //! # fn main() {
 //! let client = IpfsClient::default();
@@ -50,7 +50,7 @@
 //!     .map_err(|e| eprintln!("{}", e));
 //!
 //! # #[cfg(feature = "hyper")]
-//! hyper::rt::run(req);
+//! req.wait();
 //! # }
 //! ```
 //!
@@ -93,13 +93,15 @@
 //! use futures::{Future, Stream};
 //! use ipfs_api::IpfsClient;
 //! use std::io::{self, Write};
+//! use bytes::BytesMut;
+//! use std::iter::FromIterator;
 //!
 //! # fn main() {
 //! let client = IpfsClient::default();
 //!
 //! let req = client
 //!     .get("/test/file.json")
-//!     .concat2()
+//!     .map(|b| BytesMut::from_iter(b.into_iter()))
 //!     .map(|res| {
 //!         let out = io::stdout();
 //!         let mut out = out.lock();
@@ -109,7 +111,7 @@
 //!     .map_err(|e| eprintln!("{}", e));
 //!
 //! # #[cfg(feature = "hyper")]
-//! hyper::rt::run(req);
+//! req.wait();
 //! # }
 //! ```
 //!
@@ -123,13 +125,15 @@
 //! use futures::{Future, lazy, Stream};
 //! use ipfs_api::IpfsClient;
 //! use std::io::{self, Write};
+//! use bytes::BytesMut;
+//! use std::iter::FromIterator;
 //!
 //! # fn main() {
 //! let client = IpfsClient::default();
 //!
 //! let req = client
 //!     .get("/test/file.json")
-//!     .concat2()
+//!     .map(|b| BytesMut::from_iter(b.into_iter()))
 //!     .map(|res| {
 //!         let out = io::stdout();
 //!         let mut out = out.lock();

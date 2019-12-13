@@ -6,9 +6,11 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+use bytes::BytesMut;
 use futures::{Future, Stream};
 use ipfs_api::IpfsClient;
 use std::io::Cursor;
+use std::iter::FromIterator;
 use tar::Builder;
 use tokio::runtime::current_thread::Runtime;
 
@@ -40,7 +42,10 @@ fn main() {
             println!("added tar file: {:?}", add);
             println!();
 
-            client.tar_cat(&add.hash[..]).concat2()
+            client
+                .tar_cat(&add.hash[..])
+                .map(|b| BytesMut::from_iter(b.into_iter()))
+                .concat2()
         })
         .map(|cat| {
             println!("{}", String::from_utf8_lossy(&cat[..]));

@@ -21,6 +21,7 @@ use futures::{
     stream::{self, Stream},
     Future, IntoFuture,
 };
+use futures03::{FutureExt, TryFutureExt, TryStreamExt};
 use http::uri::{InvalidUri, Uri};
 use http::StatusCode;
 #[cfg(feature = "hyper")]
@@ -131,7 +132,7 @@ impl IpfsClient {
             base: base_path,
             #[cfg(feature = "hyper")]
             client: {
-                let connector = HttpsConnector::new(4).unwrap();
+                let connector = HttpsConnector::new();
                 Builder::default().keep_alive(false).build(connector)
             },
             #[cfg(feature = "actix")]
@@ -163,11 +164,11 @@ impl IpfsClient {
         );
         #[cfg(feature = "hyper")]
         let req = url.parse::<Uri>().map_err(From::from).and_then(move |url| {
-            let mut builder = http::Request::builder();
-            let mut builder = builder.method(Req::METHOD.clone()).uri(url);
+            let builder = http::Request::builder();
+            let builder = builder.method(Req::METHOD.clone()).uri(url);
 
             let req = if let Some(form) = form {
-                form.set_body_convert::<hyper::Body, multipart::Body>(&mut builder)
+                form.set_body_convert::<hyper::Body, multipart::Body>(builder)
             } else {
                 builder.body(hyper::Body::empty())
             };
@@ -223,7 +224,12 @@ impl IpfsClient {
     {
         #[cfg(feature = "hyper")]
         let stream = FramedRead::new(
-            StreamReader::new(res.into_body().map(|c| c.into_bytes()).from_err()),
+            StreamReader::new(
+                Box::pin(futures03::stream::once(
+                    hyper::body::to_bytes(res.into_body()).err_into(),
+                ))
+                .compat(),
+            ),
             decoder,
         );
 
@@ -246,17 +252,17 @@ impl IpfsClient {
         match self.build_base_request(req, form) {
             Ok(req) => {
                 #[cfg(feature = "hyper")]
-                let res = self
-                    .client
-                    .request(req)
-                    .and_then(|res| {
-                        let status = res.status();
-
-                        res.into_body()
-                            .concat2()
-                            .map(move |chunk| (status, chunk.into_bytes()))
-                    })
-                    .from_err();
+                let res = Box::pin(
+                    self.client
+                        .request(req)
+                        .and_then(|res| {
+                            async {
+                                Ok((res.status(), hyper::body::to_bytes(res.into_body()).await?))
+                            }
+                        })
+                        .err_into(),
+                )
+                .compat();
                 #[cfg(feature = "actix")]
                 let res = req
                     .timeout(std::time::Duration::from_secs(90))
@@ -289,9 +295,8 @@ impl IpfsClient {
         #[cfg(feature = "hyper")]
         match self.build_base_request(req, form) {
             Ok(req) => {
-                let res = self
-                    .client
-                    .request(req)
+                let res = Box::pin(self.client.request(req))
+                    .compat()
                     .from_err()
                     .map(move |res| {
                         let stream: Box<dyn Stream<Item = Res, Error = _> + Send + 'static> =
@@ -302,12 +307,10 @@ impl IpfsClient {
                                 // read the entire body stream, then immediately return an error.
                                 //
                                 _ => Box::new(
-                                    res.into_body()
-                                        .concat2()
+                                    Box::pin(hyper::body::to_bytes(res.into_body()))
+                                        .compat()
                                         .from_err()
-                                        .and_then(|chunk| {
-                                            Err(Self::build_error_from_body(chunk.into_bytes()))
-                                        })
+                                        .and_then(|chunk| Err(Self::build_error_from_body(chunk)))
                                         .into_stream(),
                                 ),
                             };
@@ -405,8 +408,15 @@ impl IpfsClient {
         Req: ApiRequest + Serialize,
     {
         #[cfg(feature = "hyper")]
-        let res = self.request_stream(req, form, |res| {
-            Box::new(res.into_body().from_err().map(|c| c.into_bytes()))
+        let res = self.request_stream(req, form, move |res| {
+            Box::new(
+                Box::pin(
+                    hyper::body::to_bytes(res.into_body())
+                        .err_into()
+                        .into_stream(),
+                )
+                .compat(),
+            )
         });
         #[cfg(feature = "actix")]
         let res = self.request_stream(req, form, |res| Box::new(res.from_err()));
@@ -476,7 +486,7 @@ impl IpfsClient {
     #[inline]
     pub fn add<R>(&self, data: R) -> AsyncResponse<response::AddResponse>
     where
-        R: 'static + Read + Send,
+        R: 'static + Read + Send + Sync,
     {
         let mut form = multipart::Form::default();
 
@@ -677,11 +687,13 @@ impl IpfsClient {
     /// #
     /// use futures::Stream;
     /// use ipfs_api::IpfsClient;
+    /// use bytes::BytesMut;
+    /// use std::iter::FromIterator;
     ///
     /// # fn main() {
     /// let client = IpfsClient::default();
     /// let hash = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
-    /// let req = client.block_get(hash).concat2();
+    /// let req = client.block_get(hash).map(|b| BytesMut::from_iter(b.into_iter())).concat2();
     /// # }
     /// ```
     ///
@@ -710,7 +722,7 @@ impl IpfsClient {
     #[inline]
     pub fn block_put<R>(&self, data: R) -> AsyncResponse<response::BlockPutResponse>
     where
-        R: 'static + Read + Send,
+        R: 'static + Read + Send + Sync,
     {
         let mut form = multipart::Form::default();
 
@@ -829,11 +841,13 @@ impl IpfsClient {
     /// #
     /// use futures::Stream;
     /// use ipfs_api::IpfsClient;
+    /// use bytes::BytesMut;
+    /// use std::iter::FromIterator;
     ///
     /// # fn main() {
     /// let client = IpfsClient::default();
     /// let hash = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
-    /// let req = client.cat(hash).concat2();
+    /// let req = client.cat(hash).map(|b| BytesMut::from_iter(b.into_iter())).concat2();
     /// # }
     /// ```
     ///
@@ -896,7 +910,7 @@ impl IpfsClient {
     #[inline]
     pub fn config_replace<R>(&self, data: R) -> AsyncResponse<response::ConfigReplaceResponse>
     where
-        R: 'static + Read + Send,
+        R: 'static + Read + Send + Sync,
     {
         let mut form = multipart::Form::default();
 
@@ -951,7 +965,7 @@ impl IpfsClient {
     // #[inline]
     // pub fn dag_put<R>(&self, data: R) -> AsyncResponse<response::DagPutResponse>
     // where
-    //     R: 'static + Read + Send,
+    //     R: 'static + Read + Send + Sync,
     // {
     //     let mut form = multipart::Form::default();
     //
@@ -1364,7 +1378,7 @@ impl IpfsClient {
         data: R,
     ) -> AsyncResponse<response::FilesWriteResponse>
     where
-        R: 'static + Read + Send,
+        R: 'static + Read + Send + Sync,
     {
         let mut form = multipart::Form::default();
 
@@ -1622,7 +1636,7 @@ impl IpfsClient {
         #[cfg(feature = "hyper")]
         let res = self
             .build_base_request(&request::LogTail, None)
-            .map(|req| self.client.request(req).from_err())
+            .map(|req| self.client.request(req).err_into().compat())
             .into_future()
             .flatten()
             .map(|res| IpfsClient::process_stream_response(res, LineDecoder))
@@ -2234,7 +2248,7 @@ impl IpfsClient {
     #[inline]
     pub fn tar_add<R>(&self, data: R) -> AsyncResponse<response::TarAddResponse>
     where
-        R: 'static + Read + Send,
+        R: 'static + Read + Send + Sync,
     {
         let mut form = multipart::Form::default();
 

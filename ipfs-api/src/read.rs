@@ -8,7 +8,7 @@
 
 use crate::header::X_STREAM_ERROR;
 use crate::response::Error;
-use bytes::{Bytes, BytesMut};
+use bytes::Bytes;
 use futures::{Async, Stream};
 use serde::Deserialize;
 use serde_json;
@@ -52,7 +52,7 @@ where
     /// Tries to find a new line character. If it does, it will split the buffer,
     /// and parse the first slice.
     ///
-    fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
+    fn decode(&mut self, src: &mut bytes04::BytesMut) -> Result<Option<Self::Item>, Self::Error> {
         let nl_index = src.iter().position(|b| *b == b'\n');
 
         if let Some(pos) = nl_index {
@@ -101,7 +101,7 @@ impl Decoder for LineDecoder {
     /// Attempts to find a new line character, and returns the entire line if
     /// it finds one.
     ///
-    fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
+    fn decode(&mut self, src: &mut bytes04::BytesMut) -> Result<Option<Self::Item>, Self::Error> {
         let nl_index = src.iter().position(|b| *b == b'\n');
 
         if let Some(pos) = nl_index {
