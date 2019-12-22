@@ -189,10 +189,10 @@ extern crate failure;
 
 extern crate serde;
 
-//pub use crate::client::IpfsClient;
+pub use crate::client::IpfsClient;
 pub use crate::request::{KeyType, Logger, LoggingLevel, ObjectTemplate};
 
-//mod client;
+mod client;
 mod header;
 mod read;
 mod request;
