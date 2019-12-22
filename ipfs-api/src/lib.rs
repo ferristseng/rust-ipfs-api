@@ -173,6 +173,9 @@ extern crate actix_http;
 extern crate actix_multipart_rfc7578 as actix_multipart;
 #[cfg(feature = "actix")]
 extern crate awc;
+#[cfg(feature = "actix")]
+#[macro_use]
+extern crate derive_more;
 
 #[cfg(feature = "hyper")]
 extern crate hyper;
@@ -180,20 +183,16 @@ extern crate hyper;
 extern crate hyper_multipart_rfc7578 as hyper_multipart;
 #[cfg(feature = "hyper")]
 extern crate hyper_tls;
-
-extern crate bytes;
-#[cfg(feature = "actix")]
-#[macro_use]
-extern crate derive_more;
-#[macro_use]
 #[cfg(feature = "hyper")]
+#[macro_use]
 extern crate failure;
+
 extern crate serde;
 
-pub use crate::client::IpfsClient;
+//pub use crate::client::IpfsClient;
 pub use crate::request::{KeyType, Logger, LoggingLevel, ObjectTemplate};
 
-mod client;
+//mod client;
 mod header;
 mod read;
 mod request;
