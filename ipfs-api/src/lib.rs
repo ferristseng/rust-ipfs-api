@@ -168,21 +168,13 @@
 //!
 
 #[cfg(feature = "actix")]
-extern crate actix_http;
-#[cfg(feature = "actix")]
 extern crate actix_multipart_rfc7578 as actix_multipart;
-#[cfg(feature = "actix")]
-extern crate awc;
 #[cfg(feature = "actix")]
 #[macro_use]
 extern crate derive_more;
 
 #[cfg(feature = "hyper")]
-extern crate hyper;
-#[cfg(feature = "hyper")]
 extern crate hyper_multipart_rfc7578 as hyper_multipart;
-#[cfg(feature = "hyper")]
-extern crate hyper_tls;
 #[cfg(feature = "hyper")]
 #[macro_use]
 extern crate failure;
