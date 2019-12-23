@@ -124,15 +124,22 @@ impl IpfsClient {
     #[inline]
     pub fn new_from_uri(uri: &str) -> Result<IpfsClient, InvalidUri> {
         let base_path = IpfsClient::build_base_path(uri)?;
+        let client = {
+            #[cfg(feature = "hyper")]
+            {
+                Builder::default()
+                    .keep_alive(false)
+                    .build(HttpsConnector::new())
+            }
+            #[cfg(feature = "actix")]
+            {
+                Client::default()
+            }
+        };
 
         Ok(IpfsClient {
             base: base_path,
-            #[cfg(feature = "hyper")]
-            client: Builder::default()
-                .keep_alive(false)
-                .build(HttpsConnector::new()),
-            #[cfg(feature = "actix")]
-            client: Client::default(),
+            client,
         })
     }
 
@@ -146,7 +153,7 @@ impl IpfsClient {
     ///
     fn build_base_request<Req>(
         &self,
-        req: &Req,
+        req: Req,
         form: Option<multipart::Form<'static>>,
     ) -> Result<Request, Error>
     where
@@ -176,14 +183,15 @@ impl IpfsClient {
         }
         #[cfg(feature = "actix")]
         {
-            if let Some(form) = form {
-                Ok(self
-                    .client
+            let req = if let Some(form) = form {
+                self.client
                     .request(Req::METHOD.clone(), url)
-                    .content_type(form.content_type()))
+                    .content_type(form.content_type())
             } else {
-                Ok(self.client.request(Req::METHOD.clone(), url))
-            }
+                self.client.request(Req::METHOD.clone(), url)
+            };
+
+            Ok(req.timeout(std::time::Duration::from_secs(90)))
         }
     }
 
@@ -221,8 +229,7 @@ impl IpfsClient {
         decoder: D,
     ) -> impl Stream<Item = Result<Res, Error>>
     where
-        D: 'static + Decoder<Item = Res, Error = Error> + Send,
-        Res: 'static,
+        D: Decoder<Item = Res, Error = Error> + Send,
     {
         #[cfg(feature = "hyper")]
         {
@@ -238,7 +245,7 @@ impl IpfsClient {
     ///
     fn request_raw<Req>(
         &self,
-        req: &Req,
+        req: Req,
         form: Option<multipart::Form<'static>>,
     ) -> impl Future<Output = Result<(StatusCode, Bytes), Error>>
     where
@@ -263,11 +270,7 @@ impl IpfsClient {
         #[cfg(feature = "actix")]
         {
             request
-                .and_then(|req| {
-                    req.timeout(std::time::Duration::from_secs(90))
-                        .send()
-                        .err_into()
-                })
+                .and_then(|req| req.send().err_into())
                 .and_then(|mut res| {
                     let status = res.status();
 
@@ -281,13 +284,12 @@ impl IpfsClient {
     ///
     fn request_stream<Req, Res, F>(
         &self,
-        req: &Req,
+        req: Req,
         form: Option<multipart::Form<'static>>,
         process: F,
-    ) -> impl Stream<Item = Result<Res, Error>> + '_
+    ) -> impl Stream<Item = Result<Res, Error>>
     where
-        Req: 'static + ApiRequest + Serialize,
-        Res: 'static + Send,
+        Req: ApiRequest + Serialize,
         F: 'static + Fn(Response) -> AsyncStreamResponse<Res>,
     {
         let request = future::ready(self.build_base_request(req, form));
@@ -297,7 +299,7 @@ impl IpfsClient {
             let client = self.client.clone();
 
             request
-                .and_then(move |req| self.client.request(req).err_into())
+                .and_then(move |req| client.request(req).err_into())
                 .map_ok(move |res| {
                     match res.status() {
                         StatusCode::OK => process(res),
@@ -321,11 +323,7 @@ impl IpfsClient {
         #[cfg(feature = "actix")]
         {
             request
-                .and_then(|req| {
-                    req.timeout(std::time::Duration::from_secs(90))
-                        .send()
-                        .err_into()
-                })
+                .and_then(|req| req.send().err_into())
                 .map_ok(move |mut res| {
                     match res.status() {
                         StatusCode::OK => process(res),
@@ -352,7 +350,7 @@ impl IpfsClient {
     ///
     fn request<Req, Res>(
         &self,
-        req: &Req,
+        req: Req,
         form: Option<multipart::Form<'static>>,
     ) -> impl Future<Output = Result<Res, Error>>
     where
@@ -369,7 +367,7 @@ impl IpfsClient {
     ///
     fn request_empty<Req>(
         &self,
-        req: &Req,
+        req: Req,
         form: Option<multipart::Form<'static>>,
     ) -> impl Future<Output = Result<(), Error>>
     where
@@ -388,7 +386,7 @@ impl IpfsClient {
     ///
     fn request_string<Req>(
         &self,
-        req: &Req,
+        req: Req,
         form: Option<multipart::Form<'static>>,
     ) -> impl Future<Output = Result<String, Error>>
     where
@@ -407,11 +405,11 @@ impl IpfsClient {
     ///
     fn request_stream_bytes<Req>(
         &self,
-        req: &Req,
+        req: Req,
         form: Option<multipart::Form<'static>>,
-    ) -> impl Stream<Item = Result<Bytes, Error>> + '_
+    ) -> impl Stream<Item = Result<Bytes, Error>>
     where
-        Req: 'static + ApiRequest + Serialize,
+        Req: ApiRequest + Serialize,
     {
         #[cfg(feature = "hyper")]
         {
@@ -496,7 +494,7 @@ impl IpfsClient {
 
         form.add_reader("path", data);
 
-        self.request(&request::Add, Some(form))
+        self.request(request::Add, Some(form))
     }
 
     /*
@@ -580,7 +578,6 @@ impl IpfsClient {
     }
     */
 
-    /*
     /// Returns the current ledger for a peer.
     ///
     /// # Examples
@@ -601,9 +598,8 @@ impl IpfsClient {
         &self,
         peer: &str,
     ) -> impl Future<Output = Result<response::BitswapLedgerResponse, Error>> {
-        self.request(&request::BitswapLedger { peer }, None)
+        self.request(request::BitswapLedger { peer }, None)
     }
-    */
 
     /// Triggers a reprovide.
     ///
@@ -624,7 +620,7 @@ impl IpfsClient {
     pub fn bitswap_reprovide(
         &self,
     ) -> impl Future<Output = Result<response::BitswapReprovideResponse, Error>> {
-        self.request_empty(&request::BitswapReprovide, None)
+        self.request_empty(request::BitswapReprovide, None)
     }
 
     /// Returns some stats about the bitswap agent.
@@ -646,7 +642,7 @@ impl IpfsClient {
     pub fn bitswap_stat(
         &self,
     ) -> impl Future<Output = Result<response::BitswapStatResponse, Error>> {
-        self.request(&request::BitswapStat, None)
+        self.request(request::BitswapStat, None)
     }
 
     /*
@@ -715,6 +711,7 @@ impl IpfsClient {
     pub fn block_get(&self, hash: &str) -> AsyncStreamResponse<Bytes> {
         self.request_stream_bytes(&request::BlockGet { hash }, None)
     }
+    */
 
     /// Store input as an IPFS block.
     ///
@@ -734,17 +731,21 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn block_put<R>(&self, data: R) -> AsyncResponse<response::BlockPutResponse>
+    pub fn block_put<R>(
+        &self,
+        data: R,
+    ) -> impl Future<Output = Result<response::BlockPutResponse, Error>>
     where
-        R: 'static + Read + Send,
+        R: 'static + Read + Send + Sync,
     {
         let mut form = multipart::Form::default();
 
         form.add_reader("data", data);
 
-        self.request(&request::BlockPut, Some(form))
+        self.request(request::BlockPut, Some(form))
     }
 
+    /*
     /// Removes an IPFS block.
     ///
     /// # Examples
@@ -784,6 +785,7 @@ impl IpfsClient {
     pub fn block_stat(&self, hash: &str) -> AsyncResponse<response::BlockStatResponse> {
         self.request(&request::BlockStat { hash }, None)
     }
+    */
 
     /// Add default peers to the bootstrap list.
     ///
@@ -801,8 +803,10 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn bootstrap_add_default(&self) -> AsyncResponse<response::BootstrapAddDefaultResponse> {
-        self.request(&request::BootstrapAddDefault, None)
+    pub fn bootstrap_add_default(
+        &self,
+    ) -> impl Future<Output = Result<response::BootstrapAddDefaultResponse, Error>> {
+        self.request(request::BootstrapAddDefault, None)
     }
 
     /// Lists peers in bootstrap list.
@@ -821,8 +825,10 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn bootstrap_list(&self) -> AsyncResponse<response::BootstrapListResponse> {
-        self.request(&request::BootstrapList, None)
+    pub fn bootstrap_list(
+        &self,
+    ) -> impl Future<Output = Result<response::BootstrapListResponse, Error>> {
+        self.request(request::BootstrapList, None)
     }
 
     /// Removes all peers in bootstrap list.
@@ -841,10 +847,13 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn bootstrap_rm_all(&self) -> AsyncResponse<response::BootstrapRmAllResponse> {
-        self.request(&request::BootstrapRmAll, None)
+    pub fn bootstrap_rm_all(
+        &self,
+    ) -> impl Future<Output = Result<response::BootstrapRmAllResponse, Error>> {
+        self.request(request::BootstrapRmAll, None)
     }
 
+    /*
     /// Returns the contents of an Ipfs object.
     ///
     /// # Examples

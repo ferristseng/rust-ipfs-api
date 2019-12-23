@@ -6,8 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use crate::header::X_STREAM_ERROR;
-use crate::response::Error;
+use crate::{header::X_STREAM_ERROR, response::Error};
 use bytes::{Bytes, BytesMut};
 use futures::{
     task::{Context, Poll},
