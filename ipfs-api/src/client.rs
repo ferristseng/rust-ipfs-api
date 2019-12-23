@@ -16,9 +16,7 @@ use actix_http::{encoding, Payload, PayloadStream};
 #[cfg(feature = "actix")]
 use actix_multipart::client::multipart;
 use bytes::Bytes;
-use futures::{
-    future, Future, FutureExt, Stream, TryFutureExt, TryStreamExt,
-};
+use futures::{future, Future, FutureExt, Stream, TryFutureExt, TryStreamExt};
 use http::{
     uri::{InvalidUri, Uri},
     StatusCode,
@@ -487,7 +485,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn add<R>(&self, data: R) -> impl Future<Output = Result<response::AddResponse, Error>>
+    pub async fn add<R>(&self, data: R) -> Result<response::AddResponse, Error>
     where
         R: 'static + Read + Send + Sync,
     {
@@ -495,7 +493,7 @@ impl IpfsClient {
 
         form.add_reader("path", data);
 
-        self.request(request::Add, Some(form))
+        self.request(request::Add, Some(form)).await
     }
 
     /*
@@ -595,11 +593,11 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn bitswap_ledger(
+    pub async fn bitswap_ledger(
         &self,
         peer: &str,
-    ) -> impl Future<Output = Result<response::BitswapLedgerResponse, Error>> {
-        self.request(request::BitswapLedger { peer }, None)
+    ) -> Result<response::BitswapLedgerResponse, Error> {
+        self.request(request::BitswapLedger { peer }, None).await
     }
 
     /// Triggers a reprovide.
@@ -618,10 +616,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn bitswap_reprovide(
-        &self,
-    ) -> impl Future<Output = Result<response::BitswapReprovideResponse, Error>> {
-        self.request_empty(request::BitswapReprovide, None)
+    pub async fn bitswap_reprovide(&self) -> Result<response::BitswapReprovideResponse, Error> {
+        self.request_empty(request::BitswapReprovide, None).await
     }
 
     /// Returns some stats about the bitswap agent.
@@ -640,13 +636,10 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn bitswap_stat(
-        &self,
-    ) -> impl Future<Output = Result<response::BitswapStatResponse, Error>> {
-        self.request(request::BitswapStat, None)
+    pub async fn bitswap_stat(&self) -> Result<response::BitswapStatResponse, Error> {
+        self.request(request::BitswapStat, None).await
     }
 
-    /*
     /// Remove a given block from your wantlist.
     ///
     /// # Examples
@@ -663,8 +656,12 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn bitswap_unwant(&self, key: &str) -> AsyncResponse<response::BitswapUnwantResponse> {
-        self.request_empty(&request::BitswapUnwant { key }, None)
+    pub async fn bitswap_unwant(
+        &self,
+        key: &str,
+    ) -> Result<response::BitswapUnwantResponse, Error> {
+        self.request_empty(request::BitswapUnwant { key }, None)
+            .await
     }
 
     /// Shows blocks on the wantlist for you or the specified peer.
@@ -683,11 +680,11 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn bitswap_wantlist(
+    pub async fn bitswap_wantlist(
         &self,
         peer: Option<&str>,
-    ) -> AsyncResponse<response::BitswapWantlistResponse> {
-        self.request(&request::BitswapWantlist { peer }, None)
+    ) -> Result<response::BitswapWantlistResponse, Error> {
+        self.request(request::BitswapWantlist { peer }, None).await
     }
 
     /// Gets a raw IPFS block.
@@ -709,10 +706,9 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn block_get(&self, hash: &str) -> AsyncStreamResponse<Bytes> {
-        self.request_stream_bytes(&request::BlockGet { hash }, None)
+    pub fn block_get(&self, hash: &str) -> impl Stream<Item = Result<Bytes, Error>> {
+        self.request_stream_bytes(request::BlockGet { hash }, None)
     }
-    */
 
     /// Store input as an IPFS block.
     ///
@@ -732,10 +728,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn block_put<R>(
-        &self,
-        data: R,
-    ) -> impl Future<Output = Result<response::BlockPutResponse, Error>>
+    pub async fn block_put<R>(&self, data: R) -> Result<response::BlockPutResponse, Error>
     where
         R: 'static + Read + Send + Sync,
     {
@@ -743,10 +736,9 @@ impl IpfsClient {
 
         form.add_reader("data", data);
 
-        self.request(request::BlockPut, Some(form))
+        self.request(request::BlockPut, Some(form)).await
     }
 
-    /*
     /// Removes an IPFS block.
     ///
     /// # Examples
@@ -763,8 +755,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn block_rm(&self, hash: &str) -> AsyncResponse<response::BlockRmResponse> {
-        self.request(&request::BlockRm { hash }, None)
+    pub async fn block_rm(&self, hash: &str) -> Result<response::BlockRmResponse, Error> {
+        self.request(request::BlockRm { hash }, None).await
     }
 
     /// Prints information about a raw IPFS block.
@@ -783,10 +775,9 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn block_stat(&self, hash: &str) -> AsyncResponse<response::BlockStatResponse> {
-        self.request(&request::BlockStat { hash }, None)
+    pub async fn block_stat(&self, hash: &str) -> Result<response::BlockStatResponse, Error> {
+        self.request(request::BlockStat { hash }, None).await
     }
-    */
 
     /// Add default peers to the bootstrap list.
     ///
@@ -804,10 +795,10 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn bootstrap_add_default(
+    pub async fn bootstrap_add_default(
         &self,
-    ) -> impl Future<Output = Result<response::BootstrapAddDefaultResponse, Error>> {
-        self.request(request::BootstrapAddDefault, None)
+    ) -> Result<response::BootstrapAddDefaultResponse, Error> {
+        self.request(request::BootstrapAddDefault, None).await
     }
 
     /// Lists peers in bootstrap list.
@@ -826,10 +817,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn bootstrap_list(
-        &self,
-    ) -> impl Future<Output = Result<response::BootstrapListResponse, Error>> {
-        self.request(request::BootstrapList, None)
+    pub async fn bootstrap_list(&self) -> Result<response::BootstrapListResponse, Error> {
+        self.request(request::BootstrapList, None).await
     }
 
     /// Removes all peers in bootstrap list.
@@ -848,13 +837,10 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn bootstrap_rm_all(
-        &self,
-    ) -> impl Future<Output = Result<response::BootstrapRmAllResponse, Error>> {
-        self.request(request::BootstrapRmAll, None)
+    pub async fn bootstrap_rm_all(&self) -> Result<response::BootstrapRmAllResponse, Error> {
+        self.request(request::BootstrapRmAll, None).await
     }
 
-    /*
     /// Returns the contents of an Ipfs object.
     ///
     /// # Examples
@@ -875,7 +861,7 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn cat(&self, path: &str) -> AsyncStreamResponse<Bytes> {
-        self.request_stream_bytes(&request::Cat { path }, None)
+        self.request_stream_bytes(request::Cat { path }, None)
     }
 
     /// List available commands that the server accepts.
@@ -892,8 +878,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn commands(&self) -> AsyncResponse<response::CommandsResponse> {
-        self.request(&request::Commands, None)
+    pub async fn commands(&self) -> Result<response::CommandsResponse, Error> {
+        self.request(request::Commands, None).await
     }
 
     /// Opens the config file for editing (on the server).
@@ -910,8 +896,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn config_edit(&self) -> AsyncResponse<response::ConfigEditResponse> {
-        self.request(&request::ConfigEdit, None)
+    pub async fn config_edit(&self) -> Result<response::ConfigEditResponse, Error> {
+        self.request(request::ConfigEdit, None).await
     }
 
     /// Replace the config file.
@@ -930,15 +916,15 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn config_replace<R>(&self, data: R) -> AsyncResponse<response::ConfigReplaceResponse>
+    pub async fn config_replace<R>(&self, data: R) -> Result<response::ConfigReplaceResponse, Error>
     where
-        R: 'static + Read + Send,
+        R: 'static + Read + Send + Sync,
     {
         let mut form = multipart::Form::default();
 
         form.add_reader("file", data);
 
-        self.request_empty(&request::ConfigReplace, Some(form))
+        self.request_empty(request::ConfigReplace, Some(form)).await
     }
 
     /// Show the current config of the server.
@@ -957,8 +943,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn config_show(&self) -> AsyncResponse<response::ConfigShowResponse> {
-        self.request_string(&request::ConfigShow, None)
+    pub async fn config_show(&self) -> Result<response::ConfigShowResponse, Error> {
+        self.request_string(request::ConfigShow, None).await
     }
 
     /// Returns information about a dag node in Ipfs.
@@ -975,8 +961,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn dag_get(&self, path: &str) -> AsyncResponse<response::DagGetResponse> {
-        self.request(&request::DagGet { path }, None)
+    pub async fn dag_get(&self, path: &str) -> Result<response::DagGetResponse, Error> {
+        self.request(request::DagGet { path }, None).await
     }
 
     // TODO /dag routes are experimental, and there isn't a whole lot of
@@ -1016,7 +1002,7 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn dht_findpeer(&self, peer: &str) -> AsyncStreamResponse<response::DhtFindPeerResponse> {
-        self.request_stream_json(&request::DhtFindPeer { peer }, None)
+        self.request_stream_json(request::DhtFindPeer { peer }, None)
     }
 
     /// Find peers in the DHT that can provide a specific value given a key.
@@ -1037,7 +1023,7 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn dht_findprovs(&self, key: &str) -> AsyncStreamResponse<response::DhtFindProvsResponse> {
-        self.request_stream_json(&request::DhtFindProvs { key }, None)
+        self.request_stream_json(request::DhtFindProvs { key }, None)
     }
 
     /// Query the DHT for a given key.
@@ -1058,7 +1044,7 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn dht_get(&self, key: &str) -> AsyncStreamResponse<response::DhtGetResponse> {
-        self.request_stream_json(&request::DhtGet { key }, None)
+        self.request_stream_json(request::DhtGet { key }, None)
     }
 
     /// Announce to the network that you are providing a given value.
@@ -1079,7 +1065,7 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn dht_provide(&self, key: &str) -> AsyncStreamResponse<response::DhtProvideResponse> {
-        self.request_stream_json(&request::DhtProvide { key }, None)
+        self.request_stream_json(request::DhtProvide { key }, None)
     }
 
     /// Write a key/value pair to the DHT.
@@ -1099,7 +1085,7 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn dht_put(&self, key: &str, value: &str) -> AsyncStreamResponse<response::DhtPutResponse> {
-        self.request_stream_json(&request::DhtPut { key, value }, None)
+        self.request_stream_json(request::DhtPut { key, value }, None)
     }
 
     /// Find the closest peer given the peer ID by querying the DHT.
@@ -1120,7 +1106,7 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn dht_query(&self, peer: &str) -> AsyncStreamResponse<response::DhtQueryResponse> {
-        self.request_stream_json(&request::DhtQuery { peer }, None)
+        self.request_stream_json(request::DhtQuery { peer }, None)
     }
 
     /// Clear inactive requests from the log.
@@ -1137,8 +1123,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn diag_cmds_clear(&self) -> AsyncResponse<response::DiagCmdsClearResponse> {
-        self.request_empty(&request::DiagCmdsClear, None)
+    pub async fn diag_cmds_clear(&self) -> Result<response::DiagCmdsClearResponse, Error> {
+        self.request_empty(request::DiagCmdsClear, None).await
     }
 
     /// Set how long to keep inactive requests in the log.
@@ -1155,11 +1141,12 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn diag_cmds_set_time(
+    pub async fn diag_cmds_set_time(
         &self,
         time: &str,
-    ) -> AsyncResponse<response::DiagCmdsSetTimeResponse> {
-        self.request_empty(&request::DiagCmdsSetTime { time }, None)
+    ) -> Result<response::DiagCmdsSetTimeResponse, Error> {
+        self.request_empty(request::DiagCmdsSetTime { time }, None)
+            .await
     }
 
     /// Print system diagnostic information.
@@ -1180,8 +1167,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn diag_sys(&self) -> AsyncResponse<response::DiagSysResponse> {
-        self.request_string(&request::DiagSys, None)
+    pub async fn diag_sys(&self) -> Result<response::DiagSysResponse, Error> {
+        self.request_string(request::DiagSys, None).await
     }
 
     /// Resolve DNS link.
@@ -1198,8 +1185,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn dns(&self, link: &str, recursive: bool) -> AsyncResponse<response::DnsResponse> {
-        self.request(&request::Dns { link, recursive }, None)
+    pub async fn dns(&self, link: &str, recursive: bool) -> Result<response::DnsResponse, Error> {
+        self.request(request::Dns { link, recursive }, None).await
     }
 
     /// List directory for Unix filesystem objects.
@@ -1216,8 +1203,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn file_ls(&self, path: &str) -> AsyncResponse<response::FileLsResponse> {
-        self.request(&request::FileLs { path }, None)
+    pub async fn file_ls(&self, path: &str) -> Result<response::FileLsResponse, Error> {
+        self.request(request::FileLs { path }, None).await
     }
 
     /// Copy files into MFS.
@@ -1234,8 +1221,13 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn files_cp(&self, path: &str, dest: &str) -> AsyncResponse<response::FilesCpResponse> {
-        self.request_empty(&request::FilesCp { path, dest }, None)
+    pub async fn files_cp(
+        &self,
+        path: &str,
+        dest: &str,
+    ) -> Result<response::FilesCpResponse, Error> {
+        self.request_empty(request::FilesCp { path, dest }, None)
+            .await
     }
 
     /// Flush a path's data to disk.
@@ -1253,8 +1245,11 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn files_flush(&self, path: Option<&str>) -> AsyncResponse<response::FilesFlushResponse> {
-        self.request_empty(&request::FilesFlush { path }, None)
+    pub async fn files_flush(
+        &self,
+        path: Option<&str>,
+    ) -> Result<response::FilesFlushResponse, Error> {
+        self.request_empty(request::FilesFlush { path }, None).await
     }
 
     /// List directories in MFS.
@@ -1272,8 +1267,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn files_ls(&self, path: Option<&str>) -> AsyncResponse<response::FilesLsResponse> {
-        self.request(&request::FilesLs { path }, None)
+    pub async fn files_ls(&self, path: Option<&str>) -> Result<response::FilesLsResponse, Error> {
+        self.request(request::FilesLs { path }, None).await
     }
 
     /// Make directories in MFS.
@@ -1291,12 +1286,13 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn files_mkdir(
+    pub async fn files_mkdir(
         &self,
         path: &str,
         parents: bool,
-    ) -> AsyncResponse<response::FilesMkdirResponse> {
-        self.request_empty(&request::FilesMkdir { path, parents }, None)
+    ) -> Result<response::FilesMkdirResponse, Error> {
+        self.request_empty(request::FilesMkdir { path, parents }, None)
+            .await
     }
 
     /// Copy files into MFS.
@@ -1313,8 +1309,13 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn files_mv(&self, path: &str, dest: &str) -> AsyncResponse<response::FilesMvResponse> {
-        self.request_empty(&request::FilesMv { path, dest }, None)
+    pub async fn files_mv(
+        &self,
+        path: &str,
+        dest: &str,
+    ) -> Result<response::FilesMvResponse, Error> {
+        self.request_empty(request::FilesMv { path, dest }, None)
+            .await
     }
 
     /// Read a file in MFS.
@@ -1332,7 +1333,7 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn files_read(&self, path: &str) -> AsyncStreamResponse<Bytes> {
-        self.request_stream_bytes(&request::FilesRead { path }, None)
+        self.request_stream_bytes(request::FilesRead { path }, None)
     }
 
     /// Remove a file in MFS.
@@ -1350,12 +1351,13 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn files_rm(
+    pub async fn files_rm(
         &self,
         path: &str,
         recursive: bool,
-    ) -> AsyncResponse<response::FilesRmResponse> {
-        self.request_empty(&request::FilesRm { path, recursive }, None)
+    ) -> Result<response::FilesRmResponse, Error> {
+        self.request_empty(request::FilesRm { path, recursive }, None)
+            .await
     }
 
     /// Display a file's status in MDFS.
@@ -1372,8 +1374,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn files_stat(&self, path: &str) -> AsyncResponse<response::FilesStatResponse> {
-        self.request(&request::FilesStat { path }, None)
+    pub async fn files_stat(&self, path: &str) -> Result<response::FilesStatResponse, Error> {
+        self.request(request::FilesStat { path }, None).await
     }
 
     /// Write to a mutable file in the filesystem.
@@ -1392,28 +1394,29 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn files_write<R>(
+    pub async fn files_write<R>(
         &self,
         path: &str,
         create: bool,
         truncate: bool,
         data: R,
-    ) -> AsyncResponse<response::FilesWriteResponse>
+    ) -> Result<response::FilesWriteResponse, Error>
     where
-        R: 'static + Read + Send,
+        R: 'static + Read + Send + Sync,
     {
         let mut form = multipart::Form::default();
 
         form.add_reader("data", data);
 
         self.request_empty(
-            &request::FilesWrite {
+            request::FilesWrite {
                 path,
                 create,
                 truncate,
             },
             Some(form),
         )
+        .await
     }
 
     /// List blocks that are both in the filestore and standard block storage.
@@ -1431,7 +1434,7 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn filestore_dups(&self) -> AsyncStreamResponse<response::FilestoreDupsResponse> {
-        self.request_stream_json(&request::FilestoreDups, None)
+        self.request_stream_json(request::FilestoreDups, None)
     }
 
     /// List objects in filestore.
@@ -1452,7 +1455,7 @@ impl IpfsClient {
         &self,
         cid: Option<&str>,
     ) -> AsyncStreamResponse<response::FilestoreLsResponse> {
-        self.request_stream_json(&request::FilestoreLs { cid }, None)
+        self.request_stream_json(request::FilestoreLs { cid }, None)
     }
 
     /// Verify objects in filestore.
@@ -1473,7 +1476,7 @@ impl IpfsClient {
         &self,
         cid: Option<&str>,
     ) -> AsyncStreamResponse<response::FilestoreVerifyResponse> {
-        self.request_stream_json(&request::FilestoreVerify { cid }, None)
+        self.request_stream_json(request::FilestoreVerify { cid }, None)
     }
 
     /// Download Ipfs object.
@@ -1491,7 +1494,7 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn get(&self, path: &str) -> AsyncStreamResponse<Bytes> {
-        self.request_stream_bytes(&request::Get { path }, None)
+        self.request_stream_bytes(request::Get { path }, None)
     }
 
     /// Returns information about a peer.
@@ -1511,8 +1514,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn id(&self, peer: Option<&str>) -> AsyncResponse<response::IdResponse> {
-        self.request(&request::Id { peer }, None)
+    pub async fn id(&self, peer: Option<&str>) -> Result<response::IdResponse, Error> {
+        self.request(request::Id { peer }, None).await
     }
 
     /// Create a new keypair.
@@ -1529,13 +1532,14 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn key_gen(
+    pub async fn key_gen(
         &self,
         name: &str,
         kind: request::KeyType,
         size: i32,
-    ) -> AsyncResponse<response::KeyGenResponse> {
-        self.request(&request::KeyGen { name, kind, size }, None)
+    ) -> Result<response::KeyGenResponse, Error> {
+        self.request(request::KeyGen { name, kind, size }, None)
+            .await
     }
 
     /// List all local keypairs.
@@ -1552,8 +1556,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn key_list(&self) -> AsyncResponse<response::KeyListResponse> {
-        self.request(&request::KeyList, None)
+    pub async fn key_list(&self) -> Result<response::KeyListResponse, Error> {
+        self.request(request::KeyList, None).await
     }
 
     /// Rename a keypair.
@@ -1570,13 +1574,14 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn key_rename(
+    pub async fn key_rename(
         &self,
         name: &str,
         new: &str,
         force: bool,
-    ) -> AsyncResponse<response::KeyRenameResponse> {
-        self.request(&request::KeyRename { name, new, force }, None)
+    ) -> Result<response::KeyRenameResponse, Error> {
+        self.request(request::KeyRename { name, new, force }, None)
+            .await
     }
 
     /// Remove a keypair.
@@ -1593,8 +1598,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn key_rm(&self, name: &str) -> AsyncResponse<response::KeyRmResponse> {
-        self.request(&request::KeyRm { name }, None)
+    pub async fn key_rm(&self, name: &str) -> Result<response::KeyRmResponse, Error> {
+        self.request(request::KeyRm { name }, None).await
     }
 
     /// Change the logging level for a logger.
@@ -1615,12 +1620,13 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn log_level(
+    pub async fn log_level(
         &self,
-        logger: request::Logger,
+        logger: request::Logger<'_>,
         level: request::LoggingLevel,
-    ) -> AsyncResponse<response::LogLevelResponse> {
-        self.request(&request::LogLevel { logger, level }, None)
+    ) -> Result<response::LogLevelResponse, Error> {
+        self.request(request::LogLevel { logger, level }, None)
+            .await
     }
 
     /// List all logging subsystems.
@@ -1637,10 +1643,11 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn log_ls(&self) -> AsyncResponse<response::LogLsResponse> {
-        self.request(&request::LogLs, None)
+    pub async fn log_ls(&self) -> Result<response::LogLsResponse, Error> {
+        self.request(request::LogLs, None).await
     }
 
+    /*
     /// Read the event log.
     ///
     /// ```no_run
