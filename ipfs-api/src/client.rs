@@ -1683,6 +1683,7 @@ impl IpfsClient {
             .flatten_stream();
         Box::new(res)
     }
+    */
 
     /// List the contents of an Ipfs multihash.
     ///
@@ -1699,8 +1700,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn ls(&self, path: Option<&str>) -> AsyncResponse<response::LsResponse> {
-        self.request(&request::Ls { path }, None)
+    pub async fn ls(&self, path: Option<&str>) -> Result<response::LsResponse, Error> {
+        self.request(request::Ls { path }, None).await
     }
 
     // TODO /mount
@@ -1723,16 +1724,16 @@ impl IpfsClient {
     /// # }
     /// ```
     ///
-    pub fn name_publish(
+    pub async fn name_publish(
         &self,
         path: &str,
         resolve: bool,
         lifetime: Option<&str>,
         ttl: Option<&str>,
         key: Option<&str>,
-    ) -> AsyncResponse<response::NamePublishResponse> {
+    ) -> Result<response::NamePublishResponse, Error> {
         self.request(
-            &request::NamePublish {
+            request::NamePublish {
                 path,
                 resolve,
                 lifetime,
@@ -1741,6 +1742,7 @@ impl IpfsClient {
             },
             None,
         )
+        .await
     }
 
     /// Resolve an IPNS name.
@@ -1759,20 +1761,21 @@ impl IpfsClient {
     /// # }
     /// ```
     ///
-    pub fn name_resolve(
+    pub async fn name_resolve(
         &self,
         name: Option<&str>,
         recursive: bool,
         nocache: bool,
-    ) -> AsyncResponse<response::NameResolveResponse> {
+    ) -> Result<response::NameResolveResponse, Error> {
         self.request(
-            &request::NameResolve {
+            request::NameResolve {
                 name,
                 recursive,
                 nocache,
             },
             None,
         )
+        .await
     }
 
     /// Output the raw bytes of an Ipfs object.
@@ -1790,7 +1793,7 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn object_data(&self, key: &str) -> AsyncStreamResponse<Bytes> {
-        self.request_stream_bytes(&request::ObjectData { key }, None)
+        self.request_stream_bytes(request::ObjectData { key }, None)
     }
 
     /// Returns the diff of two Ipfs objects.
@@ -1809,12 +1812,12 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn object_diff(
+    pub async fn object_diff(
         &self,
         key0: &str,
         key1: &str,
-    ) -> AsyncResponse<response::ObjectDiffResponse> {
-        self.request(&request::ObjectDiff { key0, key1 }, None)
+    ) -> Result<response::ObjectDiffResponse, Error> {
+        self.request(request::ObjectDiff { key0, key1 }, None).await
     }
 
     /// Returns the data in an object.
@@ -1831,8 +1834,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn object_get(&self, key: &str) -> AsyncResponse<response::ObjectGetResponse> {
-        self.request(&request::ObjectGet { key }, None)
+    pub async fn object_get(&self, key: &str) -> Result<response::ObjectGetResponse, Error> {
+        self.request(request::ObjectGet { key }, None).await
     }
 
     /// Returns the links that an object points to.
@@ -1849,8 +1852,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn object_links(&self, key: &str) -> AsyncResponse<response::ObjectLinksResponse> {
-        self.request(&request::ObjectLinks { key }, None)
+    pub async fn object_links(&self, key: &str) -> Result<response::ObjectLinksResponse, Error> {
+        self.request(request::ObjectLinks { key }, None).await
     }
 
     /// Create a new object.
@@ -1868,11 +1871,11 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn object_new(
+    pub async fn object_new(
         &self,
         template: Option<request::ObjectTemplate>,
-    ) -> AsyncResponse<response::ObjectNewResponse> {
-        self.request(&request::ObjectNew { template }, None)
+    ) -> Result<response::ObjectNewResponse, Error> {
+        self.request(request::ObjectNew { template }, None).await
     }
 
     // TODO /object/patch/add-link
@@ -1899,8 +1902,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn object_stat(&self, key: &str) -> AsyncResponse<response::ObjectStatResponse> {
-        self.request(&request::ObjectStat { key }, None)
+    pub async fn object_stat(&self, key: &str) -> Result<response::ObjectStatResponse, Error> {
+        self.request(request::ObjectStat { key }, None).await
     }
 
     // TODO /p2p/listener/close
@@ -1937,15 +1940,20 @@ impl IpfsClient {
     /// # }
     /// ```
     #[inline]
-    pub fn pin_add(&self, key: &str, recursive: bool) -> AsyncResponse<response::PinAddResponse> {
+    pub async fn pin_add(
+        &self,
+        key: &str,
+        recursive: bool,
+    ) -> Result<response::PinAddResponse, Error> {
         self.request(
-            &request::PinAdd {
+            request::PinAdd {
                 key,
                 recursive: Some(recursive),
                 progress: false,
             },
             None,
         )
+        .await
     }
 
     /// Returns a list of pinned objects in local storage.
@@ -1966,12 +1974,12 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn pin_ls(
+    pub async fn pin_ls(
         &self,
         key: Option<&str>,
         typ: Option<&str>,
-    ) -> AsyncResponse<response::PinLsResponse> {
-        self.request(&request::PinLs { key, typ }, None)
+    ) -> Result<response::PinLsResponse, Error> {
+        self.request(request::PinLs { key, typ }, None).await
     }
 
     /// Removes a pinned object from local storage.
@@ -1993,8 +2001,12 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn pin_rm(&self, key: &str, recursive: bool) -> AsyncResponse<response::PinRmResponse> {
-        self.request(&request::PinRm { key, recursive }, None)
+    pub async fn pin_rm(
+        &self,
+        key: &str,
+        recursive: bool,
+    ) -> Result<response::PinRmResponse, Error> {
+        self.request(request::PinRm { key, recursive }, None).await
     }
 
     // TODO /pin/update
@@ -2021,7 +2033,7 @@ impl IpfsClient {
         peer: &str,
         count: Option<i32>,
     ) -> AsyncStreamResponse<response::PingResponse> {
-        self.request_stream_json(&request::Ping { peer, count }, None)
+        self.request_stream_json(request::Ping { peer, count }, None)
     }
 
     /// List subscribed pubsub topics.
@@ -2038,8 +2050,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn pubsub_ls(&self) -> AsyncResponse<response::PubsubLsResponse> {
-        self.request(&request::PubsubLs, None)
+    pub async fn pubsub_ls(&self) -> Result<response::PubsubLsResponse, Error> {
+        self.request(request::PubsubLs, None).await
     }
 
     /// List peers that are being published to.
@@ -2057,11 +2069,11 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn pubsub_peers(
+    pub async fn pubsub_peers(
         &self,
         topic: Option<&str>,
-    ) -> AsyncResponse<response::PubsubPeersResponse> {
-        self.request(&request::PubsubPeers { topic }, None)
+    ) -> Result<response::PubsubPeersResponse, Error> {
+        self.request(request::PubsubPeers { topic }, None).await
     }
 
     /// Publish a message to a topic.
@@ -2078,12 +2090,13 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn pubsub_pub(
+    pub async fn pubsub_pub(
         &self,
         topic: &str,
         payload: &str,
-    ) -> AsyncResponse<response::PubsubPubResponse> {
-        self.request_empty(&request::PubsubPub { topic, payload }, None)
+    ) -> Result<response::PubsubPubResponse, Error> {
+        self.request_empty(request::PubsubPub { topic, payload }, None)
+            .await
     }
 
     /// Subscribes to a pubsub topic.
@@ -2106,7 +2119,7 @@ impl IpfsClient {
         topic: &str,
         discover: bool,
     ) -> AsyncStreamResponse<response::PubsubSubResponse> {
-        self.request_stream_json(&request::PubsubSub { topic, discover }, None)
+        self.request_stream_json(request::PubsubSub { topic, discover }, None)
     }
 
     /// Gets a list of local references.
@@ -2124,7 +2137,7 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn refs_local(&self) -> AsyncStreamResponse<response::RefsLocalResponse> {
-        self.request_stream_json(&request::RefsLocal, None)
+        self.request_stream_json(request::RefsLocal, None)
     }
 
     // TODO /repo/fsck
@@ -2152,8 +2165,8 @@ impl IpfsClient {
     /// # }
     /// ```
     ///
-    pub fn shutdown(&self) -> AsyncResponse<response::ShutdownResponse> {
-        self.request_empty(&request::Shutdown, None)
+    pub async fn shutdown(&self) -> Result<response::ShutdownResponse, Error> {
+        self.request_empty(request::Shutdown, None).await
     }
 
     /// Returns bitswap stats.
@@ -2170,8 +2183,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn stats_bitswap(&self) -> AsyncResponse<response::StatsBitswapResponse> {
-        self.request(&request::StatsBitswap, None)
+    pub async fn stats_bitswap(&self) -> Result<response::StatsBitswapResponse, Error> {
+        self.request(request::StatsBitswap, None).await
     }
 
     /// Returns bandwidth stats.
@@ -2188,8 +2201,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn stats_bw(&self) -> AsyncResponse<response::StatsBwResponse> {
-        self.request(&request::StatsBw, None)
+    pub async fn stats_bw(&self) -> Result<response::StatsBwResponse, Error> {
+        self.request(request::StatsBw, None).await
     }
 
     /// Returns repo stats.
@@ -2206,8 +2219,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn stats_repo(&self) -> AsyncResponse<response::StatsRepoResponse> {
-        self.request(&request::StatsRepo, None)
+    pub async fn stats_repo(&self) -> Result<response::StatsRepoResponse, Error> {
+        self.request(request::StatsRepo, None).await
     }
 
     // TODO /swarm/addrs/listen
@@ -2226,8 +2239,8 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn swarm_addrs_local(&self) -> AsyncResponse<response::SwarmAddrsLocalResponse> {
-        self.request(&request::SwarmAddrsLocal, None)
+    pub async fn swarm_addrs_local(&self) -> Result<response::SwarmAddrsLocalResponse, Error> {
+        self.request(request::SwarmAddrsLocal, None).await
     }
 
     // TODO /swarm/connect
@@ -2252,10 +2265,9 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn swarm_peers(&self) -> AsyncResponse<response::SwarmPeersResponse> {
-        self.request(&request::SwarmPeers, None)
+    pub async fn swarm_peers(&self) -> Result<response::SwarmPeersResponse, Error> {
+        self.request(request::SwarmPeers, None).await
     }
-    */
 
     /// Add a tar file to Ipfs.
     ///
