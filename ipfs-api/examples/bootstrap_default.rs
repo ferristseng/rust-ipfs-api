@@ -6,56 +6,54 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use futures::Future;
 use ipfs_api::IpfsClient;
-use tokio::runtime::current_thread::Runtime;
 
 // Lists clients in bootstrap list, then adds the default list, then removes
 // them, and readds them.
 //
-fn main() {
-    println!("connecting to localhost:5001...");
+#[tokio::main]
+async fn main() {
+    eprintln!("connecting to localhost:5001...");
 
     let client = IpfsClient::default();
 
-    let bootstrap = client.bootstrap_list().map(|bootstrap| {
-        println!("current bootstrap peers:");
-        for peer in bootstrap.peers {
-            println!("  {}", peer);
+    match client.bootstrap_list().await {
+        Ok(bootstrap) => {
+            eprintln!("current bootstrap peers:");
+            for peer in bootstrap.peers {
+                eprintln!("  {}", peer);
+            }
+            eprintln!();
         }
-    });
-
-    let drop = client.bootstrap_rm_all().map(|drop| {
-        println!("dropped:");
-        for peer in drop.peers {
-            println!("  {}", peer);
+        Err(e) => {
+            eprintln!("error getting list of bootstrap peers: {}", e);
+            return;
         }
-    });
+    }
 
-    let add = client.bootstrap_add_default().map(|add| {
-        println!("added:");
-        for peer in add.peers {
-            println!("  {}", peer);
+    match client.bootstrap_rm_all().await {
+        Ok(drop) => {
+            eprintln!("dropped:");
+            for peer in drop.peers {
+                eprintln!("  {}", peer);
+            }
+            eprintln!();
         }
-    });
+        Err(e) => {
+            eprintln!("error dropping bootstrap peers: {}", e);
+        }
+    }
 
-    let fut = bootstrap
-        .and_then(|_| {
-            println!();
-            println!("dropping all bootstrap peers...");
-
-            drop
-        })
-        .and_then(|_| {
-            println!();
-            println!("adding default peers...");
-
-            add
-        })
-        .map_err(|e| eprintln!("{}", e));
-
-    Runtime::new()
-        .expect("tokio runtime")
-        .block_on(fut)
-        .expect("successful response");
+    match client.bootstrap_add_default().await {
+        Ok(add) => {
+            eprintln!("added:");
+            for peer in add.peers {
+                eprintln!("  {}", peer);
+            }
+            eprintln!();
+        }
+        Err(e) => {
+            eprintln!("error adding default peers: {}", e);
+        }
+    }
 }

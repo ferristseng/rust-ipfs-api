@@ -47,3 +47,4 @@ awc                       = "1.0"
 hyper                     = "0.13"
 hyper-tls                 = "0.4"
 tar                       = "0.4"
+tokio                     = { version = "0.2", features = ["rt-threaded", "macros"] }

@@ -2255,6 +2255,7 @@ impl IpfsClient {
     pub fn swarm_peers(&self) -> AsyncResponse<response::SwarmPeersResponse> {
         self.request(&request::SwarmPeers, None)
     }
+    */
 
     /// Add a tar file to Ipfs.
     ///
@@ -2275,15 +2276,15 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn tar_add<R>(&self, data: R) -> AsyncResponse<response::TarAddResponse>
+    pub async fn tar_add<R>(&self, data: R) -> Result<response::TarAddResponse, Error>
     where
-        R: 'static + Read + Send,
+        R: 'static + Read + Send + Sync,
     {
         let mut form = multipart::Form::default();
 
         form.add_reader("file", data);
 
-        self.request(&request::TarAdd, Some(form))
+        self.request(request::TarAdd, Some(form)).await
     }
 
     /// Export a tar file from Ipfs.
@@ -2301,7 +2302,7 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn tar_cat(&self, path: &str) -> AsyncStreamResponse<Bytes> {
-        self.request_stream_bytes(&request::TarCat { path }, None)
+        self.request_stream_bytes(request::TarCat { path }, None)
     }
 
     /// Returns information about the Ipfs server version.
@@ -2318,8 +2319,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn version(&self) -> AsyncResponse<response::VersionResponse> {
-        self.request(&request::Version, None)
+    pub async fn version(&self) -> Result<response::VersionResponse, Error> {
+        self.request(request::Version, None).await
     }
-    */
 }
