@@ -6,7 +6,6 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use bytes::BytesMut;
 use futures::TryStreamExt;
 use ipfs_api::IpfsClient;
 use std::io::Cursor;
