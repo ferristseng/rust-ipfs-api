@@ -10,9 +10,8 @@ use crate::{
     read::{JsonLineDecoder, LineDecoder, StreamReader},
     request::{self, ApiRequest},
     response::{self, Error},
+    AsyncStreamResponse, Client, Request, Response,
 };
-#[cfg(feature = "actix")]
-use actix_http::{encoding, Payload, PayloadStream};
 #[cfg(feature = "actix")]
 use actix_multipart::client::multipart;
 use bytes::Bytes;
@@ -22,10 +21,7 @@ use http::{
     StatusCode,
 };
 #[cfg(feature = "hyper")]
-use hyper::{
-    body,
-    client::{self, Builder, HttpConnector},
-};
+use hyper::{body, client::Builder};
 #[cfg(feature = "hyper")]
 use hyper_multipart::client::multipart;
 #[cfg(feature = "hyper")]
@@ -40,28 +36,6 @@ use std::{
     path::{Path, PathBuf},
 };
 use tokio_util::codec::{Decoder, FramedRead};
-
-/// A future that returns a stream of responses.
-///
-#[cfg(feature = "actix")]
-type AsyncStreamResponse<T> = Box<dyn Stream<Item = Result<T, Error>> + Unpin + 'static>;
-#[cfg(feature = "hyper")]
-type AsyncStreamResponse<T> = Box<dyn Stream<Item = Result<T, Error>> + Unpin + Send + 'static>;
-
-#[cfg(feature = "actix")]
-type Request = awc::ClientRequest;
-#[cfg(feature = "hyper")]
-type Request = http::Request<hyper::Body>;
-
-#[cfg(feature = "actix")]
-type Response = awc::ClientResponse<encoding::Decoder<Payload<PayloadStream>>>;
-#[cfg(feature = "hyper")]
-type Response = http::Response<hyper::Body>;
-
-#[cfg(feature = "actix")]
-type Client = awc::Client;
-#[cfg(feature = "hyper")]
-type Client = client::Client<HttpsConnector<HttpConnector>, hyper::Body>;
 
 /// Asynchronous Ipfs client.
 ///

@@ -168,3 +168,35 @@ mod header;
 mod read;
 mod request;
 pub mod response;
+
+#[cfg(feature = "actix")]
+use actix_http::{encoding, Payload, PayloadStream};
+use futures::Stream;
+#[cfg(feature = "hyper")]
+use hyper::{self, client::HttpConnector};
+#[cfg(feature = "hyper")]
+use hyper_tls::HttpsConnector;
+use response::Error;
+
+/// A future that returns a stream of responses.
+///
+#[cfg(feature = "actix")]
+pub(crate) type AsyncStreamResponse<T> = Box<dyn Stream<Item = Result<T, Error>> + Unpin + 'static>;
+#[cfg(feature = "hyper")]
+pub(crate) type AsyncStreamResponse<T> =
+    Box<dyn Stream<Item = Result<T, Error>> + Unpin + Send + 'static>;
+
+#[cfg(feature = "actix")]
+pub(crate) type Request = awc::ClientRequest;
+#[cfg(feature = "hyper")]
+pub(crate) type Request = http::Request<hyper::Body>;
+
+#[cfg(feature = "actix")]
+pub(crate) type Response = awc::ClientResponse<encoding::Decoder<Payload<PayloadStream>>>;
+#[cfg(feature = "hyper")]
+pub(crate) type Response = http::Response<hyper::Body>;
+
+#[cfg(feature = "actix")]
+pub(crate) type Client = awc::Client;
+#[cfg(feature = "hyper")]
+pub(crate) type Client = hyper::client::Client<HttpsConnector<HttpConnector>, hyper::Body>;
