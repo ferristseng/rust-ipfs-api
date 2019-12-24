@@ -7,15 +7,6 @@
 //
 
 use crate::serde::Deserialize;
-
-#[cfg(feature = "actix")]
-use awc;
-use http;
-#[cfg(feature = "hyper")]
-use hyper;
-use serde_json;
-use serde_urlencoded;
-use std;
 use std::string::FromUtf8Error;
 
 #[cfg_attr(feature = "actix", derive(Display), display(fmt = "{}", message))]
