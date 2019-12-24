@@ -1,6 +1,5 @@
 [workspace]
 
 members = [
-  "ipfs-api",
-  "ipfs-cli"
+  "ipfs-api"
 ]
