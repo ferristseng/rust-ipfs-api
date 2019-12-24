@@ -10,14 +10,14 @@ Rust library for connecting to the IPFS HTTP API using tokio.
 
 ```toml
 [dependencies]
-ipfs-api = "0.5.2"
+ipfs-api = "0.6.0"
 ```
 
 You can use `actix-web` as a backend instead of `hyper`.
 
 ```toml
 [dependencies]
-ipfs-api = { version = "0.5.2", features = ["actix"], default-features = false }
+ipfs-api = { version = "0.6.0", features = ["actix"], default-features = false }
 ```
 
 ### Examples
@@ -27,43 +27,37 @@ ipfs-api = { version = "0.5.2", features = ["actix"], default-features = false }
 ##### With Hyper
 
 ```rust
-#
-use hyper::rt::Future;
 use ipfs_api::IpfsClient;
 use std::io::Cursor;
 
-let client = IpfsClient::default();
-let data = Cursor::new("Hello World!");
+#[tokio::main]
+async fn main() {
+    let client = IpfsClient::default();
+    let data = Cursor::new("Hello World!");
 
-let req = client
-    .add(data)
-    .map(|res| {
-        println!("{}", res.hash);
-    })
-    .map_err(|e| eprintln!("{}", e));
-
-hyper::rt::run(req);
+    match client.add(data).await {
+        Ok(res) => println!("{}", res.hash),
+        Err(e) => eprintln!("error adding file: {}", e)
+    }
+}
 ```
 
 ##### With Actix
 
 ```rust
-#
-use futures::future::{Future, lazy};
 use ipfs_api::IpfsClient;
 use std::io::Cursor;
 
-let client = IpfsClient::default();
-let data = Cursor::new("Hello World!");
+#[actix_rt::main]
+async fn main() {
+    let client = IpfsClient::default();
+    let data = Cursor::new("Hello World!");
 
-let req = client
-    .add(data)
-    .map(|res| {
-        println!("{}", res.hash);
-    })
-    .map_err(|e| eprintln!("{}", e));
-
-actix_rt::System::new("test").block_on(req);
+    match client.add(data).await {
+        Ok(res) => println!("{}", res.hash),
+        Err(e) => eprintln!("error adding file: {}", e)
+    }
+}
 ```
 
 #### Reading a file from IPFS
@@ -71,49 +65,57 @@ actix_rt::System::new("test").block_on(req);
 ##### With Hyper
 
 ```rust
-#
-use futures::{Future, Stream};
+use futures::TryStreamExt;
 use ipfs_api::IpfsClient;
 use std::io::{self, Write};
 
-let client = IpfsClient::default();
+#[tokio::main]
+async fn main() {
+    let client = IpfsClient::default();
 
-let req = client
-    .get("/test/file.json")
-    .concat2()
-    .map(|res| {
-        let out = io::stdout();
-        let mut out = out.lock();
+    match client
+        .get("/test/file.json")
+        .map_ok(|chunk| chunk.to_vec())
+        .try_concat()
+        .await
+    {
+        Ok(res) => {
+            let out = io::stdout();
+            let mut out = out.lock();
 
-        out.write_all(&res).unwrap();
-    })
-    .map_err(|e| eprintln!("{}", e));
-
-hyper::rt::run(req);
+            out.write_all(&res).unwrap();
+        }
+        Err(e) => eprintln!("error getting file: {}", e)
+    }
+}
 ```
 
 ##### With Actix
 
 ```rust
-#
-use futures::{Future, lazy, Stream};
+use futures::TryStreamExt;
 use ipfs_api::IpfsClient;
 use std::io::{self, Write};
 
-let client = IpfsClient::default();
+#[actix_rt::main]
+async fn main() {
+    let client = IpfsClient::default();
 
-let req = client
-    .get("/test/file.json")
-    .concat2()
-    .map(|res| {
-        let out = io::stdout();
-        let mut out = out.lock();
+    match client
+        .get("/test/file.json")
+        .map_ok(|chunk| chunk.to_vec())
+        .try_concat()
+        .await
+    {
+        Ok(res) => {
+            let out = io::stdout();
+            let mut out = out.lock();
 
-        out.write_all(&res).unwrap();
-    })
-    .map_err(|e| eprintln!("{}", e));
-
-actix_rt::System::new("test").block_on(req);
+            out.write_all(&res).unwrap();
+        }
+        Err(e) => eprintln!("error getting file: {}", e)
+    }
+}
 ```
 
 #### Additional Examples
@@ -130,13 +132,7 @@ $ cargo run --example
 You can run any of the examples with cargo:
 
 ```sh
-$ cargo run -p ipfs-api --example add_file
-```
-
-To run an example with the `actix-web` backend, use:
-
-```sh
-$ cargo run -p ipfs-api --features actix --no-default-features --example add_file
+$ cargo run --example add_file
 ```
 
 

@@ -14,14 +14,14 @@
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = "0.5.2"
+//! ipfs-api = "0.6.0"
 //! ```
 //!
 //! You can use `actix-web` as a backend instead of `hyper`.
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = { version = "0.5.2", features = ["actix"], default-features = false }
+//! ipfs-api = { version = "0.6.0", features = ["actix"], default-features = false }
 //! ```
 //!
 //! ## Examples
@@ -136,13 +136,7 @@
 //! You can run any of the examples with cargo:
 //!
 //! ```sh
-//! $ cargo run -p ipfs-api --example add_file
-//! ```
-//!
-//! To run an example with the `actix-web` backend, use:
-//!
-//! ```sh
-//! $ cargo run -p ipfs-api --features actix --no-default-features --example add_file
+//! $ cargo run --example add_file
 //! ```
 //!
 
