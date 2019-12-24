@@ -472,16 +472,12 @@ impl IpfsClient {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     /// use std::io::Cursor;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
     /// let data = Cursor::new("Hello World!");
-    /// let req = client.add(data);
-    /// # }
+    /// let res = client.add(data);
     /// ```
     ///
     #[inline]
@@ -504,15 +500,11 @@ impl IpfsClient {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
     /// let path = "./src";
-    /// let req = client.add_path(path);
-    /// # }
+    /// let res = client.add_path(path);
     /// ```
     ///
     #[inline]
@@ -582,14 +574,10 @@ impl IpfsClient {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.bitswap_ledger("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ");
-    /// # }
+    /// let res = client.bitswap_ledger("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ");
     /// ```
     ///
     #[inline]
@@ -605,14 +593,10 @@ impl IpfsClient {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.bitswap_reprovide();
-    /// # }
+    /// let res = client.bitswap_reprovide();
     /// ```
     ///
     #[inline]
@@ -625,14 +609,10 @@ impl IpfsClient {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.bitswap_stat();
-    /// # }
+    /// let res = client.bitswap_stat();
     /// ```
     ///
     #[inline]
@@ -645,14 +625,10 @@ impl IpfsClient {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.bitswap_unwant("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
-    /// # }
+    /// let res = client.bitswap_unwant("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
     /// ```
     ///
     #[inline]
@@ -669,14 +645,12 @@ impl IpfsClient {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.bitswap_wantlist(Some("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ"));
-    /// # }
+    /// let res = client.bitswap_wantlist(
+    ///     Some("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ")
+    /// );
     /// ```
     ///
     #[inline]
@@ -692,17 +666,15 @@ impl IpfsClient {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate futures;
-    /// # extern crate ipfs_api;
-    /// #
-    /// use futures::Stream;
+    /// use futures::TryStreamExt;
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
     /// let hash = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
-    /// let req = client.block_get(hash).concat2();
-    /// # }
+    /// let res = client
+    ///     .block_get(hash)
+    ///     .map_ok(|chunk| chunk.to_vec())
+    ///     .try_concat();
     /// ```
     ///
     #[inline]
@@ -715,16 +687,12 @@ impl IpfsClient {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     /// use std::io::Cursor;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
     /// let data = Cursor::new("Hello World!");
-    /// let req = client.block_put(data);
-    /// # }
+    /// let res = client.block_put(data);
     /// ```
     ///
     #[inline]
@@ -744,14 +712,10 @@ impl IpfsClient {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.block_rm("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
-    /// # }
+    /// let res = client.block_rm("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
     /// ```
     ///
     #[inline]
@@ -764,14 +728,10 @@ impl IpfsClient {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.block_stat("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
-    /// # }
+    /// let res = client.block_stat("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
     /// ```
     ///
     #[inline]
@@ -784,14 +744,10 @@ impl IpfsClient {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.bootstrap_add_default();
-    /// # }
+    /// let res = client.bootstrap_add_default();
     /// ```
     ///
     #[inline]
@@ -806,14 +762,10 @@ impl IpfsClient {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.bootstrap_list();
-    /// # }
+    /// let res = client.bootstrap_list();
     /// ```
     ///
     #[inline]
@@ -826,14 +778,10 @@ impl IpfsClient {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.bootstrap_rm_all();
-    /// # }
+    /// let res = client.bootstrap_rm_all();
     /// ```
     ///
     #[inline]
@@ -846,17 +794,15 @@ impl IpfsClient {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate futures;
-    /// # extern crate ipfs_api;
-    /// #
-    /// use futures::Stream;
+    /// use futures::TryStreamExt;
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
     /// let hash = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
-    /// let req = client.cat(hash).concat2();
-    /// # }
+    /// let res = client
+    ///     .cat(hash)
+    ///     .map_ok(|chunk| chunk.to_vec())
+    ///     .try_concat();
     /// ```
     ///
     #[inline]
@@ -867,14 +813,10 @@ impl IpfsClient {
     /// List available commands that the server accepts.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.commands();
-    /// # }
+    /// let res = client.commands();
     /// ```
     ///
     #[inline]
@@ -885,14 +827,10 @@ impl IpfsClient {
     /// Opens the config file for editing (on the server).
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.config_edit();
-    /// # }
+    /// let res = client.config_edit();
     /// ```
     ///
     #[inline]
@@ -903,16 +841,12 @@ impl IpfsClient {
     /// Replace the config file.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     /// use std::io::Cursor;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
     /// let config = Cursor::new("{..json..}");
-    /// let req = client.config_replace(config);
-    /// # }
+    /// let res = client.config_replace(config);
     /// ```
     ///
     #[inline]
@@ -932,14 +866,10 @@ impl IpfsClient {
     /// Returns an unparsed json string, due to an unclear spec.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.config_show();
-    /// # }
+    /// let res = client.config_show();
     /// ```
     ///
     #[inline]
@@ -950,14 +880,10 @@ impl IpfsClient {
     /// Returns information about a dag node in Ipfs.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.dag_get("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
-    /// # }
+    /// let res = client.dag_get("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
     /// ```
     ///
     #[inline]
@@ -987,17 +913,12 @@ impl IpfsClient {
     /// Query the DHT for all of the multiaddresses associated with a Peer ID.
     ///
     /// ```no_run
-    /// # extern crate futures;
-    /// # extern crate ipfs_api;
-    /// #
-    /// use futures::Stream;
+    /// use futures::TryStreamExt;
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
     /// let peer = "QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM";
-    /// let req = client.dht_findpeer(peer).collect();
-    /// # }
+    /// let res = client.dht_findpeer(peer).try_collect::<Vec<_>>();
     /// ```
     ///
     #[inline]
@@ -1008,17 +929,12 @@ impl IpfsClient {
     /// Find peers in the DHT that can provide a specific value given a key.
     ///
     /// ```no_run
-    /// # extern crate futures;
-    /// # extern crate ipfs_api;
-    /// #
-    /// use futures::Stream;
+    /// use futures::TryStreamExt;
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
     /// let key = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
-    /// let req = client.dht_findprovs(key).collect();
-    /// # }
+    /// let res = client.dht_findprovs(key).try_collect::<Vec<_>>();
     /// ```
     ///
     #[inline]
@@ -1029,17 +945,12 @@ impl IpfsClient {
     /// Query the DHT for a given key.
     ///
     /// ```no_run
-    /// # extern crate futures;
-    /// # extern crate ipfs_api;
-    /// #
-    /// use futures::Stream;
+    /// use futures::TryStreamExt;
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
     /// let key = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
-    /// let req = client.dht_get(key).collect();
-    /// # }
+    /// let res = client.dht_get(key).try_collect::<Vec<_>>();
     /// ```
     ///
     #[inline]
@@ -1050,17 +961,12 @@ impl IpfsClient {
     /// Announce to the network that you are providing a given value.
     ///
     /// ```no_run
-    /// # extern crate futures;
-    /// # extern crate ipfs_api;
-    /// #
-    /// use futures::Stream;
+    /// use futures::TryStreamExt;
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
     /// let key = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
-    /// let req = client.dht_provide(key).collect();
-    /// # }
+    /// let res = client.dht_provide(key).try_collect::<Vec<_>>();
     /// ```
     ///
     #[inline]
@@ -1071,16 +977,11 @@ impl IpfsClient {
     /// Write a key/value pair to the DHT.
     ///
     /// ```no_run
-    /// # extern crate futures;
-    /// # extern crate ipfs_api;
-    /// #
-    /// use futures::Stream;
+    /// use futures::TryStreamExt;
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.dht_put("test", "Hello World!").collect();
-    /// # }
+    /// let res = client.dht_put("test", "Hello World!").try_collect::<Vec<_>>();
     /// ```
     ///
     #[inline]
@@ -1091,17 +992,12 @@ impl IpfsClient {
     /// Find the closest peer given the peer ID by querying the DHT.
     ///
     /// ```no_run
-    /// # extern crate futures;
-    /// # extern crate ipfs_api;
-    /// #
-    /// use futures::Stream;
+    /// use futures::TryStreamExt;
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
     /// let peer = "QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM";
-    /// let req = client.dht_query(peer).collect();
-    /// # }
+    /// let res = client.dht_query(peer).try_collect::<Vec<_>>();
     /// ```
     ///
     #[inline]
@@ -1112,14 +1008,10 @@ impl IpfsClient {
     /// Clear inactive requests from the log.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.diag_cmds_clear();
-    /// # }
+    /// let res = client.diag_cmds_clear();
     /// ```
     ///
     #[inline]
@@ -1130,14 +1022,10 @@ impl IpfsClient {
     /// Set how long to keep inactive requests in the log.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.diag_cmds_set_time("1m");
-    /// # }
+    /// let res = client.diag_cmds_set_time("1m");
     /// ```
     ///
     #[inline]
@@ -1156,14 +1044,10 @@ impl IpfsClient {
     /// an actual object.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.diag_sys();
-    /// # }
+    /// let res = client.diag_sys();
     /// ```
     ///
     #[inline]
@@ -1174,14 +1058,10 @@ impl IpfsClient {
     /// Resolve DNS link.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.dns("ipfs.io", true);
-    /// # }
+    /// let res = client.dns("ipfs.io", true);
     /// ```
     ///
     #[inline]
@@ -1192,14 +1072,10 @@ impl IpfsClient {
     /// List directory for Unix filesystem objects.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.file_ls("/ipns/ipfs.io");
-    /// # }
+    /// let res = client.file_ls("/ipns/ipfs.io");
     /// ```
     ///
     #[inline]
@@ -1210,14 +1086,10 @@ impl IpfsClient {
     /// Copy files into MFS.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.files_cp("/path/to/file", "/dest");
-    /// # }
+    /// let res = client.files_cp("/path/to/file", "/dest");
     /// ```
     ///
     #[inline]
@@ -1233,15 +1105,11 @@ impl IpfsClient {
     /// Flush a path's data to disk.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.files_flush(None);
-    /// let req = client.files_flush(Some("/tmp"));
-    /// # }
+    /// let res = client.files_flush(None);
+    /// let res = client.files_flush(Some("/tmp"));
     /// ```
     ///
     #[inline]
@@ -1255,15 +1123,11 @@ impl IpfsClient {
     /// List directories in MFS.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.files_ls(None);
-    /// let req = client.files_ls(Some("/tmp"));
-    /// # }
+    /// let res = client.files_ls(None);
+    /// let res = client.files_ls(Some("/tmp"));
     /// ```
     ///
     #[inline]
@@ -1274,15 +1138,11 @@ impl IpfsClient {
     /// Make directories in MFS.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.files_mkdir("/test", false);
-    /// let req = client.files_mkdir("/test/nested/dir", true);
-    /// # }
+    /// let res = client.files_mkdir("/test", false);
+    /// let res = client.files_mkdir("/test/nested/dir", true);
     /// ```
     ///
     #[inline]
@@ -1298,14 +1158,10 @@ impl IpfsClient {
     /// Copy files into MFS.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.files_mv("/test/tmp.json", "/test/file.json");
-    /// # }
+    /// let res = client.files_mv("/test/tmp.json", "/test/file.json");
     /// ```
     ///
     #[inline]
@@ -1321,14 +1177,10 @@ impl IpfsClient {
     /// Read a file in MFS.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.files_read("/test/file.json");
-    /// # }
+    /// let res = client.files_read("/test/file.json");
     /// ```
     ///
     #[inline]
@@ -1339,15 +1191,11 @@ impl IpfsClient {
     /// Remove a file in MFS.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.files_rm("/test/dir", true);
-    /// let req = client.files_rm("/test/file.json", false);
-    /// # }
+    /// let res = client.files_rm("/test/dir", true);
+    /// let res = client.files_rm("/test/file.json", false);
     /// ```
     ///
     #[inline]
@@ -1363,14 +1211,10 @@ impl IpfsClient {
     /// Display a file's status in MDFS.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.files_stat("/test/file.json");
-    /// # }
+    /// let res = client.files_stat("/test/file.json");
     /// ```
     ///
     #[inline]
@@ -1381,16 +1225,12 @@ impl IpfsClient {
     /// Write to a mutable file in the filesystem.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     /// use std::fs::File;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
     /// let file = File::open("test.json").unwrap();
-    /// let req = client.files_write("/test/file.json", true, true, file);
-    /// # }
+    /// let res = client.files_write("/test/file.json", true, true, file);
     /// ```
     ///
     #[inline]
@@ -1422,14 +1262,10 @@ impl IpfsClient {
     /// List blocks that are both in the filestore and standard block storage.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.filestore_dups();
-    /// # }
+    /// let res = client.filestore_dups();
     /// ```
     ///
     #[inline]
@@ -1440,14 +1276,12 @@ impl IpfsClient {
     /// List objects in filestore.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.filestore_ls(Some("QmYPP3BovR2m8UqCZxFbdXSit6SKgExxDkFAPLqiGsap4X"));
-    /// # }
+    /// let res = client.filestore_ls(
+    ///     Some("QmYPP3BovR2m8UqCZxFbdXSit6SKgExxDkFAPLqiGsap4X")
+    /// );
     /// ```
     ///
     #[inline]
@@ -1461,14 +1295,10 @@ impl IpfsClient {
     /// Verify objects in filestore.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.filestore_verify(None);
-    /// # }
+    /// let res = client.filestore_verify(None);
     /// ```
     ///
     #[inline]
@@ -1482,14 +1312,10 @@ impl IpfsClient {
     /// Download Ipfs object.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.get("/test/file.json");
-    /// # }
+    /// let res = client.get("/test/file.json");
     /// ```
     ///
     #[inline]
@@ -1502,15 +1328,11 @@ impl IpfsClient {
     /// If `peer` is `None`, returns information about you.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.id(None);
-    /// let req = client.id(Some("QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM"));
-    /// # }
+    /// let res = client.id(None);
+    /// let res = client.id(Some("QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM"));
     /// ```
     ///
     #[inline]
@@ -1521,14 +1343,10 @@ impl IpfsClient {
     /// Create a new keypair.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::{IpfsClient, KeyType};
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.key_gen("test", KeyType::Rsa, 64);
-    /// # }
+    /// let res = client.key_gen("test", KeyType::Rsa, 64);
     /// ```
     ///
     #[inline]
@@ -1545,14 +1363,10 @@ impl IpfsClient {
     /// List all local keypairs.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.key_list();
-    /// # }
+    /// let res = client.key_list();
     /// ```
     ///
     #[inline]
@@ -1563,14 +1377,10 @@ impl IpfsClient {
     /// Rename a keypair.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.key_rename("key_0", "new_name", false);
-    /// # }
+    /// let res = client.key_rename("key_0", "new_name", false);
     /// ```
     ///
     #[inline]
@@ -1587,14 +1397,10 @@ impl IpfsClient {
     /// Remove a keypair.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.key_rm("key_0");
-    /// # }
+    /// let res = client.key_rm("key_0");
     /// ```
     ///
     #[inline]
@@ -1605,18 +1411,15 @@ impl IpfsClient {
     /// Change the logging level for a logger.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::{IpfsClient, Logger, LoggingLevel};
     /// use std::borrow::Cow;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.log_level(Logger::All, LoggingLevel::Debug);
-    /// let req = client.log_level(
+    /// let res = client.log_level(Logger::All, LoggingLevel::Debug);
+    /// let res = client.log_level(
     ///     Logger::Specific(Cow::Borrowed("web")),
-    ///     LoggingLevel::Warning);
-    /// # }
+    ///     LoggingLevel::Warning
+    /// );
     /// ```
     ///
     #[inline]
@@ -1632,14 +1435,10 @@ impl IpfsClient {
     /// List all logging subsystems.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.log_ls();
-    /// # }
+    /// let res = client.log_ls();
     /// ```
     ///
     #[inline]
@@ -1657,7 +1456,7 @@ impl IpfsClient {
     ///
     /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.log_tail();
+    /// let res = client.log_tail();
     /// # }
     /// ```
     ///
@@ -1688,15 +1487,11 @@ impl IpfsClient {
     /// List the contents of an Ipfs multihash.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.ls(None);
-    /// let req = client.ls(Some("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY"));
-    /// # }
+    /// let res = client.ls(None);
+    /// let res = client.ls(Some("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY"));
     /// ```
     ///
     #[inline]
@@ -1709,19 +1504,16 @@ impl IpfsClient {
     /// Publish an IPFS path to IPNS.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.name_publish(
+    /// let res = client.name_publish(
     ///     "/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY",
     ///     false,
     ///     Some("12h"),
     ///     None,
-    ///     None);
-    /// # }
+    ///     None
+    /// );
     /// ```
     ///
     pub async fn name_publish(
@@ -1748,17 +1540,14 @@ impl IpfsClient {
     /// Resolve an IPNS name.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.name_resolve(
+    /// let res = client.name_resolve(
     ///     Some("/ipns/ipfs.io"),
     ///     true,
-    ///     false);
-    /// # }
+    ///     false
+    /// );
     /// ```
     ///
     pub async fn name_resolve(
@@ -1781,14 +1570,10 @@ impl IpfsClient {
     /// Output the raw bytes of an Ipfs object.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.object_data("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
-    /// # }
+    /// let res = client.object_data("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
     /// ```
     ///
     #[inline]
@@ -1799,16 +1584,13 @@ impl IpfsClient {
     /// Returns the diff of two Ipfs objects.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.object_diff(
+    /// let res = client.object_diff(
     ///     "/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY",
-    ///     "/ipfs/QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
-    /// # }
+    ///     "/ipfs/QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA"
+    /// );
     /// ```
     ///
     #[inline]
@@ -1823,14 +1605,10 @@ impl IpfsClient {
     /// Returns the data in an object.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.object_get("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
-    /// # }
+    /// let res = client.object_get("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
     /// ```
     ///
     #[inline]
@@ -1841,14 +1619,10 @@ impl IpfsClient {
     /// Returns the links that an object points to.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.object_links("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
-    /// # }
+    /// let res = client.object_links("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
     /// ```
     ///
     #[inline]
@@ -1859,15 +1633,11 @@ impl IpfsClient {
     /// Create a new object.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::{IpfsClient, ObjectTemplate};
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.object_new(None);
-    /// let req = client.object_new(Some(ObjectTemplate::UnixFsDir));
-    /// # }
+    /// let res = client.object_new(None);
+    /// let res = client.object_new(Some(ObjectTemplate::UnixFsDir));
     /// ```
     ///
     #[inline]
@@ -1891,14 +1661,10 @@ impl IpfsClient {
     /// Returns the stats for an object.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.object_stat("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
-    /// # }
+    /// let res = client.object_stat("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
     /// ```
     ///
     #[inline]
@@ -1930,14 +1696,10 @@ impl IpfsClient {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.pin_add("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ", true);
-    /// # }
+    /// let res = client.pin_add("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ", true);
     /// ```
     #[inline]
     pub async fn pin_add(
@@ -1959,18 +1721,15 @@ impl IpfsClient {
     /// Returns a list of pinned objects in local storage.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.pin_ls(None, None);
-    /// let req = client.pin_ls(
+    /// let res = client.pin_ls(None, None);
+    /// let res = client.pin_ls(
     ///     Some("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY"),
-    ///     None);
-    /// let req = client.pin_ls(None, Some("direct"));
-    /// # }
+    ///     None
+    /// );
+    /// let res = client.pin_ls(None, Some("direct"));
     /// ```
     ///
     #[inline]
@@ -1985,19 +1744,17 @@ impl IpfsClient {
     /// Removes a pinned object from local storage.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.pin_rm(
+    /// let res = client.pin_rm(
     ///     "/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY",
-    ///     false);
-    /// let req = client.pin_rm(
+    ///     false
+    /// );
+    /// let res = client.pin_rm(
     ///     "/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY",
-    ///     true);
-    /// # }
+    ///     true
+    /// );
     /// ```
     ///
     #[inline]
@@ -2016,15 +1773,11 @@ impl IpfsClient {
     /// Pings a peer.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.ping("QmSoLV4Bbm51jM9C4gDYZQ9Cy3U6aXMJDAbzgu2fzaDs64", None);
-    /// let req = client.ping("QmSoLV4Bbm51jM9C4gDYZQ9Cy3U6aXMJDAbzgu2fzaDs64", Some(15));
-    /// # }
+    /// let res = client.ping("QmSoLV4Bbm51jM9C4gDYZQ9Cy3U6aXMJDAbzgu2fzaDs64", None);
+    /// let res = client.ping("QmSoLV4Bbm51jM9C4gDYZQ9Cy3U6aXMJDAbzgu2fzaDs64", Some(15));
     /// ```
     ///
     #[inline]
@@ -2039,14 +1792,10 @@ impl IpfsClient {
     /// List subscribed pubsub topics.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.pubsub_ls();
-    /// # }
+    /// let res = client.pubsub_ls();
     /// ```
     ///
     #[inline]
@@ -2057,15 +1806,11 @@ impl IpfsClient {
     /// List peers that are being published to.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.pubsub_peers(None);
-    /// let req = client.pubsub_peers(Some("feed"));
-    /// # }
+    /// let res = client.pubsub_peers(None);
+    /// let res = client.pubsub_peers(Some("feed"));
     /// ```
     ///
     #[inline]
@@ -2079,14 +1824,10 @@ impl IpfsClient {
     /// Publish a message to a topic.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.pubsub_pub("feed", "Hello World!");
-    /// # }
+    /// let res = client.pubsub_pub("feed", "Hello World!");
     /// ```
     ///
     #[inline]
@@ -2102,15 +1843,11 @@ impl IpfsClient {
     /// Subscribes to a pubsub topic.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.pubsub_sub("feed", false);
-    /// let req = client.pubsub_sub("feed", true);
-    /// # }
+    /// let res = client.pubsub_sub("feed", false);
+    /// let res = client.pubsub_sub("feed", true);
     /// ```
     ///
     #[inline]
@@ -2125,14 +1862,10 @@ impl IpfsClient {
     /// Gets a list of local references.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.refs_local();
-    /// # }
+    /// let res = client.refs_local();
     /// ```
     ///
     #[inline]
@@ -2155,14 +1888,10 @@ impl IpfsClient {
     /// Shutdown the Ipfs daemon.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.shutdown();
-    /// # }
+    /// let res = client.shutdown();
     /// ```
     ///
     pub async fn shutdown(&self) -> Result<response::ShutdownResponse, Error> {
@@ -2172,14 +1901,10 @@ impl IpfsClient {
     /// Returns bitswap stats.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.stats_bitswap();
-    /// # }
+    /// let res = client.stats_bitswap();
     /// ```
     ///
     #[inline]
@@ -2190,14 +1915,10 @@ impl IpfsClient {
     /// Returns bandwidth stats.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.stats_bw();
-    /// # }
+    /// let res = client.stats_bw();
     /// ```
     ///
     #[inline]
@@ -2208,14 +1929,10 @@ impl IpfsClient {
     /// Returns repo stats.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.stats_repo();
-    /// # }
+    /// let res = client.stats_repo();
     /// ```
     ///
     #[inline]
@@ -2228,14 +1945,10 @@ impl IpfsClient {
     /// Return a list of local addresses.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.swarm_addrs_local();
-    /// # }
+    /// let res = client.swarm_addrs_local();
     /// ```
     ///
     #[inline]
@@ -2254,14 +1967,10 @@ impl IpfsClient {
     /// Return a list of peers with open connections.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.swarm_peers();
-    /// # }
+    /// let res = client.swarm_peers();
     /// ```
     ///
     #[inline]
@@ -2275,16 +1984,12 @@ impl IpfsClient {
     /// an error.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     /// use std::fs::File;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
     /// let tar = File::open("/path/to/file.tar").unwrap();
-    /// let req = client.tar_add(tar);
-    /// # }
+    /// let res = client.tar_add(tar);
     /// ```
     ///
     #[inline]
@@ -2302,14 +2007,10 @@ impl IpfsClient {
     /// Export a tar file from Ipfs.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.tar_cat("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
-    /// # }
+    /// let res = client.tar_cat("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
     /// ```
     ///
     #[inline]
@@ -2320,14 +2021,10 @@ impl IpfsClient {
     /// Returns information about the Ipfs server version.
     ///
     /// ```no_run
-    /// # extern crate ipfs_api;
-    /// #
     /// use ipfs_api::IpfsClient;
     ///
-    /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let req = client.version();
-    /// # }
+    /// let res = client.version();
     /// ```
     ///
     #[inline]

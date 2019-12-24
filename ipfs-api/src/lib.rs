@@ -31,54 +31,37 @@
 //! #### With Hyper
 //!
 //! ```no_run
-//! # extern crate hyper;
-//! # extern crate ipfs_api;
-//! #
-//! use hyper::rt::Future;
 //! use ipfs_api::IpfsClient;
 //! use std::io::Cursor;
 //!
-//! # fn main() {
-//! let client = IpfsClient::default();
-//! let data = Cursor::new("Hello World!");
+//! #[tokio::main]
+//! async fn main() {
+//!     let client = IpfsClient::default();
+//!     let data = Cursor::new("Hello World!");
 //!
-//! let req = client
-//!     .add(data)
-//!     .map(|res| {
-//!         println!("{}", res.hash);
-//!     })
-//!     .map_err(|e| eprintln!("{}", e));
-//!
-//! # #[cfg(feature = "hyper")]
-//! hyper::rt::run(req);
-//! # }
+//!     match client.add(data).await {
+//!         Ok(res) => println!("{}", res.hash),
+//!         Err(e) => eprintln!("error adding file: {}", e)
+//!     }
+//! }
 //! ```
 //!
 //! #### With Actix
 //!
 //! ```no_run
-//! # extern crate actix_rt;
-//! # extern crate futures;
-//! # extern crate ipfs_api;
-//! #
-//! use futures::future::{Future, lazy};
 //! use ipfs_api::IpfsClient;
 //! use std::io::Cursor;
 //!
-//! # fn main() {
-//! let client = IpfsClient::default();
-//! let data = Cursor::new("Hello World!");
+//! #[actix_rt::main]
+//! async fn main() {
+//!     let client = IpfsClient::default();
+//!     let data = Cursor::new("Hello World!");
 //!
-//! let req = client
-//!     .add(data)
-//!     .map(|res| {
-//!         println!("{}", res.hash);
-//!     })
-//!     .map_err(|e| eprintln!("{}", e));
-//!
-//! # #[cfg(feature = "actix")]
-//! actix_rt::System::new("test").block_on(req);
-//! # }
+//!     match client.add(data).await {
+//!         Ok(res) => println!("{}", res.hash),
+//!         Err(e) => eprintln!("error adding file: {}", e)
+//!     }
+//! }
 //! ```
 //!
 //! ### Reading a file from IPFS
@@ -86,61 +69,57 @@
 //! #### With Hyper
 //!
 //! ```no_run
-//! # extern crate futures;
-//! # extern crate hyper;
-//! # extern crate ipfs_api;
-//! #
-//! use futures::{Future, Stream};
+//! use futures::TryStreamExt;
 //! use ipfs_api::IpfsClient;
 //! use std::io::{self, Write};
 //!
-//! # fn main() {
-//! let client = IpfsClient::default();
+//! #[tokio::main]
+//! async fn main() {
+//!     let client = IpfsClient::default();
 //!
-//! let req = client
-//!     .get("/test/file.json")
-//!     .concat2()
-//!     .map(|res| {
-//!         let out = io::stdout();
-//!         let mut out = out.lock();
+//!     match client
+//!         .get("/test/file.json")
+//!         .map_ok(|chunk| chunk.to_vec())
+//!         .try_concat()
+//!         .await
+//!     {
+//!         Ok(res) => {
+//!             let out = io::stdout();
+//!             let mut out = out.lock();
 //!
-//!         out.write_all(&res).unwrap();
-//!     })
-//!     .map_err(|e| eprintln!("{}", e));
-//!
-//! # #[cfg(feature = "hyper")]
-//! hyper::rt::run(req);
-//! # }
+//!             out.write_all(&res).unwrap();
+//!         }
+//!         Err(e) => eprintln!("error getting file: {}", e)
+//!     }
+//! }
 //! ```
 //!
 //! #### With Actix
 //!
 //! ```no_run
-//! # extern crate actix_rt;
-//! # extern crate futures;
-//! # extern crate ipfs_api;
-//! #
-//! use futures::{Future, lazy, Stream};
+//! use futures::TryStreamExt;
 //! use ipfs_api::IpfsClient;
 //! use std::io::{self, Write};
 //!
-//! # fn main() {
-//! let client = IpfsClient::default();
+//! #[actix_rt::main]
+//! async fn main() {
+//!     let client = IpfsClient::default();
 //!
-//! let req = client
-//!     .get("/test/file.json")
-//!     .concat2()
-//!     .map(|res| {
-//!         let out = io::stdout();
-//!         let mut out = out.lock();
+//!     match client
+//!         .get("/test/file.json")
+//!         .map_ok(|chunk| chunk.to_vec())
+//!         .try_concat()
+//!         .await
+//!     {
+//!         Ok(res) => {
+//!             let out = io::stdout();
+//!             let mut out = out.lock();
 //!
-//!         out.write_all(&res).unwrap();
-//!     })
-//!     .map_err(|e| eprintln!("{}", e));
-//!
-//! # #[cfg(feature = "actix")]
-//! actix_rt::System::new("test").block_on(req);
-//! # }
+//!             out.write_all(&res).unwrap();
+//!         }
+//!         Err(e) => eprintln!("error getting file: {}", e)
+//!     }
+//! }
 //! ```
 //!
 //! ### Additional Examples
