@@ -12,7 +12,8 @@ use ipfs_api::{response::PingResponse, IpfsClient};
 // Creates an Ipfs client, discovers a connected peer, and pings it using the
 // streaming Api, and by collecting it into a collection.
 //
-#[tokio::main]
+#[cfg_attr(feature = "actix", actix_rt::main)]
+#[cfg_attr(feature = "hyper", tokio::main)]
 async fn main() {
     eprintln!("connecting to localhost:5001...");
 

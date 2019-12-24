@@ -13,7 +13,8 @@ const IPFS_IPNS: &str = "/ipns/ipfs.io";
 // Creates an Ipfs client, and resolves the Ipfs domain name, and
 // publishes a path to Ipns.
 //
-#[tokio::main]
+#[cfg_attr(feature = "actix", actix_rt::main)]
+#[cfg_attr(feature = "hyper", tokio::main)]
 async fn main() {
     eprintln!("connecting to localhost:5001...");
 

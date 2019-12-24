@@ -11,7 +11,8 @@ use ipfs_api::IpfsClient;
 
 // Tails the log of IPFS.
 //
-#[tokio::main]
+#[cfg_attr(feature = "actix", actix_rt::main)]
+#[cfg_attr(feature = "hyper", tokio::main)]
 async fn main() {
     eprintln!("connecting to localhost:5001...");
 
