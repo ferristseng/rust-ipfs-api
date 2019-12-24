@@ -6,78 +6,81 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use futures::Future;
 use ipfs_api::{response, IpfsClient};
 use std::fs::File;
-use tokio::runtime::current_thread::Runtime;
 
 fn print_stat(stat: response::FilesStatResponse) {
-    println!("  type     : {}", stat.typ);
-    println!("  hash     : {}", stat.hash);
-    println!("  size     : {}", stat.size);
-    println!("  cum. size: {}", stat.cumulative_size);
-    println!("  blocks   : {}", stat.blocks);
-    println!();
+    eprintln!("  type     : {}", stat.typ);
+    eprintln!("  hash     : {}", stat.hash);
+    eprintln!("  size     : {}", stat.size);
+    eprintln!("  cum. size: {}", stat.cumulative_size);
+    eprintln!("  blocks   : {}", stat.blocks);
+    eprintln!();
 }
 
 // Creates an Ipfs client, and makes some calls to the Mfs Api.
 //
-fn main() {
-    println!("note: this must be run in the root of the project repository");
-    println!("connecting to localhost:5001...");
+#[tokio::main]
+async fn main() {
+    eprintln!("note: this must be run in the root of the project repository");
+    eprintln!("connecting to localhost:5001...");
 
     let client = IpfsClient::default();
 
-    println!("making /test...");
-    println!();
+    eprintln!("making /test...");
+    eprintln!();
 
-    let mkdir = client.files_mkdir("/test", false);
-    let mkdir_recursive = client.files_mkdir("/test/does/not/exist/yet", true);
+    if let Err(e) = client.files_mkdir("/test", false).await {
+        eprintln!("error making /test: {}", e);
+        return;
+    }
 
-    let file_stat = client.files_stat("/test/does");
+    eprintln!("making dirs /test/does/not/exist/yet...");
+    eprintln!();
+
+    if let Err(e) = client.files_mkdir("/test/does/not/exist/yet", true).await {
+        eprintln!("error making /test/does/not/exist/yet: {}", e);
+        return;
+    }
+
+    eprintln!("getting status of /test/does...");
+    eprintln!();
+
+    match client.files_stat("/test/does").await {
+        Ok(stat) => print_stat(stat),
+        Err(e) => {
+            eprintln!("error getting status of /test/does: {}", e);
+            return;
+        }
+    }
+
+    eprintln!("writing source file to /test/mfs.rs");
+    eprintln!();
 
     let src = File::open(file!()).expect("could not read source file");
-    let file_write = client.files_write("/test/mfs.rs", true, true, src);
 
-    let file_write_stat = client.files_stat("/test/mfs.rs");
+    if let Err(e) = client.files_write("/test/mfs.rs", true, true, src).await {
+        eprintln!("error writing source file /test/mfs.rs: {}", e);
+        return;
+    }
 
-    let file_rm = client.files_rm("/test", true);
+    eprintln!("getting status of /test/mfs.rs...");
+    eprintln!();
 
-    let fut = mkdir
-        .and_then(|_| {
-            println!("making dirs /test/does/not/exist/yet...");
-            println!();
+    match client.files_stat("/test/mfs.rs").await {
+        Ok(stat) => print_stat(stat),
+        Err(e) => {
+            eprintln!("error getting status of /test/mfs.rs: {}", e);
+            return;
+        }
+    }
 
-            mkdir_recursive
-        })
-        .and_then(|_| {
-            println!("getting status of /test/does...");
-            println!();
+    eprintln!("removing /test...");
+    eprintln!();
 
-            file_stat
-        })
-        .and_then(|stat| {
-            print_stat(stat);
+    if let Err(e) = client.files_rm("/test", true).await {
+        eprintln!("error removing /test: {}", e);
+    }
 
-            println!("writing source file to /test/mfs.rs");
-            println!();
-
-            file_write
-        })
-        .and_then(|_| file_write_stat)
-        .and_then(|stat| {
-            print_stat(stat);
-
-            println!("removing /test...");
-            println!();
-
-            file_rm
-        })
-        .map(|_| println!("done!"))
-        .map_err(|e| eprintln!("{}", e));
-
-    Runtime::new()
-        .expect("tokio runtime")
-        .block_on(fut)
-        .expect("successful response");
+    eprintln!("done!");
 }

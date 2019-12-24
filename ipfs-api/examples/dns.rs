@@ -16,7 +16,7 @@ async fn main() {
 
     let client = IpfsClient::default();
 
-    let dns = match client.dns("ipfs.io", false).await {
+    let dns = match client.dns("ipfs.io", true).await {
         Ok(dns) => {
             eprintln!("dns resolves to ({})", &dns.path);
             eprintln!();
@@ -29,13 +29,11 @@ async fn main() {
         }
     };
 
-    match client.file_ls(&dns.path[..]).await {
+    match client.object_get(&dns.path[..]).await {
         Ok(contents) => {
             eprintln!("found contents:");
-            for directory in contents.objects.values() {
-                for file in directory.links.iter() {
-                    eprintln!("[{}] ({} bytes)", file.name, file.size);
-                }
+            for link in contents.links.iter() {
+                eprintln!("[{}] ({} bytes)", link.name, link.size);
             }
         }
         Err(e) => eprintln!("error listing path: {}", e),

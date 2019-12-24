@@ -6,24 +6,18 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use futures::Future;
 use ipfs_api::IpfsClient;
-use tokio::runtime::current_thread::Runtime;
 
 // Creates an Ipfs client, and gets the version of the Ipfs server.
 //
-fn main() {
-    println!("connecting to localhost:5001...");
+#[tokio::main]
+async fn main() {
+    eprintln!("connecting to localhost:5001...");
 
     let client = IpfsClient::default();
-    let req = client
-        .version()
-        .map(|version| println!("version: {:?}", version.version));
 
-    let fut = req.map_err(|e| eprintln!("{}", e));
-
-    Runtime::new()
-        .expect("tokio runtime")
-        .block_on(fut)
-        .expect("successful response");
+    match client.version().await {
+        Ok(version) => eprintln!("version: {:?}", version.version),
+        Err(e) => eprintln!("error getting version: {}", e),
+    }
 }
