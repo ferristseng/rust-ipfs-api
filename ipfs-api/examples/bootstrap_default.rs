@@ -42,6 +42,7 @@ async fn main() {
         }
         Err(e) => {
             eprintln!("error dropping bootstrap peers: {}", e);
+            return;
         }
     }
 
