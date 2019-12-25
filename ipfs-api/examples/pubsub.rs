@@ -41,9 +41,9 @@ async fn main() {
             eprintln!();
             eprintln!("publishing message...");
 
-            publish_client.pubsub_pub(TOPIC, "Hello World!")
+            publish_client.pubsub_pub(TOPIC, "Hello World!").boxed_local()
         })
-        .boxed()
+        .boxed_local()
         .fuse();
 
     // This block will execute a future that suscribes to a topic,
