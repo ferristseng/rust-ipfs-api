@@ -41,7 +41,9 @@ async fn main() {
             eprintln!();
             eprintln!("publishing message...");
 
-            publish_client.pubsub_pub(TOPIC, "Hello World!").boxed_local()
+            publish_client
+                .pubsub_pub(TOPIC, "Hello World!")
+                .boxed_local()
         })
         .boxed_local()
         .fuse();
