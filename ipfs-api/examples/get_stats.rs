@@ -6,58 +6,57 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use futures::Future;
 use ipfs_api::IpfsClient;
-use tokio::runtime::current_thread::Runtime;
 
 // Creates an Ipfs client, and gets some stats about the Ipfs server.
 //
-fn main() {
-    println!("connecting to localhost:5001...");
+#[cfg_attr(feature = "actix", actix_rt::main)]
+#[cfg_attr(feature = "hyper", tokio::main)]
+async fn main() {
+    eprintln!("connecting to localhost:5001...");
 
     let client = IpfsClient::default();
 
-    let bitswap_stats = client.stats_bitswap().map(|bitswap_stats| {
-        println!("bitswap stats:");
-        println!("  blocks recv: {}", bitswap_stats.blocks_received);
-        println!("  data   recv: {}", bitswap_stats.data_received);
-        println!("  blocks sent: {}", bitswap_stats.blocks_sent);
-        println!("  data   sent: {}", bitswap_stats.data_sent);
-        println!(
-            "  peers:       {}",
-            bitswap_stats.peers.join("\n               ")
-        );
-        println!(
-            "  wantlist:    {}",
-            bitswap_stats.wantlist.join("\n               ")
-        );
-        println!();
-    });
+    match client.stats_bitswap().await {
+        Ok(bitswap_stats) => {
+            eprintln!("bitswap stats:");
+            eprintln!("  blocks recv: {}", bitswap_stats.blocks_received);
+            eprintln!("  data   recv: {}", bitswap_stats.data_received);
+            eprintln!("  blocks sent: {}", bitswap_stats.blocks_sent);
+            eprintln!("  data   sent: {}", bitswap_stats.data_sent);
+            eprintln!(
+                "  peers:       {}",
+                bitswap_stats.peers.join("\n               ")
+            );
+            eprintln!(
+                "  wantlist:    {}",
+                bitswap_stats.wantlist.join("\n               ")
+            );
+            eprintln!();
+        }
+        Err(e) => eprintln!("error getting bitswap stats: {}", e),
+    }
 
-    let bw_stats = client.stats_bw().map(|bw_stats| {
-        println!("bandwidth stats:");
-        println!("  total    in: {}", bw_stats.total_in);
-        println!("  total   out: {}", bw_stats.total_out);
-        println!("  rate     in: {}", bw_stats.rate_in);
-        println!("  rate    out: {}", bw_stats.rate_out);
-        println!();
-    });
+    match client.stats_bw().await {
+        Ok(bw_stats) => {
+            eprintln!("bandwidth stats:");
+            eprintln!("  total    in: {}", bw_stats.total_in);
+            eprintln!("  total   out: {}", bw_stats.total_out);
+            eprintln!("  rate     in: {}", bw_stats.rate_in);
+            eprintln!("  rate    out: {}", bw_stats.rate_out);
+            eprintln!();
+        }
+        Err(e) => eprintln!("error getting bandwidth stats: {}", e),
+    }
 
-    let repo_stats = client.stats_repo().map(|repo_stats| {
-        println!("repo stats:");
-        println!("  num    objs: {}", repo_stats.num_objects);
-        println!("  repo   size: {}", repo_stats.repo_size);
-        println!("  repo   path: {}", repo_stats.repo_path);
-        println!("  version    : {}", repo_stats.version);
-    });
-
-    let fut = bitswap_stats
-        .and_then(|_| bw_stats)
-        .and_then(|_| repo_stats)
-        .map_err(|e| eprintln!("{}", e));
-
-    Runtime::new()
-        .expect("tokio runtime")
-        .block_on(fut)
-        .expect("successful response");
+    match client.stats_repo().await {
+        Ok(repo_stats) => {
+            eprintln!("repo stats:");
+            eprintln!("  num    objs: {}", repo_stats.num_objects);
+            eprintln!("  repo   size: {}", repo_stats.repo_size);
+            eprintln!("  repo   path: {}", repo_stats.repo_path);
+            eprintln!("  version    : {}", repo_stats.version);
+        }
+        Err(e) => eprintln!("error getting repo stats: {}", e),
+    }
 }

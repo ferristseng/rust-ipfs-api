@@ -6,37 +6,37 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use futures::Future;
 use ipfs_api::IpfsClient;
-use tokio::runtime::current_thread::Runtime;
 
 // Creates an Ipfs client, resolves ipfs.io, and lists the contents of it.
 //
-fn main() {
-    println!("connecting to localhost:5001...");
+#[cfg_attr(feature = "actix", actix_rt::main)]
+#[cfg_attr(feature = "hyper", tokio::main)]
+async fn main() {
+    eprintln!("connecting to localhost:5001...");
 
     let client = IpfsClient::default();
 
-    let req = client
-        .dns("ipfs.io", false)
-        .and_then(move |dns| {
-            println!("dns resolves to ({})", &dns.path);
-            println!();
+    let dns = match client.dns("ipfs.io", true).await {
+        Ok(dns) => {
+            eprintln!("dns resolves to ({})", &dns.path);
+            eprintln!();
 
-            client.file_ls(&dns.path[..])
-        })
-        .map(|contents| {
-            println!("found contents:");
-            for directory in contents.objects.values() {
-                for file in directory.links.iter() {
-                    println!("[{}] ({} bytes)", file.name, file.size);
-                }
+            dns
+        }
+        Err(e) => {
+            eprintln!("error resolving dns: {}", e);
+            return;
+        }
+    };
+
+    match client.object_get(&dns.path[..]).await {
+        Ok(contents) => {
+            eprintln!("found contents:");
+            for link in contents.links.iter() {
+                eprintln!("[{}] ({} bytes)", link.name, link.size);
             }
-        })
-        .map_err(|e| eprintln!("{}", e));
-
-    Runtime::new()
-        .expect("tokio runtime")
-        .block_on(req)
-        .expect("successful response");
+        }
+        Err(e) => eprintln!("error listing path: {}", e),
+    }
 }

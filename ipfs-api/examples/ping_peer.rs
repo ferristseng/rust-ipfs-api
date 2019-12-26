@@ -6,58 +6,64 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use futures::{Future, Stream};
+use futures::{future, TryStreamExt};
 use ipfs_api::{response::PingResponse, IpfsClient};
-use tokio::runtime::current_thread::Runtime;
 
 // Creates an Ipfs client, discovers a connected peer, and pings it using the
 // streaming Api, and by collecting it into a collection.
 //
-fn main() {
-    println!("connecting to localhost:5001...");
+#[cfg_attr(feature = "actix", actix_rt::main)]
+#[cfg_attr(feature = "hyper", tokio::main)]
+async fn main() {
+    eprintln!("connecting to localhost:5001...");
 
     let client = IpfsClient::default();
 
-    println!();
-    println!("discovering connected peers...");
+    eprintln!();
+    eprintln!("discovering connected peers...");
 
-    let req = client
-        .swarm_peers()
-        .and_then(move |connected| {
-            let peer = connected
-                .peers
-                .iter()
-                .next()
-                .expect("expected at least one peer");
+    let peer = match client.swarm_peers().await {
+        Ok(connected) => connected
+            .peers
+            .into_iter()
+            .next()
+            .expect("expected at least one peer"),
+        Err(e) => {
+            eprintln!("error getting connected peers: {}", e);
+            return;
+        }
+    };
 
-            println!();
-            println!("discovered peer ({})", peer.peer);
-            println!();
-            println!("streaming 10 pings...");
+    eprintln!();
+    eprintln!("discovered peer ({})", peer.peer);
+    eprintln!();
+    eprintln!("streaming 10 pings...");
 
-            let ping_stream = client.ping(&peer.peer[..], Some(10)).for_each(|ping| {
-                println!("{:?}", ping);
-                Ok(())
-            });
+    if let Err(e) = client
+        .ping(&peer.peer[..], Some(10))
+        .try_for_each(|ping| {
+            eprintln!("{:?}", ping);
 
-            let ping_gather = client.ping(&peer.peer[..], Some(15)).collect();
-
-            ping_stream.and_then(|_| {
-                println!();
-                println!("gathering 15 pings...");
-
-                ping_gather
-            })
+            future::ok(())
         })
-        .map(|pings: Vec<PingResponse>| {
+        .await
+    {
+        eprintln!("error streaming pings: {}", e);
+    }
+
+    eprintln!();
+    eprintln!("gathering 15 pings...");
+
+    match client
+        .ping(&peer.peer[..], Some(15))
+        .try_collect::<Vec<PingResponse>>()
+        .await
+    {
+        Ok(pings) => {
             for ping in pings.iter() {
-                println!("got response ({:?}) at ({})...", ping.text, ping.time);
+                eprintln!("got response ({:?}) at ({})...", ping.text, ping.time);
             }
-        })
-        .map_err(|e| eprintln!("{}", e));
-
-    Runtime::new()
-        .expect("tokio runtime")
-        .block_on(req)
-        .expect("successful response");
+        }
+        Err(e) => eprintln!("error collecting pings: {}", e),
+    }
 }

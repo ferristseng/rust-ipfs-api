@@ -6,24 +6,24 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use futures::{Future, Stream};
+use futures::TryStreamExt;
 use ipfs_api::IpfsClient;
 use std::io::Cursor;
 use tar::Builder;
-use tokio::runtime::current_thread::Runtime;
 
 // Creates an Ipfs client, and adds this source file to Ipfs.
 //
-fn main() {
-    println!("note: this must be run in the root of the project repository");
-    println!("connecting to localhost:5001...");
+#[cfg_attr(feature = "actix", actix_rt::main)]
+#[cfg_attr(feature = "hyper", tokio::main)]
+async fn main() {
+    eprintln!("note: this must be run in the root of the project repository");
+    eprintln!("connecting to localhost:5001...");
 
     let client = IpfsClient::default();
 
-    let mut buf = Vec::new();
-
     // Create a in-memory tar file with this source file as its contents.
     //
+    let mut buf = Vec::new();
     {
         let mut builder = Builder::new(&mut buf);
 
@@ -32,24 +32,37 @@ fn main() {
             .expect("failed to create tar file");
         builder.finish().expect("failed to create tar file");
     }
-
     let cursor = Cursor::new(buf);
-    let req = client
-        .tar_add(cursor)
-        .and_then(move |add| {
-            println!("added tar file: {:?}", add);
-            println!();
 
-            client.tar_cat(&add.hash[..]).concat2()
-        })
-        .map(|cat| {
-            println!("{}", String::from_utf8_lossy(&cat[..]));
-            println!();
-        })
-        .map_err(|e| eprintln!("{}", e));
+    // Write in-memory tar file to IPFS.
+    //
+    let file = match client.tar_add(cursor).await {
+        Ok(file) => {
+            eprintln!("added tar file: {:?}", file);
+            eprintln!();
 
-    Runtime::new()
-        .expect("tokio runtime")
-        .block_on(req)
-        .expect("successful response");
+            file
+        }
+        Err(e) => {
+            eprintln!("error writing tar file: {}", e);
+
+            return;
+        }
+    };
+
+    // Read tar file from IPFS.
+    //
+    match client
+        .tar_cat(&file.hash[..])
+        .map_ok(|chunk| chunk.to_vec())
+        .try_concat()
+        .await
+    {
+        Ok(tar) => {
+            println!("{}", String::from_utf8_lossy(&tar[..]));
+        }
+        Err(e) => {
+            eprintln!("error reading tar file: {}", e);
+        }
+    }
 }

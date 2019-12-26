@@ -6,43 +6,45 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use futures::Future;
 use ipfs_api::IpfsClient;
-use tokio::runtime::current_thread::Runtime;
 
 const IPFS_IPNS: &str = "/ipns/ipfs.io";
 
 // Creates an Ipfs client, and resolves the Ipfs domain name, and
 // publishes a path to Ipns.
 //
-fn main() {
-    println!("connecting to localhost:5001...");
+#[cfg_attr(feature = "actix", actix_rt::main)]
+#[cfg_attr(feature = "hyper", tokio::main)]
+async fn main() {
+    eprintln!("connecting to localhost:5001...");
 
     let client = IpfsClient::default();
-    let name_resolve = client
-        .name_resolve(Some(IPFS_IPNS), true, false)
-        .map(|resolved| {
-            println!("{} resolves to: {}", IPFS_IPNS, &resolved.path);
-        });
 
-    let name_publish = client
-        .name_publish(IPFS_IPNS, true, None, None, None)
-        .and_then(move |publish| {
-            println!("published {} to: /ipns/{}", IPFS_IPNS, &publish.name);
+    match client.name_resolve(Some(IPFS_IPNS), true, false).await {
+        Ok(resolved) => eprintln!("{} resolves to: {}", IPFS_IPNS, &resolved.path),
+        Err(e) => {
+            eprintln!("error resolving {}: {}", IPFS_IPNS, e);
+            return;
+        }
+    }
 
-            client
-                .name_resolve(Some(&publish.name), true, false)
-                .map(move |resolved| {
-                    println!("/ipns/{} resolves to: {}", &publish.name, &resolved.path);
-                })
-        });
+    let publish = match client.name_publish(IPFS_IPNS, true, None, None, None).await {
+        Ok(publish) => {
+            eprintln!("published {} to: /ipns/{}", IPFS_IPNS, &publish.name);
+            publish
+        }
+        Err(e) => {
+            eprintln!("error publishing name: {}", e);
+            return;
+        }
+    };
 
-    let fut = name_resolve
-        .and_then(|_| name_publish)
-        .map_err(|e| eprintln!("{}", e));
-
-    Runtime::new()
-        .expect("tokio runtime")
-        .block_on(fut)
-        .expect("successful response");
+    match client.name_resolve(Some(&publish.name), true, false).await {
+        Ok(resolved) => {
+            eprintln!("/ipns/{} resolves to: {}", &publish.name, &resolved.path);
+        }
+        Err(e) => {
+            eprintln!("error resolving name: {}", e);
+        }
+    }
 }

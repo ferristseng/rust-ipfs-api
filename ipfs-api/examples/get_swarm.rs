@@ -6,46 +6,42 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use futures::Future;
 use ipfs_api::IpfsClient;
-use tokio::runtime::current_thread::Runtime;
 
 // Creates an Ipfs client, and gets information about your local address, and
 // connected peers.
 //
-fn main() {
-    println!("connecting to localhost:5001...");
+#[cfg_attr(feature = "actix", actix_rt::main)]
+#[cfg_attr(feature = "hyper", tokio::main)]
+async fn main() {
+    eprintln!("connecting to localhost:5001...");
 
     let client = IpfsClient::default();
 
-    let local = client.swarm_addrs_local().map(|local| {
-        println!();
-        println!("your addrs:");
-        for addr in local.strings {
-            println!("  {}", addr);
+    match client.swarm_addrs_local().await {
+        Ok(local) => {
+            eprintln!("your addrs:");
+            for addr in local.strings {
+                eprintln!("  {}", addr);
+            }
+            eprintln!();
         }
-    });
+        Err(e) => eprintln!("error getting local swarm addresses: {}", e),
+    }
 
-    let connected = client.swarm_peers().map(|connected| {
-        println!();
-        println!("connected:");
-        for peer in connected.peers {
-            let streams: Vec<&str> = peer.streams.iter().map(|s| &s.protocol[..]).collect();
-            println!("  addr:     {}", peer.addr);
-            println!("  peer:     {}", peer.peer);
-            println!("  latency:  {}", peer.latency);
-            println!("  muxer:    {}", peer.muxer);
-            println!("  streams:  {}", streams.join(", "));
-            println!();
+    match client.swarm_peers().await {
+        Ok(connected) => {
+            eprintln!("connected:");
+            for peer in connected.peers {
+                let streams: Vec<&str> = peer.streams.iter().map(|s| &s.protocol[..]).collect();
+                eprintln!("  addr:     {}", peer.addr);
+                eprintln!("  peer:     {}", peer.peer);
+                eprintln!("  latency:  {}", peer.latency);
+                eprintln!("  muxer:    {}", peer.muxer);
+                eprintln!("  streams:  {}", streams.join(", "));
+                eprintln!();
+            }
         }
-    });
-
-    let fut = local
-        .and_then(|_| connected)
-        .map_err(|e| eprintln!("{}", e));
-
-    Runtime::new()
-        .expect("tokio runtime")
-        .block_on(fut)
-        .expect("successful response");
+        Err(e) => eprintln!("error getting swarm peers: {}", e),
+    }
 }

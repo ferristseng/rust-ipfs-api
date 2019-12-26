@@ -14,14 +14,14 @@
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = "0.5.2"
+//! ipfs-api = "0.6.0"
 //! ```
 //!
 //! You can use `actix-web` as a backend instead of `hyper`.
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = { version = "0.5.2", features = ["actix"], default-features = false }
+//! ipfs-api = { version = "0.6.0", features = ["actix"], default-features = false }
 //! ```
 //!
 //! ## Examples
@@ -31,54 +31,37 @@
 //! #### With Hyper
 //!
 //! ```no_run
-//! # extern crate hyper;
-//! # extern crate ipfs_api;
-//! #
-//! use hyper::rt::Future;
 //! use ipfs_api::IpfsClient;
 //! use std::io::Cursor;
 //!
-//! # fn main() {
-//! let client = IpfsClient::default();
-//! let data = Cursor::new("Hello World!");
+//! #[tokio::main]
+//! async fn main() {
+//!     let client = IpfsClient::default();
+//!     let data = Cursor::new("Hello World!");
 //!
-//! let req = client
-//!     .add(data)
-//!     .map(|res| {
-//!         println!("{}", res.hash);
-//!     })
-//!     .map_err(|e| eprintln!("{}", e));
-//!
-//! # #[cfg(feature = "hyper")]
-//! hyper::rt::run(req);
-//! # }
+//!     match client.add(data).await {
+//!         Ok(res) => println!("{}", res.hash),
+//!         Err(e) => eprintln!("error adding file: {}", e)
+//!     }
+//! }
 //! ```
 //!
 //! #### With Actix
 //!
 //! ```no_run
-//! # extern crate actix_rt;
-//! # extern crate futures;
-//! # extern crate ipfs_api;
-//! #
-//! use futures::future::{Future, lazy};
 //! use ipfs_api::IpfsClient;
 //! use std::io::Cursor;
 //!
-//! # fn main() {
-//! let client = IpfsClient::default();
-//! let data = Cursor::new("Hello World!");
+//! #[actix_rt::main]
+//! async fn main() {
+//!     let client = IpfsClient::default();
+//!     let data = Cursor::new("Hello World!");
 //!
-//! let req = client
-//!     .add(data)
-//!     .map(|res| {
-//!         println!("{}", res.hash);
-//!     })
-//!     .map_err(|e| eprintln!("{}", e));
-//!
-//! # #[cfg(feature = "actix")]
-//! actix_rt::System::new("test").block_on(req);
-//! # }
+//!     match client.add(data).await {
+//!         Ok(res) => println!("{}", res.hash),
+//!         Err(e) => eprintln!("error adding file: {}", e)
+//!     }
+//! }
 //! ```
 //!
 //! ### Reading a file from IPFS
@@ -86,61 +69,57 @@
 //! #### With Hyper
 //!
 //! ```no_run
-//! # extern crate futures;
-//! # extern crate hyper;
-//! # extern crate ipfs_api;
-//! #
-//! use futures::{Future, Stream};
+//! use futures::TryStreamExt;
 //! use ipfs_api::IpfsClient;
 //! use std::io::{self, Write};
 //!
-//! # fn main() {
-//! let client = IpfsClient::default();
+//! #[tokio::main]
+//! async fn main() {
+//!     let client = IpfsClient::default();
 //!
-//! let req = client
-//!     .get("/test/file.json")
-//!     .concat2()
-//!     .map(|res| {
-//!         let out = io::stdout();
-//!         let mut out = out.lock();
+//!     match client
+//!         .get("/test/file.json")
+//!         .map_ok(|chunk| chunk.to_vec())
+//!         .try_concat()
+//!         .await
+//!     {
+//!         Ok(res) => {
+//!             let out = io::stdout();
+//!             let mut out = out.lock();
 //!
-//!         out.write_all(&res).unwrap();
-//!     })
-//!     .map_err(|e| eprintln!("{}", e));
-//!
-//! # #[cfg(feature = "hyper")]
-//! hyper::rt::run(req);
-//! # }
+//!             out.write_all(&res).unwrap();
+//!         }
+//!         Err(e) => eprintln!("error getting file: {}", e)
+//!     }
+//! }
 //! ```
 //!
 //! #### With Actix
 //!
 //! ```no_run
-//! # extern crate actix_rt;
-//! # extern crate futures;
-//! # extern crate ipfs_api;
-//! #
-//! use futures::{Future, lazy, Stream};
+//! use futures::TryStreamExt;
 //! use ipfs_api::IpfsClient;
 //! use std::io::{self, Write};
 //!
-//! # fn main() {
-//! let client = IpfsClient::default();
+//! #[actix_rt::main]
+//! async fn main() {
+//!     let client = IpfsClient::default();
 //!
-//! let req = client
-//!     .get("/test/file.json")
-//!     .concat2()
-//!     .map(|res| {
-//!         let out = io::stdout();
-//!         let mut out = out.lock();
+//!     match client
+//!         .get("/test/file.json")
+//!         .map_ok(|chunk| chunk.to_vec())
+//!         .try_concat()
+//!         .await
+//!     {
+//!         Ok(res) => {
+//!             let out = io::stdout();
+//!             let mut out = out.lock();
 //!
-//!         out.write_all(&res).unwrap();
-//!     })
-//!     .map_err(|e| eprintln!("{}", e));
-//!
-//! # #[cfg(feature = "actix")]
-//! actix_rt::System::new("test").block_on(req);
-//! # }
+//!             out.write_all(&res).unwrap();
+//!         }
+//!         Err(e) => eprintln!("error getting file: {}", e)
+//!     }
+//! }
 //! ```
 //!
 //! ### Additional Examples
@@ -157,37 +136,22 @@
 //! You can run any of the examples with cargo:
 //!
 //! ```sh
-//! $ cargo run -p ipfs-api --example add_file
-//! ```
-//!
-//! To run an example with the `actix-web` backend, use:
-//!
-//! ```sh
-//! $ cargo run -p ipfs-api --features actix --no-default-features --example add_file
+//! $ cargo run --example add_file
 //! ```
 //!
 
-#[cfg(feature = "actix")]
-extern crate actix_http;
 #[cfg(feature = "actix")]
 extern crate actix_multipart_rfc7578 as actix_multipart;
 #[cfg(feature = "actix")]
-extern crate awc;
+#[macro_use]
+extern crate derive_more;
 
-#[cfg(feature = "hyper")]
-extern crate hyper;
 #[cfg(feature = "hyper")]
 extern crate hyper_multipart_rfc7578 as hyper_multipart;
 #[cfg(feature = "hyper")]
-extern crate hyper_tls;
-
-extern crate bytes;
-#[cfg(feature = "actix")]
 #[macro_use]
-extern crate derive_more;
-#[macro_use]
-#[cfg(feature = "hyper")]
 extern crate failure;
+
 extern crate serde;
 
 pub use crate::client::IpfsClient;
@@ -198,3 +162,25 @@ mod header;
 mod read;
 mod request;
 pub mod response;
+
+#[cfg(feature = "actix")]
+use actix_http::{encoding, Payload, PayloadStream};
+#[cfg(feature = "hyper")]
+use hyper::{self, client::HttpConnector};
+#[cfg(feature = "hyper")]
+use hyper_tls::HttpsConnector;
+
+#[cfg(feature = "actix")]
+pub(crate) type Request = awc::ClientRequest;
+#[cfg(feature = "hyper")]
+pub(crate) type Request = http::Request<hyper::Body>;
+
+#[cfg(feature = "actix")]
+pub(crate) type Response = awc::ClientResponse<encoding::Decoder<Payload<PayloadStream>>>;
+#[cfg(feature = "hyper")]
+pub(crate) type Response = http::Response<hyper::Body>;
+
+#[cfg(feature = "actix")]
+pub(crate) type Client = awc::Client;
+#[cfg(feature = "hyper")]
+pub(crate) type Client = hyper::client::Client<HttpsConnector<HttpConnector>, hyper::Body>;
