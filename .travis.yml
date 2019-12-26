@@ -3,8 +3,6 @@ rust:
   - stable
   - beta
   - nightly
-cache:
-  cargo: true
 script:
   - cargo build --verbose
   - cargo test --verbose
