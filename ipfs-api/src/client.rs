@@ -41,7 +41,7 @@ const FILE_DESCRIPTOR_LIMIT: usize = 127;
 
 /// Asynchronous Ipfs client.
 ///
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct IpfsClient {
     base: Uri,
     client: Client,
