@@ -38,6 +38,7 @@ tokio-util                = { version = "0.2", features = ["codec"] }
 walkdir                   = "2.2"
 dirs                      = "2.0"
 multiaddr                 = "0.3.1"
+parity-multiaddr          = "0.7.3"
 
 [dev-dependencies]
 actix-http                = "1.0"
