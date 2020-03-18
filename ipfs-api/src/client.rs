@@ -26,7 +26,7 @@ use hyper::{body, client::Builder};
 use hyper_multipart::client::multipart;
 #[cfg(feature = "hyper")]
 use hyper_tls::HttpsConnector;
-use multiaddr::{AddrComponent, ToMultiaddr};
+use parity_multiaddr::{Protocol};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::{
@@ -55,15 +55,15 @@ impl Default for IpfsClient {
         dirs::home_dir()
             .map(|home_dir| home_dir.join(".ipfs").join("api"))
             .and_then(|multiaddr_path| fs::read_to_string(&multiaddr_path).ok())
-            .and_then(|multiaddr_str| multiaddr_str.to_multiaddr().ok())
+            .and_then(|multiaddr_str| parity_multiaddr::from_url(&multiaddr_str).ok())
             .and_then(|multiaddr| {
                 let mut addr: Option<IpAddr> = None;
                 let mut port: Option<u16> = None;
                 for addr_component in multiaddr.iter() {
                     match addr_component {
-                        AddrComponent::IP4(v4addr) => addr = Some(v4addr.into()),
-                        AddrComponent::IP6(v6addr) => addr = Some(v6addr.into()),
-                        AddrComponent::TCP(tcpport) => port = Some(tcpport),
+                        Protocol::Ip4(v4addr) => addr = Some(v4addr.into()),
+                        Protocol::Ip6(v6addr) => addr = Some(v6addr.into()),
+                        Protocol::Tcp(tcpport) => port = Some(tcpport),
                         _ => {
                             return None;
                         }
