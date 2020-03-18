@@ -103,7 +103,7 @@ impl IpfsClient {
             #[cfg(feature = "hyper")]
             {
                 Builder::default()
-                    .keep_alive(false)
+                    .pool_max_idle_per_host(0)
                     .build(HttpsConnector::new())
             }
             #[cfg(feature = "actix")]
