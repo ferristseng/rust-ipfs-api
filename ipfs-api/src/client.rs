@@ -26,7 +26,7 @@ use hyper::{body, client::Builder};
 use hyper_multipart::client::multipart;
 #[cfg(feature = "hyper")]
 use hyper_tls::HttpsConnector;
-use parity_multiaddr::{Protocol};
+use parity_multiaddr::Protocol;
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::{
