@@ -8,7 +8,6 @@
 
 use crate::request::ApiRequest;
 use crate::serde::Serialize;
-use http::Method;
 
 #[derive(Serialize)]
 pub struct BlockGet<'a> {
@@ -26,8 +25,6 @@ impl_skip_serialize!(BlockPut);
 
 impl ApiRequest for BlockPut {
     const PATH: &'static str = "/block/put";
-
-    const METHOD: &'static Method = &Method::POST;
 }
 
 #[derive(Serialize)]

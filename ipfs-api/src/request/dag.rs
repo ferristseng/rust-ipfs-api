@@ -8,7 +8,6 @@
 
 use crate::request::ApiRequest;
 use crate::serde::Serialize;
-use http::Method;
 
 #[derive(Serialize)]
 pub struct DagGet<'a> {
@@ -27,6 +26,4 @@ impl_skip_serialize!(DagPut);
 
 impl ApiRequest for DagPut {
     const PATH: &'static str = "/dag/put";
-
-    const METHOD: &'static Method = &Method::POST;
 }

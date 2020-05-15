@@ -8,7 +8,6 @@
 
 use crate::request::ApiRequest;
 use crate::serde::Serialize;
-use http::Method;
 
 #[derive(Serialize)]
 pub struct FilesCp<'a> {
@@ -112,6 +111,4 @@ pub struct FilesWrite<'a> {
 
 impl<'a> ApiRequest for FilesWrite<'a> {
     const PATH: &'static str = "/files/write";
-
-    const METHOD: &'static Method = &Method::POST;
 }
