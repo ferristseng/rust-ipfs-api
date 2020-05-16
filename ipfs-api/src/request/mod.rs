@@ -106,8 +106,4 @@ pub trait ApiRequest {
     /// All paths should begin with '/'.
     ///
     const PATH: &'static str;
-
-    /// Method used to make the request.
-    ///
-    const METHOD: &'static ::http::Method = &::http::Method::GET;
 }

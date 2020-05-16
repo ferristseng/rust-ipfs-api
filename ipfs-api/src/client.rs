@@ -144,8 +144,9 @@ impl IpfsClient {
         #[cfg(feature = "hyper")]
         {
             url.parse::<Uri>().map_err(From::from).and_then(move |url| {
-                let builder = http::Request::builder();
-                let builder = builder.method(Req::METHOD.clone()).uri(url);
+                let builder = http::Request::builder()
+                    .method("POST")
+                    .uri(url);
 
                 let req = if let Some(form) = form {
                     form.set_body_convert::<hyper::Body, multipart::Body>(builder)
@@ -160,10 +161,10 @@ impl IpfsClient {
         {
             let req = if let Some(form) = form {
                 self.client
-                    .request(Req::METHOD.clone(), url)
+                    .post(url)
                     .content_type(form.content_type())
             } else {
-                self.client.request(Req::METHOD.clone(), url)
+                self.client.post(url)
             };
 
             Ok(req.timeout(std::time::Duration::from_secs(90)))

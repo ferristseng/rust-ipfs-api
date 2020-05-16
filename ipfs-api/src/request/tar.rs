@@ -8,7 +8,6 @@
 
 use crate::request::ApiRequest;
 use crate::serde::Serialize;
-use http::Method;
 
 pub struct TarAdd;
 
@@ -16,8 +15,6 @@ impl_skip_serialize!(TarAdd);
 
 impl ApiRequest for TarAdd {
     const PATH: &'static str = "/tar/add";
-
-    const METHOD: &'static Method = &Method::POST;
 }
 
 #[derive(Serialize)]
