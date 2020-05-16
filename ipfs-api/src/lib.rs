@@ -171,7 +171,7 @@ use hyper::{self, client::HttpConnector};
 use hyper_tls::HttpsConnector;
 
 #[cfg(feature = "actix")]
-pub(crate) type Request = awc::ClientRequest;
+pub(crate) type Request = awc::SendClientRequest;
 #[cfg(feature = "hyper")]
 pub(crate) type Request = http::Request<hyper::Body>;
 

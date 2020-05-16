@@ -29,8 +29,10 @@ use hyper_tls::HttpsConnector;
 use parity_multiaddr::Protocol;
 use serde::{Deserialize, Serialize};
 use serde_json;
+#[cfg(feature = "actix")]
+use std::time::Duration;
 use std::{
-    fs,
+    fs::{self, File},
     io::{Cursor, Read},
     net::{IpAddr, SocketAddr},
     path::{Path, PathBuf},
@@ -38,6 +40,9 @@ use std::{
 use tokio_util::codec::{Decoder, FramedRead};
 
 const FILE_DESCRIPTOR_LIMIT: usize = 127;
+
+#[cfg(feature = "actix")]
+const ACTIX_REQUEST_TIMEOUT: Duration = Duration::from_secs(90);
 
 /// Asynchronous Ipfs client.
 ///
@@ -144,7 +149,7 @@ impl IpfsClient {
         #[cfg(feature = "hyper")]
         {
             url.parse::<Uri>().map_err(From::from).and_then(move |url| {
-                let builder = http::Request::builder().method("POST").uri(url);
+                let builder = http::Request::builder().method(http::Method::POST).uri(url);
 
                 let req = if let Some(form) = form {
                     form.set_body_convert::<hyper::Body, multipart::Body>(builder)
@@ -158,12 +163,16 @@ impl IpfsClient {
         #[cfg(feature = "actix")]
         {
             let req = if let Some(form) = form {
-                self.client.post(url).content_type(form.content_type())
+                self.client
+                    .post(url)
+                    .timeout(ACTIX_REQUEST_TIMEOUT)
+                    .content_type(form.content_type())
+                    .send_body(multipart::Body::from(form))
             } else {
-                self.client.post(url)
+                self.client.post(url).timeout(ACTIX_REQUEST_TIMEOUT).send()
             };
 
-            Ok(req.timeout(std::time::Duration::from_secs(90)))
+            Ok(req)
         }
     }
 
@@ -235,7 +244,7 @@ impl IpfsClient {
         }
         #[cfg(feature = "actix")]
         {
-            let mut res = req.send().await?;
+            let mut res = req.await?;
             let status = res.status();
             let body = res.body().await?;
 
@@ -338,8 +347,7 @@ impl IpfsClient {
         }
         #[cfg(feature = "actix")]
         {
-            req.send()
-                .err_into()
+            req.err_into()
                 .map_ok(move |mut res| {
                     match res.status() {
                         StatusCode::OK => process(res).right_stream(),
@@ -502,7 +510,7 @@ impl IpfsClient {
         let mut form = multipart::Form::default();
 
         for (path, file_size) in paths_to_add {
-            let mut file = fs::File::open(&path)?;
+            let mut file = File::open(&path)?;
             let file_name = match prefix {
                 Some(prefix) => path.strip_prefix(prefix).unwrap(),
                 None => path.as_path(),
