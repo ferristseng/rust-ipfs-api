@@ -154,7 +154,7 @@ extern crate failure;
 
 extern crate serde;
 
-pub use crate::client::IpfsClient;
+pub use crate::client::{IpfsClient, TryFromUri};
 pub use crate::request::{KeyType, Logger, LoggingLevel, ObjectTemplate};
 
 mod client;

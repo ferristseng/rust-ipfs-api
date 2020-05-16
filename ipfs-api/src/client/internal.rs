@@ -88,7 +88,7 @@ impl IpfsClient {
     ///
     #[deprecated(
         since = "0.7.2",
-        note = "Please use [`client::TryFromUri::from_host_and_port`]. Removing in next major version."
+        note = "Please use [`TryFromUri::from_host_and_port`]. Removing in next major version."
     )]
     pub fn new(host: &str, port: u16) -> Result<IpfsClient, InvalidUri> {
         let uri = format!("http://{}:{}", host, port);
@@ -99,7 +99,7 @@ impl IpfsClient {
 
     #[deprecated(
         since = "0.7.2",
-        note = "Please use [`client::TryFromUri::from_uri`]. Removing in next major version."
+        note = "Please use [`TryFromUri::from_uri`]. Removing in next major version."
     )]
     pub fn new_from_uri(uri: &str) -> Result<IpfsClient, InvalidUri> {
         Self::from_str(uri)
@@ -107,7 +107,7 @@ impl IpfsClient {
 
     #[deprecated(
         since = "0.7.2",
-        note = "Please use [`client::TryFromUri::from_socket`]. Removing in next major version."
+        note = "Please use [`TryFromUri::from_socket`]. Removing in next major version."
     )]
     pub fn from(socket_addr: SocketAddr) -> IpfsClient {
         Self::from_socket(Scheme::HTTP, socket_addr).unwrap()
