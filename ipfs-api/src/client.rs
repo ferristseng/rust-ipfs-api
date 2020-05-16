@@ -144,9 +144,7 @@ impl IpfsClient {
         #[cfg(feature = "hyper")]
         {
             url.parse::<Uri>().map_err(From::from).and_then(move |url| {
-                let builder = http::Request::builder()
-                    .method("POST")
-                    .uri(url);
+                let builder = http::Request::builder().method("POST").uri(url);
 
                 let req = if let Some(form) = form {
                     form.set_body_convert::<hyper::Body, multipart::Body>(builder)
@@ -160,9 +158,7 @@ impl IpfsClient {
         #[cfg(feature = "actix")]
         {
             let req = if let Some(form) = form {
-                self.client
-                    .post(url)
-                    .content_type(form.content_type())
+                self.client.post(url).content_type(form.content_type())
             } else {
                 self.client.post(url)
             };
