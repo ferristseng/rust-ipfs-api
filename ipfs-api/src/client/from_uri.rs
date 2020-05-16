@@ -6,10 +6,11 @@
 // copied, modified, or distributed except according to those terms.
 //
 use http::uri::{Builder, InvalidUri, PathAndQuery, Scheme, Uri};
-use parity_multiaddr::{Multiaddr, Protocol};
+use parity_multiaddr::{self as multiaddr, Multiaddr, Protocol};
 use std::{
     fs,
-    net::{IpAddr, SocketAddr, SocketAddrV4, SocketAddrV6},
+    net::{SocketAddr, SocketAddrV4, SocketAddrV6},
+    str::FromStr,
 };
 
 const VERSION_PATH_V0: &'static str = "/api/v0";
@@ -40,11 +41,9 @@ pub trait TryFromUri: Sized {
 
     /// Creates a new client from a host name and port.
     ///
-    fn from_host_and_port(host: &str, port: u16) -> Result<Self, http::Error> {
+    fn from_host_and_port(scheme: Scheme, host: &str, port: u16) -> Result<Self, http::Error> {
         let authority = format!("{}:{}", host, port);
-        let builder = Builder::new()
-            .scheme(Scheme::HTTP)
-            .authority(&authority[..]);
+        let builder = Builder::new().scheme(scheme).authority(&authority[..]);
 
         build_base_path(builder).map(Self::build_with_base_uri)
     }
@@ -76,28 +75,58 @@ pub trait TryFromUri: Sized {
         }
     }
 
-    /// Creates a new client connected to the endpoint specified in ~/.ipfs/api.
+    /// Creates a new client from a multiaddr.
     ///
-    fn from_multiaddr(multiaddr: Multiaddr) -> Option<Self> {
-        let mut addr: Option<IpAddr> = None;
+    fn from_multiaddr(multiaddr: Multiaddr) -> Result<Self, multiaddr::Error> {
+        let mut scheme: Option<Scheme> = None;
         let mut port: Option<u16> = None;
 
         for addr_component in multiaddr.iter() {
             match addr_component {
-                Protocol::Ip4(v4addr) => addr = Some(v4addr.into()),
-                Protocol::Ip6(v6addr) => addr = Some(v6addr.into()),
                 Protocol::Tcp(tcpport) => port = Some(tcpport),
-                _ => {
-                    return None;
+                Protocol::Http => scheme = Some(Scheme::HTTP),
+                Protocol::Https => scheme = Some(Scheme::HTTPS),
+                _ => (),
+            }
+        }
+
+        let scheme = scheme.unwrap_or(Scheme::HTTP);
+
+        if let Some(port) = port {
+            for addr_component in multiaddr.iter() {
+                match addr_component {
+                    Protocol::Tcp(_) | Protocol::Http | Protocol::Https => (),
+                    Protocol::Ip4(v4addr) => {
+                        return Ok(Self::from_ipv4(scheme, SocketAddrV4::new(v4addr, port)).unwrap())
+                    }
+                    Protocol::Ip6(v6addr) => {
+                        return Ok(
+                            Self::from_ipv6(scheme, SocketAddrV6::new(v6addr, port, 0, 0)).unwrap(),
+                        )
+                    }
+                    Protocol::Dns4(ref v4host) => {
+                        return Ok(Self::from_host_and_port(scheme, v4host, port).unwrap())
+                    }
+                    Protocol::Dns6(ref v6host) => {
+                        return Ok(Self::from_host_and_port(scheme, v6host, port).unwrap())
+                    }
+                    _ => {
+                        return Err(multiaddr::Error::InvalidMultiaddr);
+                    }
                 }
             }
         }
 
-        if let (Some(addr), Some(port)) = (addr, port) {
-            Some(Self::from_socket(Scheme::HTTP, SocketAddr::new(addr, port)).unwrap())
-        } else {
-            None
-        }
+        Err(multiaddr::Error::InvalidMultiaddr)
+    }
+
+    /// Creates a new client from a multiaddr.
+    ///
+    fn from_multiaddr_str(multiaddr: &str) -> Result<Self, multiaddr::Error> {
+        parity_multiaddr::from_url(multiaddr)
+            .map_err(|e| multiaddr::Error::ParsingError(Box::new(e)))
+            .or_else(|_| Multiaddr::from_str(multiaddr))
+            .and_then(Self::from_multiaddr)
     }
 
     /// Creates a new client connected to the endpoint specified in ~/.ipfs/api.
@@ -107,7 +136,64 @@ pub trait TryFromUri: Sized {
         dirs::home_dir()
             .map(|home_dir| home_dir.join(".ipfs").join("api"))
             .and_then(|multiaddr_path| fs::read_to_string(&multiaddr_path).ok())
-            .and_then(|multiaddr_str| parity_multiaddr::from_url(&multiaddr_str).ok())
-            .and_then(Self::from_multiaddr)
+            .and_then(|multiaddr_str| Self::from_multiaddr_str(&multiaddr_str).ok())
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::client::TryFromUri;
+    use http::uri::{Scheme, Uri};
+
+    #[derive(Debug)]
+    struct StringWrapper(String);
+
+    impl TryFromUri for StringWrapper {
+        fn build_with_base_uri(uri: Uri) -> Self {
+            StringWrapper(uri.to_string())
+        }
+    }
+
+    macro_rules! test_from_value_fn_ok {
+        ([$method: path]: $($f: ident ($($args: expr),+) => $output: expr),+) => {
+            $(
+                #[test]
+                fn $f() {
+                    let result: Result<StringWrapper, _> = $method($($args),+);
+
+                    assert!(
+                        result.is_ok(),
+                        format!("should be ok but failed with error: {:?}", result.unwrap_err())
+                    );
+
+                    let StringWrapper(result) = result.unwrap();
+
+                    assert!(
+                        result == $output,
+                        format!("got: ({}) expected: ({})", result, $output)
+                    );
+                }
+            )+
+        };
+    }
+
+    test_from_value_fn_ok!(
+        [TryFromUri::from_str]:
+        test_from_str_0_ok ("http://localhost:5001") => "http://localhost:5001/api/v0",
+        test_from_str_1_ok ("https://ipfs.io:9001") => "https://ipfs.io:9001/api/v0"
+    );
+
+    test_from_value_fn_ok!(
+        [TryFromUri::from_host_and_port]:
+        test_from_host_and_port_0_ok (Scheme::HTTP, "localhost", 5001) => "http://localhost:5001/api/v0",
+        test_from_host_and_port_1_ok (Scheme::HTTP, "ipfs.io", 9001) => "http://ipfs.io:9001/api/v0"
+    );
+
+    test_from_value_fn_ok!(
+        [TryFromUri::from_multiaddr_str]:
+        test_from_multiaddr_str_0_ok ("http://localhost:5001/") => "http://localhost:5001/api/v0",
+        test_from_multiaddr_str_1_ok ("https://ipfs.io:9001/") => "https://ipfs.io:9001/api/v0",
+        test_from_multiaddr_str_2_ok ("/ip4/127.0.0.1/tcp/5001/http") => "http://127.0.0.1:5001/api/v0",
+        test_from_multiaddr_str_3_ok ("/ip6/0:0:0:0:0:0:0:0/tcp/5001/http") => "http://[::]:5001/api/v0"
+    );
 }
