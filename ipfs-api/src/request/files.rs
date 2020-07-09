@@ -16,6 +16,8 @@ pub struct FilesCp<'a> {
 
     #[serde(rename = "arg")]
     pub dest: &'a str,
+
+    pub flush: bool,
 }
 
 impl<'a> ApiRequest for FilesCp<'a> {
@@ -48,6 +50,14 @@ pub struct FilesMkdir<'a> {
     pub path: &'a str,
 
     pub parents: bool,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hash: Option<&'a str>,
+
+    #[serde(rename = "cid-version")]
+    pub cid_version: i32,
+
+    pub flush: bool,
 }
 
 impl<'a> ApiRequest for FilesMkdir<'a> {
@@ -61,6 +71,8 @@ pub struct FilesMv<'a> {
 
     #[serde(rename = "arg")]
     pub dest: &'a str,
+
+    pub flush: bool,
 }
 
 impl<'a> ApiRequest for FilesMv<'a> {
@@ -88,6 +100,8 @@ pub struct FilesRm<'a> {
     pub path: &'a str,
 
     pub recursive: bool,
+
+    pub flush: bool,
 }
 
 impl<'a> ApiRequest for FilesRm<'a> {
@@ -122,6 +136,14 @@ pub struct FilesWrite<'a> {
 
     #[serde(rename = "raw-leaves")]
     pub raw_leaves: bool,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hash: Option<&'a str>,
+
+    #[serde(rename = "cid-version")]
+    pub cid_version: i32,
+
+    pub flush: bool,
 }
 
 impl<'a> ApiRequest for FilesWrite<'a> {
@@ -138,6 +160,8 @@ pub struct FilesChcid<'a> {
 
     #[serde(rename = "cid-version")]
     pub cid_version: i32,
+
+    pub flush: bool,
 }
 
 impl<'a> ApiRequest for FilesChcid<'a> {

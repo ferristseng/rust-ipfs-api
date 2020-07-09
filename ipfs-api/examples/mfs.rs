@@ -31,7 +31,7 @@ async fn main() {
     eprintln!("making /test...");
     eprintln!();
 
-    if let Err(e) = client.files_mkdir("/test", false).await {
+    if let Err(e) = client.files_mkdir("/test", false, 0, None, true).await {
         eprintln!("error making /test: {}", e);
         return;
     }
@@ -39,7 +39,7 @@ async fn main() {
     eprintln!("making dirs /test/does/not/exist/yet...");
     eprintln!();
 
-    if let Err(e) = client.files_mkdir("/test/does/not/exist/yet", true).await {
+    if let Err(e) = client.files_mkdir("/test/does/not/exist/yet", true, 0, None, true).await {
         eprintln!("error making /test/does/not/exist/yet: {}", e);
         return;
     }
@@ -60,7 +60,7 @@ async fn main() {
 
     let src = File::open(file!()).expect("could not read source file");
 
-    if let Err(e) = client.files_write("/test/mfs.rs", true, true, false, 0, None, false, src).await {
+    if let Err(e) = client.files_write("/test/mfs.rs", true, true, false, 0, None, false, 0, None, true, src).await {
         eprintln!("error writing source file /test/mfs.rs: {}", e);
         return;
     }
@@ -79,7 +79,7 @@ async fn main() {
     eprintln!("removing /test...");
     eprintln!();
 
-    if let Err(e) = client.files_rm("/test", true).await {
+    if let Err(e) = client.files_rm("/test", true, true).await {
         eprintln!("error removing /test: {}", e);
     }
 

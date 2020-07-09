@@ -1075,7 +1075,7 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.files_cp("/path/to/file", "/dest");
+    /// let res = client.files_cp("/path/to/file", "/dest", true);
     /// ```
     ///
     #[inline]
@@ -1083,8 +1083,9 @@ impl IpfsClient {
         &self,
         path: &str,
         dest: &str,
+        flush: bool,
     ) -> Result<response::FilesCpResponse, Error> {
-        self.request_empty(request::FilesCp { path, dest }, None)
+        self.request_empty(request::FilesCp { path, dest, flush }, None)
             .await
     }
 
@@ -1127,8 +1128,8 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.files_mkdir("/test", false);
-    /// let res = client.files_mkdir("/test/nested/dir", true);
+    /// let res = client.files_mkdir("/test", false, 0, None, true);
+    /// let res = client.files_mkdir("/test/nested/dir", true, 0, None, true);
     /// ```
     ///
     #[inline]
@@ -1136,8 +1137,11 @@ impl IpfsClient {
         &self,
         path: &str,
         parents: bool,
+        cid_version: i32,
+        hash: Option<&str>,
+        flush: bool,
     ) -> Result<response::FilesMkdirResponse, Error> {
-        self.request_empty(request::FilesMkdir { path, parents }, None)
+        self.request_empty(request::FilesMkdir { path, parents, cid_version, hash, flush }, None)
             .await
     }
 
@@ -1147,7 +1151,7 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.files_mv("/test/tmp.json", "/test/file.json");
+    /// let res = client.files_mv("/test/tmp.json", "/test/file.json", true);
     /// ```
     ///
     #[inline]
@@ -1155,8 +1159,9 @@ impl IpfsClient {
         &self,
         path: &str,
         dest: &str,
+        flush: bool,
     ) -> Result<response::FilesMvResponse, Error> {
-        self.request_empty(request::FilesMv { path, dest }, None)
+        self.request_empty(request::FilesMv { path, dest, flush }, None)
             .await
     }
 
@@ -1184,8 +1189,8 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.files_rm("/test/dir", true);
-    /// let res = client.files_rm("/test/file.json", false);
+    /// let res = client.files_rm("/test/dir", true, true);
+    /// let res = client.files_rm("/test/file.json", false, true);
     /// ```
     ///
     #[inline]
@@ -1193,8 +1198,9 @@ impl IpfsClient {
         &self,
         path: &str,
         recursive: bool,
+        flush: bool,
     ) -> Result<response::FilesRmResponse, Error> {
-        self.request_empty(request::FilesRm { path, recursive }, None)
+        self.request_empty(request::FilesRm { path, recursive, flush }, None)
             .await
     }
 
@@ -1220,7 +1226,7 @@ impl IpfsClient {
     ///
     /// let client = IpfsClient::default();
     /// let file = File::open("test.json").unwrap();
-    /// let res = client.files_write("/test/file.json", true, true, true, 0, None, false, file);
+    /// let res = client.files_write("/test/file.json", true, true, true, 0, None, false, 0, None, true, file);
     /// ```
     ///
     /// Not specifying a byte `count` writes the entire input.
@@ -1235,6 +1241,9 @@ impl IpfsClient {
         offset: i64,
         count: Option<i64>,
         raw_leaves: bool,
+        cid_version: i32,
+        hash: Option<&str>,
+        flush: bool,
         data: R,
     ) -> Result<response::FilesWriteResponse, Error>
     where
@@ -1253,6 +1262,9 @@ impl IpfsClient {
                 offset,
                 count,
                 raw_leaves,
+                cid_version,
+                hash,
+                flush,
             },
             Some(form),
         )
@@ -1266,7 +1278,7 @@ impl IpfsClient {
     /// use std::fs::File;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.files_chcid("/test/", 1, Some("sha3-512"));
+    /// let res = client.files_chcid("/test/", 1, Some("sha3-512"), true);
     /// ```
     ///
     /// Not specifying a byte `count` writes the entire input.
@@ -1277,9 +1289,10 @@ impl IpfsClient {
         path: &str,
         cid_version: i32,
         hash: Option<&str>,
+        flush: bool,
     ) -> Result<response::FilesChcidResponse, Error>
     {
-        self.request_empty(request::FilesChcid { path, cid_version, hash }, None)
+        self.request_empty(request::FilesChcid { path, cid_version, hash, flush }, None)
             .await
     }
 
