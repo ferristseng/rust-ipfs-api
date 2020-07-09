@@ -119,6 +119,9 @@ pub struct FilesWrite<'a> {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub count: Option<i64>,
+
+    #[serde(rename = "raw-leaves")]
+    pub raw_leaves: bool,
 }
 
 impl<'a> ApiRequest for FilesWrite<'a> {

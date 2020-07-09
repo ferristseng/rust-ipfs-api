@@ -1220,7 +1220,7 @@ impl IpfsClient {
     ///
     /// let client = IpfsClient::default();
     /// let file = File::open("test.json").unwrap();
-    /// let res = client.files_write("/test/file.json", true, true, true, 0, None, file);
+    /// let res = client.files_write("/test/file.json", true, true, true, 0, None, false, file);
     /// ```
     ///
     /// Not specifying a byte `count` writes the entire input.
@@ -1234,6 +1234,7 @@ impl IpfsClient {
         parents: bool,
         offset: i64,
         count: Option<i64>,
+        raw_leaves: bool,
         data: R,
     ) -> Result<response::FilesWriteResponse, Error>
     where
@@ -1251,6 +1252,7 @@ impl IpfsClient {
                 parents,
                 offset,
                 count,
+                raw_leaves,
             },
             Some(form),
         )
