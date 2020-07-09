@@ -1257,6 +1257,30 @@ impl IpfsClient {
         .await
     }
 
+    /// Change the cid version or hash function of the root node of a given path.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    /// use std::fs::File;
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.files_chcid("/test/", 1, Some("sha3-512"));
+    /// ```
+    ///
+    /// Not specifying a byte `count` writes the entire input.
+    ///
+    #[inline]
+    pub async fn files_chcid(
+        &self,
+        path: &str,
+        cid_version: i32,
+        hash: Option<&str>,
+    ) -> Result<response::FilesChcidResponse, Error>
+    {
+        self.request_empty(request::FilesChcid { path, cid_version, hash }, None)
+            .await
+    }
+
     /// List blocks that are both in the filestore and standard block storage.
     ///
     /// ```no_run

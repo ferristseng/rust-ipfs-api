@@ -124,3 +124,19 @@ pub struct FilesWrite<'a> {
 impl<'a> ApiRequest for FilesWrite<'a> {
     const PATH: &'static str = "/files/write";
 }
+
+#[derive(Serialize)]
+pub struct FilesChcid<'a> {
+    #[serde(rename = "arg")]
+    pub path: &'a str,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hash: Option<&'a str>,
+
+    #[serde(rename = "cid-version")]
+    pub cid_version: i32,
+}
+
+impl<'a> ApiRequest for FilesChcid<'a> {
+    const PATH: &'static str = "/files/chcid";
+}

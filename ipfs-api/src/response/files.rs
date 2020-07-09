@@ -54,6 +54,8 @@ pub struct FilesStatResponse {
 
 pub type FilesWriteResponse = ();
 
+pub type FilesChcidResponse = ();
+
 #[cfg(test)]
 mod tests {
     deserialize_test!(v0_files_ls_0, FilesLsResponse);
