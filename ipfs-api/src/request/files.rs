@@ -38,6 +38,11 @@ impl<'a> ApiRequest for FilesFlush<'a> {
 pub struct FilesLs<'a> {
     #[serde(rename = "arg")]
     pub path: Option<&'a str>,
+
+    pub long: bool,
+
+    #[serde(rename = "U")]
+    pub unsorted: bool,
 }
 
 impl<'a> ApiRequest for FilesLs<'a> {

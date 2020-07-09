@@ -1107,19 +1107,19 @@ impl IpfsClient {
         self.request_empty(request::FilesFlush { path }, None).await
     }
 
-    /// List directories in MFS.
+    /// List directories in MFS. Always passes `-U`.
     ///
     /// ```no_run
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.files_ls(None);
-    /// let res = client.files_ls(Some("/tmp"));
+    /// let res = client.files_ls(None, false);
+    /// let res = client.files_ls(Some("/tmp"), true);
     /// ```
     ///
     #[inline]
-    pub async fn files_ls(&self, path: Option<&str>) -> Result<response::FilesLsResponse, Error> {
-        self.request(request::FilesLs { path }, None).await
+    pub async fn files_ls(&self, path: Option<&str>, long: bool) -> Result<response::FilesLsResponse, Error> {
+        self.request(request::FilesLs { path, long, unsorted: true }, None).await
     }
 
     /// Make directories in MFS.
