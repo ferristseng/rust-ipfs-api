@@ -71,6 +71,11 @@ impl<'a> ApiRequest for FilesMv<'a> {
 pub struct FilesRead<'a> {
     #[serde(rename = "arg")]
     pub path: &'a str,
+
+    pub offset: i64,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub count: Option<i64>,
 }
 
 impl<'a> ApiRequest for FilesRead<'a> {
@@ -107,6 +112,13 @@ pub struct FilesWrite<'a> {
     pub create: bool,
 
     pub truncate: bool,
+
+    pub parents: bool,
+
+    pub offset: i64,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub count: Option<i64>,
 }
 
 impl<'a> ApiRequest for FilesWrite<'a> {

@@ -60,7 +60,7 @@ async fn main() {
 
     let src = File::open(file!()).expect("could not read source file");
 
-    if let Err(e) = client.files_write("/test/mfs.rs", true, true, src).await {
+    if let Err(e) = client.files_write("/test/mfs.rs", true, true, false, 0, None, src).await {
         eprintln!("error writing source file /test/mfs.rs: {}", e);
         return;
     }

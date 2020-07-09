@@ -1166,13 +1166,15 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.files_read("/test/file.json");
+    /// let res = client.files_read("/test/file.json", 0, None);
     /// ```
     ///
+    /// Not specifying a byte `count` reads to the end of the file.
+    ///
     #[inline]
-    pub fn files_read(&self, path: &str) -> impl Stream<Item = Result<Bytes, Error>> {
+    pub fn files_read(&self, path: &str, offset: i64, count: Option<i64>) -> impl Stream<Item = Result<Bytes, Error>> {
         impl_stream_api_response! {
-            (self, request::FilesRead { path }, None) => request_stream_bytes
+            (self, request::FilesRead { path, offset, count }, None) => request_stream_bytes
         }
     }
 
@@ -1218,8 +1220,10 @@ impl IpfsClient {
     ///
     /// let client = IpfsClient::default();
     /// let file = File::open("test.json").unwrap();
-    /// let res = client.files_write("/test/file.json", true, true, file);
+    /// let res = client.files_write("/test/file.json", true, true, true, 0, None, file);
     /// ```
+    ///
+    /// Not specifying a byte `count` writes the entire input.
     ///
     #[inline]
     pub async fn files_write<R>(
@@ -1227,6 +1231,9 @@ impl IpfsClient {
         path: &str,
         create: bool,
         truncate: bool,
+        parents: bool,
+        offset: i64,
+        count: Option<i64>,
         data: R,
     ) -> Result<response::FilesWriteResponse, Error>
     where
@@ -1241,6 +1248,9 @@ impl IpfsClient {
                 path,
                 create,
                 truncate,
+                parents,
+                offset,
+                count,
             },
             Some(form),
         )
