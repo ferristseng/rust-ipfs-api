@@ -112,6 +112,9 @@ impl<'a> ApiRequest for FilesRm<'a> {
 pub struct FilesStat<'a> {
     #[serde(rename = "arg")]
     pub path: &'a str,
+
+    #[serde(rename = "with-local")]
+    pub with_local: bool,
 }
 
 impl<'a> ApiRequest for FilesStat<'a> {

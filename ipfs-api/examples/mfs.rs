@@ -47,7 +47,7 @@ async fn main() {
     eprintln!("getting status of /test/does...");
     eprintln!();
 
-    match client.files_stat("/test/does").await {
+    match client.files_stat("/test/does", false).await {
         Ok(stat) => print_stat(stat),
         Err(e) => {
             eprintln!("error getting status of /test/does: {}", e);
@@ -68,7 +68,7 @@ async fn main() {
     eprintln!("getting status of /test/mfs.rs...");
     eprintln!();
 
-    match client.files_stat("/test/mfs.rs").await {
+    match client.files_stat("/test/mfs.rs", false).await {
         Ok(stat) => print_stat(stat),
         Err(e) => {
             eprintln!("error getting status of /test/mfs.rs: {}", e);

@@ -1210,12 +1210,12 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.files_stat("/test/file.json");
+    /// let res = client.files_stat("/test/file.json", false);
     /// ```
     ///
     #[inline]
-    pub async fn files_stat(&self, path: &str) -> Result<response::FilesStatResponse, Error> {
-        self.request(request::FilesStat { path }, None).await
+    pub async fn files_stat(&self, path: &str, with_local: bool) -> Result<response::FilesStatResponse, Error> {
+        self.request(request::FilesStat { path, with_local }, None).await
     }
 
     /// Write to a mutable file in the filesystem.
