@@ -154,6 +154,10 @@ extern crate failure;
 
 extern crate serde;
 
+#[cfg(feature = "builder")]
+#[macro_use]
+extern crate typed_builder;
+
 pub use crate::client::{IpfsClient, TryFromUri};
 pub use crate::request::{KeyType, Logger, LoggingLevel, ObjectTemplate};
 
