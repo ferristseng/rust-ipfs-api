@@ -39,6 +39,8 @@ use std::{
 };
 use tokio_util::codec::{Decoder, FramedRead};
 
+fn default<T: Default>() -> T { Default::default() }
+
 const FILE_DESCRIPTOR_LIMIT: usize = 127;
 
 #[cfg(feature = "actix")]
@@ -1145,19 +1147,50 @@ impl IpfsClient {
         self.request_empty(request::FilesFlush { path }, None).await
     }
 
-    /// List directories in MFS. Always passes `-U`.
+    /// List directories in MFS..
     ///
     /// ```no_run
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.files_ls(None, false);
-    /// let res = client.files_ls(Some("/tmp"), true);
+    /// let res = client.files_ls(None);
+    /// let res = client.files_ls(Some("/tmp"));
     /// ```
     ///
+    /// Defaults to `-U`, so the output is unsorted.
+    ///
     #[inline]
-    pub async fn files_ls(&self, path: Option<&str>, long: bool) -> Result<response::FilesLsResponse, Error> {
-        self.request(request::FilesLs { path, long, unsorted: true }, None).await
+    pub async fn files_ls(&self, path: Option<&str>) -> Result<response::FilesLsResponse, Error> {
+        self.files_ls_with_options(request::FilesLs { path: path, .. default() }).await
+    }
+
+    /// List directories in MFS..
+    ///
+    /// ```no_run
+    /// let client = ipfs_api::IpfsClient::default();
+    /// #[cfg(feature = "builder")]
+    /// let req = ipfs_api::request::FilesLs::builder()
+    ///     // .path("/") // defaults to /
+    ///     .unsorted(false)
+    ///     .long(true)
+    ///     .build();
+    /// #[cfg(not(feature = "builder"))]
+    /// let req = ipfs_api::request::FilesLs {
+    ///     path: None, // defaults to /
+    ///     unsorted: Some(false),
+    ///     long: Some(true),
+    /// };
+    /// let res = client.files_ls_with_options(req);
+    /// ```
+    ///
+    /// Defaults to `-U`, so the output is unsorted.
+    ///
+    #[inline]
+    pub async fn files_ls_with_options(
+        &self,
+        options: request::FilesLs<'_>
+    ) -> Result<response::FilesLsResponse, Error> {
+        self.request(options, None).await
     }
 
     /// Make directories in MFS.
@@ -1166,20 +1199,43 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.files_mkdir("/test", false, 0, None, true);
-    /// let res = client.files_mkdir("/test/nested/dir", true, 0, None, true);
+    /// let res = client.files_mkdir("/test", false);
+    /// let res = client.files_mkdir("/test/nested/dir", true);
     /// ```
     ///
     #[inline]
-    pub async fn files_mkdir(
+    pub async fn files_mkdir(&self, path: &str, parents: bool) -> Result<response::FilesMkdirResponse, Error> {
+        self.files_mkdir_with_options(request::FilesMkdir { path: path, parents: Some(parents), .. default() }).await
+    }
+
+    /// Make directories in MFS.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// #[cfg(feature = "builder")]
+    /// let req = ipfs_api::request::FilesMkdir::builder()
+    ///     .path("/test/nested/dir")
+    ///     .parents(true)
+    ///     .flush(false)
+    ///     .build();
+    /// #[cfg(not(feature = "builder"))]
+    /// let req = ipfs_api::request::FilesMkdir {
+    ///     path: "/test/nested/dir",
+    ///     parents: Some(true),
+    ///     flush: Some(false),
+    ///     .. Default::default()
+    /// };
+    /// let res = client.files_mkdir_with_options(req);
+    /// ```
+    ///
+    #[inline]
+    pub async fn files_mkdir_with_options(
         &self,
-        path: &str,
-        parents: bool,
-        cid_version: i32,
-        hash: Option<&str>,
-        flush: bool,
+        options: request::FilesMkdir<'_>
     ) -> Result<response::FilesMkdirResponse, Error> {
-        self.request_empty(request::FilesMkdir { path, parents, cid_version, hash, flush }, None)
+        self.request_empty(options, None)
             .await
     }
 
@@ -1209,16 +1265,38 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.files_read("/test/file.json", 0, None);
+    /// let res = client.files_read("/test/file.json");
     /// ```
     ///
-    /// Not specifying a byte `count` reads to the end of the file.
+    #[inline]
+    pub fn files_read(&self, path: &str) -> impl Stream<Item = Result<Bytes, Error>> {
+        self.files_read_with_options(request::FilesRead { path, .. request::FilesRead::default() })
+    }
+
+    /// Read a file in MFS.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// #[cfg(feature = "builder")]
+    /// let req = ipfs_api::request::FilesRead::builder()
+    ///     .path("/test/file.json")
+    ///     .offset(1024)
+    ///     .count(8)
+    ///     .build();
+    /// #[cfg(not(feature = "builder"))]
+    /// let req = ipfs_api::request::FilesRead {
+    ///     path: "/test/file.json",
+    ///     offset: Some(1024),
+    ///     count: Some(8),
+    /// };
+    /// let res = client.files_read_with_options(req);
+    /// ```
     ///
     #[inline]
-    pub fn files_read(&self, path: &str, offset: i64, count: Option<i64>) -> impl Stream<Item = Result<Bytes, Error>> {
-        impl_stream_api_response! {
-            (self, request::FilesRead { path, offset, count }, None) => request_stream_bytes
-        }
+    pub fn files_read_with_options(&self, options: request::FilesRead) -> impl Stream<Item = Result<Bytes, Error>> {
+        impl_stream_api_response! { (self, options, None) => request_stream_bytes }
     }
 
     /// Remove a file in MFS.
@@ -1227,8 +1305,8 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.files_rm("/test/dir", true, true);
-    /// let res = client.files_rm("/test/file.json", false, true);
+    /// let res = client.files_rm("/test/dir", true);
+    /// let res = client.files_rm("/test/file.json", false);
     /// ```
     ///
     #[inline]
@@ -1236,13 +1314,40 @@ impl IpfsClient {
         &self,
         path: &str,
         recursive: bool,
-        flush: bool,
     ) -> Result<response::FilesRmResponse, Error> {
-        self.request_empty(request::FilesRm { path, recursive, flush }, None)
-            .await
+        self.files_rm_with_options(request::FilesRm { path, recursive: Some(recursive), .. default() }).await
     }
 
-    /// Display a file's status in MDFS.
+    /// Remove a file in MFS.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// #[cfg(feature = "builder")]
+    /// let req = ipfs_api::request::FilesRm::builder()
+    ///     .path("/test/somefile.json")
+    ///     .recursive(false)
+    ///     .flush(false)
+    ///     .build();
+    /// #[cfg(not(feature = "builder"))]
+    /// let req = ipfs_api::request::FilesRm {
+    ///     path: "/test/somefile.json",
+    ///     recursive: Some(false),
+    ///     flush: Some(false),
+    /// };
+    /// let res = client.files_rm_with_options(req);
+    /// ```
+    ///
+    #[inline]
+    pub async fn files_rm_with_options(
+        &self,
+        options: request::FilesRm<'_>
+    ) -> Result<response::FilesRmResponse, Error> {
+        self.request_empty(options, None).await
+    }
+
+    /// Display a file's status in MFS.
     ///
     /// ```no_run
     /// use ipfs_api::IpfsClient;
@@ -1264,24 +1369,53 @@ impl IpfsClient {
     ///
     /// let client = IpfsClient::default();
     /// let file = File::open("test.json").unwrap();
-    /// let res = client.files_write("/test/file.json", true, true, true, 0, None, false, 0, None, true, file);
+    /// let res = client.files_write("/test/file.json", file);
     /// ```
     ///
-    /// Not specifying a byte `count` writes the entire input.
+    /// For convenience reasons, this defaults create and truncate to true
     ///
     #[inline]
     pub async fn files_write<R>(
         &self,
         path: &str,
-        create: bool,
-        truncate: bool,
-        parents: bool,
-        offset: i64,
-        count: Option<i64>,
-        raw_leaves: bool,
-        cid_version: i32,
-        hash: Option<&str>,
-        flush: bool,
+        data: R,
+    ) -> Result<response::FilesWriteResponse, Error>
+    where
+        R: 'static + Read + Send + Sync,
+    {
+        self.files_write_with_options(request::FilesWrite { path, .. request::FilesWrite::default() }, data).await
+    }
+
+    /// Write to a mutable file in the filesystem.
+    ///
+    /// ```no_run
+    /// let client = ipfs_api::IpfsClient::default();
+    /// let data = std::io::Cursor::new((1..128).collect::<Vec<u8>>());
+    /// #[cfg(feature = "builder")]
+    /// let req = ipfs_api::request::FilesWrite::builder()
+    ///     .path("/test/outfile.bin")
+    ///     .create(false)
+    ///     .truncate(false)
+    ///     .offset(1 << 20)
+    ///     .flush(false)
+    ///     // see FilesWriteBuilder for the full set of options
+    ///     .build();
+    /// #[cfg(not(feature = "builder"))]
+    /// let req = ipfs_api::request::FilesWrite {
+    ///     path: "/test/outfile.bin",
+    ///     create: Some(false),
+    ///     truncate: Some(false),
+    ///     offset: Some(1 << 20),
+    ///     flush: Some(false),
+    ///     .. Default::default()
+    /// };
+    /// let res = client.files_write_with_options(req, data);
+    /// ```
+    ///
+    #[inline]
+    pub async fn files_write_with_options<R>(
+        &self,
+        options: request::FilesWrite<'_>,
         data: R,
     ) -> Result<response::FilesWriteResponse, Error>
     where
@@ -1291,22 +1425,7 @@ impl IpfsClient {
 
         form.add_reader("data", data);
 
-        self.request_empty(
-            request::FilesWrite {
-                path,
-                create,
-                truncate,
-                parents,
-                offset,
-                count,
-                raw_leaves,
-                cid_version,
-                hash,
-                flush,
-            },
-            Some(form),
-        )
-        .await
+        self.request_empty(options, Some(form)).await
     }
 
     /// Change the cid version or hash function of the root node of a given path.
@@ -1316,7 +1435,7 @@ impl IpfsClient {
     /// use std::fs::File;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.files_chcid("/test/", 1, Some("sha3-512"), true);
+    /// let res = client.files_chcid("/test/", 1);
     /// ```
     ///
     /// Not specifying a byte `count` writes the entire input.
@@ -1326,12 +1445,48 @@ impl IpfsClient {
         &self,
         path: &str,
         cid_version: i32,
-        hash: Option<&str>,
-        flush: bool,
     ) -> Result<response::FilesChcidResponse, Error>
     {
-        self.request_empty(request::FilesChcid { path, cid_version, hash, flush }, None)
-            .await
+        self.request_empty(request::FilesChcid {
+            path: Some(path),
+            cid_version: Some(cid_version),
+            .. default()
+        }, None).await
+    }
+
+    /// Change the cid version or hash function of the root node of a given path.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    /// use std::fs::File;
+    ///
+    /// let client = IpfsClient::default();
+    /// #[cfg(feature = "builder")]
+    /// let req = ipfs_api::request::FilesChcid::builder()
+    ///     .path("/test/")
+    ///     .cid_version(1)
+    ///     .hash("sha3-512")
+    ///     .flush(true)
+    ///     .build();
+    /// #[cfg(not(feature = "builder"))]
+    /// let req = ipfs_api::request::FilesChcid {
+    ///     path: Some("/test/"),
+    ///     cid_version: Some(1),
+    ///     hash: Some("sha3-512"),
+    ///     flush: Some(false),
+    /// };
+    /// let res = client.files_chcid_with_options(req);
+    /// ```
+    ///
+    /// Not specifying a byte `count` writes the entire input.
+    ///
+    #[inline]
+    pub async fn files_chcid_with_options(
+        &self,
+        options: request::FilesChcid<'_>
+    ) -> Result<response::FilesChcidResponse, Error>
+    {
+        self.request_empty(options, None).await
     }
 
     /// List blocks that are both in the filestore and standard block storage.
