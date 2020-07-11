@@ -460,9 +460,15 @@ impl IpfsClient {
     /// # fn main() {
     /// let client = IpfsClient::default();
     /// let data = Cursor::new("Hello World!");
-    /// let add =
-    /// ipfs_api::request::AddBuilder::default()
-    /// .chunker("rabin-512-1024-2048").build().unwrap();
+    /// #[cfg(feature = "builder")]
+    /// let add = ipfs_api::request::Add::builder()
+    ///     .chunker("rabin-512-1024-2048")
+    ///     .build();
+    /// #[cfg(not(feature = "builder"))]
+    /// let add = ipfs_api::request::Add {
+    ///     chunker: Some("rabin-512-1024-2048"),
+    ///     ..Default::default()
+    /// };
     /// let req = client.add_with_options(data, add);
     /// # }
     /// ```
