@@ -444,11 +444,49 @@ impl IpfsClient {
     where
         R: 'static + Read + Send + Sync,
     {
+        self.add_with_options(data, request::Add::default()).await
+    }
+
+    /// Add a file to IPFS with options.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # extern crate ipfs_api;
+    /// #
+    /// use ipfs_api::IpfsClient;
+    /// use std::io::Cursor;
+    ///
+    /// # fn main() {
+    /// let client = IpfsClient::default();
+    /// let data = Cursor::new("Hello World!");
+    /// #[cfg(feature = "builder")]
+    /// let add = ipfs_api::request::Add::builder()
+    ///     .chunker("rabin-512-1024-2048")
+    ///     .build();
+    /// #[cfg(not(feature = "builder"))]
+    /// let add = ipfs_api::request::Add {
+    ///     chunker: Some("rabin-512-1024-2048"),
+    ///     ..Default::default()
+    /// };
+    /// let req = client.add_with_options(data, add);
+    /// # }
+    /// ```
+    ///
+    #[inline]
+    pub async fn add_with_options<R>(
+        &self,
+        data: R,
+        add: request::Add<'_>,
+    ) -> Result<response::AddResponse, Error>
+    where
+        R: 'static + Read + Send + Sync,
+    {
         let mut form = multipart::Form::default();
 
         form.add_reader("path", data);
 
-        self.request(request::Add, Some(form)).await
+        self.request(add, Some(form)).await
     }
 
     /// Add a path to Ipfs. Can be a file or directory.
@@ -515,7 +553,7 @@ impl IpfsClient {
             }
         }
 
-        let req = self.build_base_request(request::Add, Some(form))?;
+        let req = self.build_base_request(request::Add::default(), Some(form))?;
 
         self.request_stream_json(req).try_collect().await
     }
