@@ -1124,8 +1124,25 @@ impl IpfsClient {
         path: &str,
         dest: &str,
     ) -> Result<response::FilesCpResponse, Error> {
-        self.request_empty(request::FilesCp { path, dest, .. default() }, None)
+        self.files_cp_with_options(request::FilesCp { path, dest, .. default() })
             .await
+    }
+
+    /// Copy files into MFS.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.files_cp("/path/to/file", "/dest");
+    /// ```
+    ///
+    #[inline]
+    pub async fn files_cp_with_options(
+        &self,
+        options: request::FilesCp<'_>,
+    ) -> Result<response::FilesCpResponse, Error> {
+        self.request_empty(options, None).await
     }
 
     /// Flush a path's data to disk.
@@ -1236,8 +1253,7 @@ impl IpfsClient {
         &self,
         options: request::FilesMkdir<'_>
     ) -> Result<response::FilesMkdirResponse, Error> {
-        self.request_empty(options, None)
-            .await
+        self.request_empty(options, None).await
     }
 
     /// Copy files into MFS.
@@ -1255,7 +1271,31 @@ impl IpfsClient {
         path: &str,
         dest: &str,
     ) -> Result<response::FilesMvResponse, Error> {
-        self.request_empty(request::FilesMv { path, dest, .. default() }, None)
+        self.files_mv_with_options(request::FilesMv { path, dest, .. default() })
+            .await
+    }
+
+    /// Copy files into MFS.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.files_mv_with_options(
+    ///     ipfs_api::request::FilesMv {
+    ///         path: "/test/tmp.json",
+    ///         dest: "/test/file.json",
+    ///         flush: Some(false),
+    ///     }
+    /// );
+    /// ```
+    ///
+    #[inline]
+    pub async fn files_mv_with_options(
+        &self,
+        options: request::FilesMv<'_>,
+    ) -> Result<response::FilesMvResponse, Error> {
+        self.request_empty(options, None)
             .await
     }
 
@@ -1358,7 +1398,29 @@ impl IpfsClient {
     ///
     #[inline]
     pub async fn files_stat(&self, path: &str) -> Result<response::FilesStatResponse, Error> {
-        self.request(request::FilesStat { path, .. default() }, None).await
+        self.files_stat_with_options(request::FilesStat { path, .. default() }).await
+    }
+
+    /// Display a file's status in MFS.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.files_stat_with_options(
+    ///     ipfs_api::request::FilesStat {
+    ///         path: "/test/dir/",
+    ///         with_local: Some(true),
+    ///     }
+    /// );
+    /// ```
+    ///
+    #[inline]
+    pub async fn files_stat_with_options(
+        &self,
+        options: request::FilesStat<'_>
+    ) -> Result<response::FilesStatResponse, Error> {
+        self.request(options, None).await
     }
 
     /// Write to a mutable file in the filesystem.
