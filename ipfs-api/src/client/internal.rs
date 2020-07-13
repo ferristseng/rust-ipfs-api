@@ -1115,7 +1115,7 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.files_cp("/path/to/file", "/dest", true);
+    /// let res = client.files_cp("/path/to/file", "/dest");
     /// ```
     ///
     #[inline]
@@ -1123,9 +1123,8 @@ impl IpfsClient {
         &self,
         path: &str,
         dest: &str,
-        flush: bool,
     ) -> Result<response::FilesCpResponse, Error> {
-        self.request_empty(request::FilesCp { path, dest, flush }, None)
+        self.request_empty(request::FilesCp { path, dest, .. default() }, None)
             .await
     }
 
@@ -1147,7 +1146,7 @@ impl IpfsClient {
         self.request_empty(request::FilesFlush { path }, None).await
     }
 
-    /// List directories in MFS..
+    /// List directories in MFS.
     ///
     /// ```no_run
     /// use ipfs_api::IpfsClient;
@@ -1156,8 +1155,6 @@ impl IpfsClient {
     /// let res = client.files_ls(None);
     /// let res = client.files_ls(Some("/tmp"));
     /// ```
-    ///
-    /// Defaults to `-U`, so the output is unsorted.
     ///
     #[inline]
     pub async fn files_ls(&self, path: Option<&str>) -> Result<response::FilesLsResponse, Error> {
@@ -1204,8 +1201,12 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub async fn files_mkdir(&self, path: &str, parents: bool) -> Result<response::FilesMkdirResponse, Error> {
-        self.files_mkdir_with_options(request::FilesMkdir { path: path, parents: Some(parents), .. default() }).await
+    pub async fn files_mkdir(
+        &self,
+        path: &str,
+        parents: bool,
+    ) -> Result<response::FilesMkdirResponse, Error> {
+        self.files_mkdir_with_options(request::FilesMkdir {  path, parents: Some(parents), .. default() }).await
     }
 
     /// Make directories in MFS.
@@ -1245,7 +1246,7 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.files_mv("/test/tmp.json", "/test/file.json", true);
+    /// let res = client.files_mv("/test/tmp.json", "/test/file.json");
     /// ```
     ///
     #[inline]
@@ -1253,9 +1254,8 @@ impl IpfsClient {
         &self,
         path: &str,
         dest: &str,
-        flush: bool,
     ) -> Result<response::FilesMvResponse, Error> {
-        self.request_empty(request::FilesMv { path, dest, flush }, None)
+        self.request_empty(request::FilesMv { path, dest, .. default() }, None)
             .await
     }
 
@@ -1353,12 +1353,12 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.files_stat("/test/file.json", false);
+    /// let res = client.files_stat("/test/file.json");
     /// ```
     ///
     #[inline]
-    pub async fn files_stat(&self, path: &str, with_local: bool) -> Result<response::FilesStatResponse, Error> {
-        self.request(request::FilesStat { path, with_local }, None).await
+    pub async fn files_stat(&self, path: &str) -> Result<response::FilesStatResponse, Error> {
+        self.request(request::FilesStat { path, .. default() }, None).await
     }
 
     /// Write to a mutable file in the filesystem.
@@ -1369,21 +1369,27 @@ impl IpfsClient {
     ///
     /// let client = IpfsClient::default();
     /// let file = File::open("test.json").unwrap();
-    /// let res = client.files_write("/test/file.json", file);
+    /// let res = client.files_write("/test/file.json", true, true, file);
     /// ```
-    ///
-    /// For convenience reasons, this defaults create and truncate to true
     ///
     #[inline]
     pub async fn files_write<R>(
         &self,
         path: &str,
+        create: bool,
+        truncate: bool,
         data: R,
     ) -> Result<response::FilesWriteResponse, Error>
     where
         R: 'static + Read + Send + Sync,
     {
-        self.files_write_with_options(request::FilesWrite { path, .. request::FilesWrite::default() }, data).await
+        let options = request::FilesWrite {
+            path,
+            create: Some(create),
+            truncate: Some(truncate),
+            .. request::FilesWrite::default()
+        };
+        self.files_write_with_options(options, data).await
     }
 
     /// Write to a mutable file in the filesystem.

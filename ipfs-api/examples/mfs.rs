@@ -47,7 +47,7 @@ async fn main() {
     eprintln!("getting status of /test/does...");
     eprintln!();
 
-    match client.files_stat("/test/does", false).await {
+    match client.files_stat("/test/does").await {
         Ok(stat) => print_stat(stat),
         Err(e) => {
             eprintln!("error getting status of /test/does: {}", e);
@@ -60,7 +60,7 @@ async fn main() {
 
     let src = File::open(file!()).expect("could not read source file");
 
-    if let Err(e) = client.files_write("/test/mfs.rs", src).await {
+    if let Err(e) = client.files_write("/test/mfs.rs", true, true, src).await {
         eprintln!("error writing source file /test/mfs.rs: {}", e);
         return;
     }
@@ -68,7 +68,7 @@ async fn main() {
     eprintln!("getting status of /test/mfs.rs...");
     eprintln!();
 
-    match client.files_stat("/test/mfs.rs", false).await {
+    match client.files_stat("/test/mfs.rs").await {
         Ok(stat) => print_stat(stat),
         Err(e) => {
             eprintln!("error getting status of /test/mfs.rs: {}", e);

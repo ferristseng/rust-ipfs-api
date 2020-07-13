@@ -9,7 +9,7 @@
 use crate::request::ApiRequest;
 use crate::serde::Serialize;
 
-#[derive(Serialize)]
+#[derive(Serialize, Default)]
 pub struct FilesCp<'a> {
     #[serde(rename = "arg")]
     pub path: &'a str,
@@ -17,7 +17,7 @@ pub struct FilesCp<'a> {
     #[serde(rename = "arg")]
     pub dest: &'a str,
 
-    pub flush: bool,
+    pub flush: Option<bool>,
 }
 
 impl<'a> ApiRequest for FilesCp<'a> {
@@ -77,7 +77,7 @@ impl<'a> ApiRequest for FilesMkdir<'a> {
     const PATH: &'static str = "/files/mkdir";
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Default)]
 pub struct FilesMv<'a> {
     #[serde(rename = "arg")]
     pub path: &'a str,
@@ -85,7 +85,7 @@ pub struct FilesMv<'a> {
     #[serde(rename = "arg")]
     pub dest: &'a str,
 
-    pub flush: bool,
+    pub flush: Option<bool>,
 }
 
 impl<'a> ApiRequest for FilesMv<'a> {
@@ -126,13 +126,13 @@ impl<'a> ApiRequest for FilesRm<'a> {
     const PATH: &'static str = "/files/rm";
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Default)]
+#[serde(rename_all = "kebab-case")]
 pub struct FilesStat<'a> {
     #[serde(rename = "arg")]
     pub path: &'a str,
 
-    #[serde(rename = "with-local")]
-    pub with_local: bool,
+    pub with_local: Option<bool>,
 }
 
 impl<'a> ApiRequest for FilesStat<'a> {
