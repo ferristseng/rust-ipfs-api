@@ -39,6 +39,8 @@ use std::{
 };
 use tokio_util::codec::{Decoder, FramedRead};
 
+fn default<T: Default>() -> T { Default::default() }
+
 const FILE_DESCRIPTOR_LIMIT: usize = 127;
 
 #[cfg(feature = "actix")]
@@ -1122,8 +1124,25 @@ impl IpfsClient {
         path: &str,
         dest: &str,
     ) -> Result<response::FilesCpResponse, Error> {
-        self.request_empty(request::FilesCp { path, dest }, None)
+        self.files_cp_with_options(request::FilesCp { path, dest, .. default() })
             .await
+    }
+
+    /// Copy files into MFS.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.files_cp("/path/to/file", "/dest");
+    /// ```
+    ///
+    #[inline]
+    pub async fn files_cp_with_options(
+        &self,
+        options: request::FilesCp<'_>,
+    ) -> Result<response::FilesCpResponse, Error> {
+        self.request_empty(options, None).await
     }
 
     /// Flush a path's data to disk.
@@ -1156,7 +1175,36 @@ impl IpfsClient {
     ///
     #[inline]
     pub async fn files_ls(&self, path: Option<&str>) -> Result<response::FilesLsResponse, Error> {
-        self.request(request::FilesLs { path }, None).await
+        self.files_ls_with_options(request::FilesLs { path: path, .. default() }).await
+    }
+
+    /// List directories in MFS..
+    ///
+    /// ```no_run
+    /// let client = ipfs_api::IpfsClient::default();
+    /// #[cfg(feature = "builder")]
+    /// let req = ipfs_api::request::FilesLs::builder()
+    ///     // .path("/") // defaults to /
+    ///     .unsorted(false)
+    ///     .long(true)
+    ///     .build();
+    /// #[cfg(not(feature = "builder"))]
+    /// let req = ipfs_api::request::FilesLs {
+    ///     path: None, // defaults to /
+    ///     unsorted: Some(false),
+    ///     long: Some(true),
+    /// };
+    /// let res = client.files_ls_with_options(req);
+    /// ```
+    ///
+    /// Defaults to `-U`, so the output is unsorted.
+    ///
+    #[inline]
+    pub async fn files_ls_with_options(
+        &self,
+        options: request::FilesLs<'_>
+    ) -> Result<response::FilesLsResponse, Error> {
+        self.request(options, None).await
     }
 
     /// Make directories in MFS.
@@ -1175,8 +1223,37 @@ impl IpfsClient {
         path: &str,
         parents: bool,
     ) -> Result<response::FilesMkdirResponse, Error> {
-        self.request_empty(request::FilesMkdir { path, parents }, None)
-            .await
+        self.files_mkdir_with_options(request::FilesMkdir {  path, parents: Some(parents), .. default() }).await
+    }
+
+    /// Make directories in MFS.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// #[cfg(feature = "builder")]
+    /// let req = ipfs_api::request::FilesMkdir::builder()
+    ///     .path("/test/nested/dir")
+    ///     .parents(true)
+    ///     .flush(false)
+    ///     .build();
+    /// #[cfg(not(feature = "builder"))]
+    /// let req = ipfs_api::request::FilesMkdir {
+    ///     path: "/test/nested/dir",
+    ///     parents: Some(true),
+    ///     flush: Some(false),
+    ///     .. Default::default()
+    /// };
+    /// let res = client.files_mkdir_with_options(req);
+    /// ```
+    ///
+    #[inline]
+    pub async fn files_mkdir_with_options(
+        &self,
+        options: request::FilesMkdir<'_>
+    ) -> Result<response::FilesMkdirResponse, Error> {
+        self.request_empty(options, None).await
     }
 
     /// Copy files into MFS.
@@ -1194,7 +1271,31 @@ impl IpfsClient {
         path: &str,
         dest: &str,
     ) -> Result<response::FilesMvResponse, Error> {
-        self.request_empty(request::FilesMv { path, dest }, None)
+        self.files_mv_with_options(request::FilesMv { path, dest, .. default() })
+            .await
+    }
+
+    /// Copy files into MFS.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.files_mv_with_options(
+    ///     ipfs_api::request::FilesMv {
+    ///         path: "/test/tmp.json",
+    ///         dest: "/test/file.json",
+    ///         flush: Some(false),
+    ///     }
+    /// );
+    /// ```
+    ///
+    #[inline]
+    pub async fn files_mv_with_options(
+        &self,
+        options: request::FilesMv<'_>,
+    ) -> Result<response::FilesMvResponse, Error> {
+        self.request_empty(options, None)
             .await
     }
 
@@ -1209,9 +1310,33 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn files_read(&self, path: &str) -> impl Stream<Item = Result<Bytes, Error>> {
-        impl_stream_api_response! {
-            (self, request::FilesRead { path }, None) => request_stream_bytes
-        }
+        self.files_read_with_options(request::FilesRead { path, .. request::FilesRead::default() })
+    }
+
+    /// Read a file in MFS.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// #[cfg(feature = "builder")]
+    /// let req = ipfs_api::request::FilesRead::builder()
+    ///     .path("/test/file.json")
+    ///     .offset(1024)
+    ///     .count(8)
+    ///     .build();
+    /// #[cfg(not(feature = "builder"))]
+    /// let req = ipfs_api::request::FilesRead {
+    ///     path: "/test/file.json",
+    ///     offset: Some(1024),
+    ///     count: Some(8),
+    /// };
+    /// let res = client.files_read_with_options(req);
+    /// ```
+    ///
+    #[inline]
+    pub fn files_read_with_options(&self, options: request::FilesRead) -> impl Stream<Item = Result<Bytes, Error>> {
+        impl_stream_api_response! { (self, options, None) => request_stream_bytes }
     }
 
     /// Remove a file in MFS.
@@ -1230,11 +1355,39 @@ impl IpfsClient {
         path: &str,
         recursive: bool,
     ) -> Result<response::FilesRmResponse, Error> {
-        self.request_empty(request::FilesRm { path, recursive }, None)
-            .await
+        self.files_rm_with_options(request::FilesRm { path, recursive: Some(recursive), .. default() }).await
     }
 
-    /// Display a file's status in MDFS.
+    /// Remove a file in MFS.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// #[cfg(feature = "builder")]
+    /// let req = ipfs_api::request::FilesRm::builder()
+    ///     .path("/test/somefile.json")
+    ///     .recursive(false)
+    ///     .flush(false)
+    ///     .build();
+    /// #[cfg(not(feature = "builder"))]
+    /// let req = ipfs_api::request::FilesRm {
+    ///     path: "/test/somefile.json",
+    ///     recursive: Some(false),
+    ///     flush: Some(false),
+    /// };
+    /// let res = client.files_rm_with_options(req);
+    /// ```
+    ///
+    #[inline]
+    pub async fn files_rm_with_options(
+        &self,
+        options: request::FilesRm<'_>
+    ) -> Result<response::FilesRmResponse, Error> {
+        self.request_empty(options, None).await
+    }
+
+    /// Display a file's status in MFS.
     ///
     /// ```no_run
     /// use ipfs_api::IpfsClient;
@@ -1245,7 +1398,29 @@ impl IpfsClient {
     ///
     #[inline]
     pub async fn files_stat(&self, path: &str) -> Result<response::FilesStatResponse, Error> {
-        self.request(request::FilesStat { path }, None).await
+        self.files_stat_with_options(request::FilesStat { path, .. default() }).await
+    }
+
+    /// Display a file's status in MFS.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.files_stat_with_options(
+    ///     ipfs_api::request::FilesStat {
+    ///         path: "/test/dir/",
+    ///         with_local: Some(true),
+    ///     }
+    /// );
+    /// ```
+    ///
+    #[inline]
+    pub async fn files_stat_with_options(
+        &self,
+        options: request::FilesStat<'_>
+    ) -> Result<response::FilesStatResponse, Error> {
+        self.request(options, None).await
     }
 
     /// Write to a mutable file in the filesystem.
@@ -1270,19 +1445,116 @@ impl IpfsClient {
     where
         R: 'static + Read + Send + Sync,
     {
+        let options = request::FilesWrite {
+            path,
+            create: Some(create),
+            truncate: Some(truncate),
+            .. request::FilesWrite::default()
+        };
+        self.files_write_with_options(options, data).await
+    }
+
+    /// Write to a mutable file in the filesystem.
+    ///
+    /// ```no_run
+    /// let client = ipfs_api::IpfsClient::default();
+    /// let data = std::io::Cursor::new((1..128).collect::<Vec<u8>>());
+    /// #[cfg(feature = "builder")]
+    /// let req = ipfs_api::request::FilesWrite::builder()
+    ///     .path("/test/outfile.bin")
+    ///     .create(false)
+    ///     .truncate(false)
+    ///     .offset(1 << 20)
+    ///     .flush(false)
+    ///     // see FilesWriteBuilder for the full set of options
+    ///     .build();
+    /// #[cfg(not(feature = "builder"))]
+    /// let req = ipfs_api::request::FilesWrite {
+    ///     path: "/test/outfile.bin",
+    ///     create: Some(false),
+    ///     truncate: Some(false),
+    ///     offset: Some(1 << 20),
+    ///     flush: Some(false),
+    ///     .. Default::default()
+    /// };
+    /// let res = client.files_write_with_options(req, data);
+    /// ```
+    ///
+    #[inline]
+    pub async fn files_write_with_options<R>(
+        &self,
+        options: request::FilesWrite<'_>,
+        data: R,
+    ) -> Result<response::FilesWriteResponse, Error>
+    where
+        R: 'static + Read + Send + Sync,
+    {
         let mut form = multipart::Form::default();
 
         form.add_reader("data", data);
 
-        self.request_empty(
-            request::FilesWrite {
-                path,
-                create,
-                truncate,
-            },
-            Some(form),
-        )
-        .await
+        self.request_empty(options, Some(form)).await
+    }
+
+    /// Change the cid version or hash function of the root node of a given path.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    /// use std::fs::File;
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.files_chcid("/test/", 1);
+    /// ```
+    ///
+    /// Not specifying a byte `count` writes the entire input.
+    ///
+    #[inline]
+    pub async fn files_chcid(
+        &self,
+        path: &str,
+        cid_version: i32,
+    ) -> Result<response::FilesChcidResponse, Error>
+    {
+        self.request_empty(request::FilesChcid {
+            path: Some(path),
+            cid_version: Some(cid_version),
+            .. default()
+        }, None).await
+    }
+
+    /// Change the cid version or hash function of the root node of a given path.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    /// use std::fs::File;
+    ///
+    /// let client = IpfsClient::default();
+    /// #[cfg(feature = "builder")]
+    /// let req = ipfs_api::request::FilesChcid::builder()
+    ///     .path("/test/")
+    ///     .cid_version(1)
+    ///     .hash("sha3-512")
+    ///     .flush(true)
+    ///     .build();
+    /// #[cfg(not(feature = "builder"))]
+    /// let req = ipfs_api::request::FilesChcid {
+    ///     path: Some("/test/"),
+    ///     cid_version: Some(1),
+    ///     hash: Some("sha3-512"),
+    ///     flush: Some(false),
+    /// };
+    /// let res = client.files_chcid_with_options(req);
+    /// ```
+    ///
+    /// Not specifying a byte `count` writes the entire input.
+    ///
+    #[inline]
+    pub async fn files_chcid_with_options(
+        &self,
+        options: request::FilesChcid<'_>
+    ) -> Result<response::FilesChcidResponse, Error>
+    {
+        self.request_empty(options, None).await
     }
 
     /// List blocks that are both in the filestore and standard block storage.

@@ -50,9 +50,16 @@ pub struct FilesStatResponse {
 
     #[serde(rename = "Type")]
     pub typ: String,
+
+    #[serde(default)]
+    pub size_local: Option<u64>,
+    #[serde(default)]
+    pub local: Option<bool>,
 }
 
 pub type FilesWriteResponse = ();
+
+pub type FilesChcidResponse = ();
 
 #[cfg(test)]
 mod tests {
