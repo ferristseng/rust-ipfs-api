@@ -39,7 +39,9 @@ use std::{
 };
 use tokio_util::codec::{Decoder, FramedRead};
 
-fn default<T: Default>() -> T { Default::default() }
+fn default<T: Default>() -> T {
+    Default::default()
+}
 
 const FILE_DESCRIPTOR_LIMIT: usize = 127;
 
@@ -1124,8 +1126,12 @@ impl IpfsClient {
         path: &str,
         dest: &str,
     ) -> Result<response::FilesCpResponse, Error> {
-        self.files_cp_with_options(request::FilesCp { path, dest, .. default() })
-            .await
+        self.files_cp_with_options(request::FilesCp {
+            path,
+            dest,
+            ..default()
+        })
+        .await
     }
 
     /// Copy files into MFS.
@@ -1175,7 +1181,11 @@ impl IpfsClient {
     ///
     #[inline]
     pub async fn files_ls(&self, path: Option<&str>) -> Result<response::FilesLsResponse, Error> {
-        self.files_ls_with_options(request::FilesLs { path: path, .. default() }).await
+        self.files_ls_with_options(request::FilesLs {
+            path: path,
+            ..default()
+        })
+        .await
     }
 
     /// List directories in MFS..
@@ -1202,7 +1212,7 @@ impl IpfsClient {
     #[inline]
     pub async fn files_ls_with_options(
         &self,
-        options: request::FilesLs<'_>
+        options: request::FilesLs<'_>,
     ) -> Result<response::FilesLsResponse, Error> {
         self.request(options, None).await
     }
@@ -1223,7 +1233,12 @@ impl IpfsClient {
         path: &str,
         parents: bool,
     ) -> Result<response::FilesMkdirResponse, Error> {
-        self.files_mkdir_with_options(request::FilesMkdir {  path, parents: Some(parents), .. default() }).await
+        self.files_mkdir_with_options(request::FilesMkdir {
+            path,
+            parents: Some(parents),
+            ..default()
+        })
+        .await
     }
 
     /// Make directories in MFS.
@@ -1251,7 +1266,7 @@ impl IpfsClient {
     #[inline]
     pub async fn files_mkdir_with_options(
         &self,
-        options: request::FilesMkdir<'_>
+        options: request::FilesMkdir<'_>,
     ) -> Result<response::FilesMkdirResponse, Error> {
         self.request_empty(options, None).await
     }
@@ -1271,8 +1286,12 @@ impl IpfsClient {
         path: &str,
         dest: &str,
     ) -> Result<response::FilesMvResponse, Error> {
-        self.files_mv_with_options(request::FilesMv { path, dest, .. default() })
-            .await
+        self.files_mv_with_options(request::FilesMv {
+            path,
+            dest,
+            ..default()
+        })
+        .await
     }
 
     /// Copy files into MFS.
@@ -1295,8 +1314,7 @@ impl IpfsClient {
         &self,
         options: request::FilesMv<'_>,
     ) -> Result<response::FilesMvResponse, Error> {
-        self.request_empty(options, None)
-            .await
+        self.request_empty(options, None).await
     }
 
     /// Read a file in MFS.
@@ -1310,7 +1328,10 @@ impl IpfsClient {
     ///
     #[inline]
     pub fn files_read(&self, path: &str) -> impl Stream<Item = Result<Bytes, Error>> {
-        self.files_read_with_options(request::FilesRead { path, .. request::FilesRead::default() })
+        self.files_read_with_options(request::FilesRead {
+            path,
+            ..request::FilesRead::default()
+        })
     }
 
     /// Read a file in MFS.
@@ -1335,7 +1356,10 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub fn files_read_with_options(&self, options: request::FilesRead) -> impl Stream<Item = Result<Bytes, Error>> {
+    pub fn files_read_with_options(
+        &self,
+        options: request::FilesRead,
+    ) -> impl Stream<Item = Result<Bytes, Error>> {
         impl_stream_api_response! { (self, options, None) => request_stream_bytes }
     }
 
@@ -1355,7 +1379,12 @@ impl IpfsClient {
         path: &str,
         recursive: bool,
     ) -> Result<response::FilesRmResponse, Error> {
-        self.files_rm_with_options(request::FilesRm { path, recursive: Some(recursive), .. default() }).await
+        self.files_rm_with_options(request::FilesRm {
+            path,
+            recursive: Some(recursive),
+            ..default()
+        })
+        .await
     }
 
     /// Remove a file in MFS.
@@ -1382,7 +1411,7 @@ impl IpfsClient {
     #[inline]
     pub async fn files_rm_with_options(
         &self,
-        options: request::FilesRm<'_>
+        options: request::FilesRm<'_>,
     ) -> Result<response::FilesRmResponse, Error> {
         self.request_empty(options, None).await
     }
@@ -1398,7 +1427,8 @@ impl IpfsClient {
     ///
     #[inline]
     pub async fn files_stat(&self, path: &str) -> Result<response::FilesStatResponse, Error> {
-        self.files_stat_with_options(request::FilesStat { path, .. default() }).await
+        self.files_stat_with_options(request::FilesStat { path, ..default() })
+            .await
     }
 
     /// Display a file's status in MFS.
@@ -1418,7 +1448,7 @@ impl IpfsClient {
     #[inline]
     pub async fn files_stat_with_options(
         &self,
-        options: request::FilesStat<'_>
+        options: request::FilesStat<'_>,
     ) -> Result<response::FilesStatResponse, Error> {
         self.request(options, None).await
     }
@@ -1449,7 +1479,7 @@ impl IpfsClient {
             path,
             create: Some(create),
             truncate: Some(truncate),
-            .. request::FilesWrite::default()
+            ..request::FilesWrite::default()
         };
         self.files_write_with_options(options, data).await
     }
@@ -1513,13 +1543,16 @@ impl IpfsClient {
         &self,
         path: &str,
         cid_version: i32,
-    ) -> Result<response::FilesChcidResponse, Error>
-    {
-        self.request_empty(request::FilesChcid {
-            path: Some(path),
-            cid_version: Some(cid_version),
-            .. default()
-        }, None).await
+    ) -> Result<response::FilesChcidResponse, Error> {
+        self.request_empty(
+            request::FilesChcid {
+                path: Some(path),
+                cid_version: Some(cid_version),
+                ..default()
+            },
+            None,
+        )
+        .await
     }
 
     /// Change the cid version or hash function of the root node of a given path.
@@ -1551,9 +1584,8 @@ impl IpfsClient {
     #[inline]
     pub async fn files_chcid_with_options(
         &self,
-        options: request::FilesChcid<'_>
-    ) -> Result<response::FilesChcidResponse, Error>
-    {
+        options: request::FilesChcid<'_>,
+    ) -> Result<response::FilesChcidResponse, Error> {
         self.request_empty(options, None).await
     }
 
