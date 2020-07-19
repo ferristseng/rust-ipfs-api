@@ -967,7 +967,7 @@ dependencies = [
 
 [[package]]
 name = "ipfs-api"
-version = "0.7.2"
+version = "0.8.0-rc"
 dependencies = [
  "actix-http 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "actix-multipart-rfc7578 0.3.0-rc (registry+https://github.com/rust-lang/crates.io-index)",

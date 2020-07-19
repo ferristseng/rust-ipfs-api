@@ -14,14 +14,14 @@
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = "0.7.2"
+//! ipfs-api = "0.8.0-rc"
 //! ```
 //!
 //! You can use `actix-web` as a backend instead of `hyper`.
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = { version = "0.7.2", features = ["actix"], default-features = false }
+//! ipfs-api = { version = "0.8.0-rc", features = ["actix"], default-features = false }
 //! ```
 //!
 //! ## Examples

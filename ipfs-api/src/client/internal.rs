@@ -18,7 +18,7 @@ use actix_multipart::client::multipart;
 use bytes::Bytes;
 use futures::{future, FutureExt, Stream, StreamExt, TryFutureExt, TryStreamExt};
 use http::{
-    uri::{InvalidUri, Scheme, Uri},
+    uri::{Scheme, Uri},
     StatusCode,
 };
 #[cfg(feature = "hyper")]
@@ -34,7 +34,6 @@ use std::time::Duration;
 use std::{
     fs::File,
     io::{Cursor, Read},
-    net::SocketAddr,
     path::{Path, PathBuf},
 };
 use tokio_util::codec::{Decoder, FramedRead};
@@ -84,37 +83,6 @@ impl Default for IpfsClient {
     fn default() -> IpfsClient {
         Self::from_ipfs_config()
             .unwrap_or_else(|| Self::from_host_and_port(Scheme::HTTP, "localhost", 5001).unwrap())
-    }
-}
-
-impl IpfsClient {
-    /// Creates a new `IpfsClient`.
-    ///
-    #[deprecated(
-        since = "0.7.2",
-        note = "Please use [`TryFromUri::from_host_and_port`]. Removing in next major version."
-    )]
-    pub fn new(host: &str, port: u16) -> Result<IpfsClient, InvalidUri> {
-        let uri = format!("http://{}:{}", host, port);
-
-        // Using from_str instead of from_host_and_port internally to preserve the error type.
-        Self::from_str(&uri[..])
-    }
-
-    #[deprecated(
-        since = "0.7.2",
-        note = "Please use [`TryFromUri::from_uri`]. Removing in next major version."
-    )]
-    pub fn new_from_uri(uri: &str) -> Result<IpfsClient, InvalidUri> {
-        Self::from_str(uri)
-    }
-
-    #[deprecated(
-        since = "0.7.2",
-        note = "Please use [`TryFromUri::from_socket`]. Removing in next major version."
-    )]
-    pub fn from(socket_addr: SocketAddr) -> IpfsClient {
-        Self::from_socket(Scheme::HTTP, socket_addr).unwrap()
     }
 }
 
