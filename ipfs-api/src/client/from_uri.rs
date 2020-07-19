@@ -104,6 +104,9 @@ pub trait TryFromUri: Sized {
                             Self::from_ipv6(scheme, SocketAddrV6::new(v6addr, port, 0, 0)).unwrap(),
                         )
                     }
+                    Protocol::Dns(ref hostname) => {
+                        return Ok(Self::from_host_and_port(scheme, hostname, port).unwrap())
+                    }
                     Protocol::Dns4(ref v4host) => {
                         return Ok(Self::from_host_and_port(scheme, v4host, port).unwrap())
                     }
