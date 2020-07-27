@@ -852,26 +852,31 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    pub async fn dag_get(&self, path: &str) -> Result<response::DagGetResponse, Error> {
-        self.request(request::DagGet { path }, None).await
+    pub async fn dag_get(&self, path: &str) -> Result<String, Error> {
+        self.request_string(request::DagGet { path }, None).await
     }
 
-    // TODO /dag routes are experimental, and there isn't a whole lot of
-    // documentation available for how this route works.
-    //
-    // /// Add a DAG node to Ipfs.
-    // ///
-    // #[inline]
-    // pub fn dag_put<R>(&self, data: R) -> AsyncResponse<response::DagPutResponse>
-    // where
-    //     R: 'static + Read + Send,
-    // {
-    //     let mut form = multipart::Form::default();
-    //
-    //     form.add_reader("arg", data);
-    //
-    //     self.request(&request::DagPut, Some(form))
-    // }
+    /// Add a DAG node to Ipfs.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// let data = Cursor::new(r#"{ "hello" : "world" }"#);
+    /// let res = client.dag_put(data);
+    /// ```
+    ///
+    #[inline]
+    pub async fn dag_put<R>(&self, data: R) -> Result<response::DagPutResponse, Error>
+    where
+        R: 'static + Read + Send + Sync,
+    {
+        let mut form = multipart::Form::default();
+
+        form.add_reader("object data", data);
+
+        self.request(request::DagPut, Some(form)).await
+    }
 
     // TODO /dag/resolve
 
