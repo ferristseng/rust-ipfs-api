@@ -6,6 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+use futures::TryStreamExt;
 use ipfs_api::IpfsClient;
 use std::io::Cursor;
 
@@ -19,7 +20,7 @@ async fn main() {
 
     let client = IpfsClient::default();
 
-    let dag_node = Cursor::new(r#"{ "hello" : "world" }"#);
+    let dag_node = Cursor::new(r#"{"hello":"world"}"#);
 
     let response = client
         .dag_put(dag_node)
@@ -28,7 +29,17 @@ async fn main() {
 
     let cid = response.cid.cid_string;
 
-    let response = client.dag_get(&cid).await.expect("error getting dag node");
-
-    println!("dag node => {}", response);
+    match client
+        .dag_get(&cid)
+        .map_ok(|chunk| chunk.to_vec())
+        .try_concat()
+        .await
+    {
+        Ok(bytes) => {
+            println!("{}", String::from_utf8_lossy(&bytes[..]));
+        }
+        Err(e) => {
+            eprintln!("error reading dag node: {}", e);
+        }
+    }
 }

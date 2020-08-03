@@ -845,21 +845,29 @@ impl IpfsClient {
     /// Returns information about a dag node in Ipfs.
     ///
     /// ```no_run
+    /// use futures::TryStreamExt;
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.dag_get("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
+    /// let hash = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
+    /// let res = client
+    ///     .dag_get(hash)
+    ///     .map_ok(|chunk| chunk.to_vec())
+    ///     .try_concat();
     /// ```
     ///
     #[inline]
-    pub async fn dag_get(&self, path: &str) -> Result<String, Error> {
-        self.request_string(request::DagGet { path }, None).await
+    pub fn dag_get(&self, path: &str) -> impl Stream<Item = Result<Bytes, Error>> {
+        impl_stream_api_response! {
+            (self, request::DagGet { path }, None) => request_stream_bytes
+        }
     }
 
     /// Add a DAG node to Ipfs.
     ///
     /// ```no_run
     /// use ipfs_api::IpfsClient;
+    /// use std::io::Cursor;
     ///
     /// let client = IpfsClient::default();
     /// let data = Cursor::new(r#"{ "hello" : "world" }"#);
