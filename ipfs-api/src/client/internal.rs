@@ -845,33 +845,46 @@ impl IpfsClient {
     /// Returns information about a dag node in Ipfs.
     ///
     /// ```no_run
+    /// use futures::TryStreamExt;
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.dag_get("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
+    /// let hash = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
+    /// let res = client
+    ///     .dag_get(hash)
+    ///     .map_ok(|chunk| chunk.to_vec())
+    ///     .try_concat();
     /// ```
     ///
     #[inline]
-    pub async fn dag_get(&self, path: &str) -> Result<response::DagGetResponse, Error> {
-        self.request(request::DagGet { path }, None).await
+    pub fn dag_get(&self, path: &str) -> impl Stream<Item = Result<Bytes, Error>> {
+        impl_stream_api_response! {
+            (self, request::DagGet { path }, None) => request_stream_bytes
+        }
     }
 
-    // TODO /dag routes are experimental, and there isn't a whole lot of
-    // documentation available for how this route works.
-    //
-    // /// Add a DAG node to Ipfs.
-    // ///
-    // #[inline]
-    // pub fn dag_put<R>(&self, data: R) -> AsyncResponse<response::DagPutResponse>
-    // where
-    //     R: 'static + Read + Send,
-    // {
-    //     let mut form = multipart::Form::default();
-    //
-    //     form.add_reader("arg", data);
-    //
-    //     self.request(&request::DagPut, Some(form))
-    // }
+    /// Add a DAG node to Ipfs.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    /// use std::io::Cursor;
+    ///
+    /// let client = IpfsClient::default();
+    /// let data = Cursor::new(r#"{ "hello" : "world" }"#);
+    /// let res = client.dag_put(data);
+    /// ```
+    ///
+    #[inline]
+    pub async fn dag_put<R>(&self, data: R) -> Result<response::DagPutResponse, Error>
+    where
+        R: 'static + Read + Send + Sync,
+    {
+        let mut form = multipart::Form::default();
+
+        form.add_reader("object data", data);
+
+        self.request(request::DagPut, Some(form)).await
+    }
 
     // TODO /dag/resolve
 

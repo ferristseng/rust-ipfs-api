@@ -19,7 +19,6 @@ impl<'a> ApiRequest for DagGet<'a> {
     const PATH: &'static str = "/dag/get";
 }
 
-#[allow(dead_code)]
 pub struct DagPut;
 
 impl_skip_serialize!(DagPut);

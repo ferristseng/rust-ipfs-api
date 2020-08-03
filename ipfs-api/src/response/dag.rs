@@ -29,9 +29,15 @@ pub struct DagGetResponse {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
 pub struct DagPutResponse {
-    pub cid: String,
+    #[serde(rename = "Cid")]
+    pub cid: Cid,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Cid {
+    #[serde(rename = "/")]
+    pub cid_string: String,
 }
 
 #[cfg(test)]
