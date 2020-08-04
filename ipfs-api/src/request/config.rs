@@ -7,6 +7,26 @@
 //
 
 use crate::request::ApiRequest;
+use crate::serde::Serialize;
+
+#[derive(Serialize)]
+pub struct Config<'a> {
+    #[serde(rename = "arg")]
+    pub key: &'a str,
+
+    #[serde(rename = "arg")]
+    pub value: Option<&'a str>,
+
+    #[serde(rename = "bool")]
+    pub boolean: Option<bool>,
+
+    #[serde(rename = "json")]
+    pub stringified_json: Option<bool>,
+}
+
+impl<'a> ApiRequest for Config<'a> {
+    const PATH: &'static str = "/config";
+}
 
 pub struct ConfigEdit;
 

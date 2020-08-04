@@ -789,6 +789,35 @@ impl IpfsClient {
         self.request(request::Commands, None).await
     }
 
+    /// Get and set ipfs config values.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.config("Identity.PeerID", None, None, None);
+    /// ```
+    ///
+    #[inline]
+    pub async fn config(
+        &self,
+        key: &str,
+        value: Option<&str>,
+        boolean: Option<bool>,
+        stringified_json: Option<bool>,
+    ) -> Result<response::ConfigResponse, Error> {
+        self.request(
+            request::Config {
+                key,
+                value,
+                boolean,
+                stringified_json,
+            },
+            None,
+        )
+        .await
+    }
+
     /// Opens the config file for editing (on the server).
     ///
     /// ```no_run
