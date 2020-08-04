@@ -7,7 +7,7 @@ documentation             = "https://docs.rs/ipfs-api"
 repository                = "https://github.com/ferristseng/rust-ipfs-api"
 keywords                  = ["ipfs"]
 categories                = ["filesystem", "web-programming"]
-version                   = "0.8.0-rc"
+version                   = "0.8.0-rc.1"
 readme                    = "../README.md"
 license                   = "MIT OR Apache-2.0"
 
