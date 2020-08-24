@@ -18,25 +18,49 @@ async fn main() {
 
     let client = IpfsClient::default();
 
-    //read a value
+    //read a string
     let response = client
-        .config("Identity.PeerID", None, None, None)
+        .config_get_string("Identity.PeerID")
         .await
         .expect("Config read failed");
 
     println!("Config: {}={}", response.key, response.value);
 
-    //set a boolean value
+    //read a bool
     let response = client
-        .config("Pubsub.DisableSigning", Some("false"), Some(true), None)
+        .config_get_bool("Datastore.HashOnRead")
+        .await
+        .expect("Config read failed");
+
+    println!("Config: {}={}", response.key, response.value);
+
+    //read a stringified json
+    let response = client
+        .config_get_json("Mounts")
+        .await
+        .expect("Config read failed");
+
+    println!("Config: {}={}", response.key, response.value);
+
+    //set a string value
+    let response = client
+        .config_set_string("Routing.Type", "dht")
         .await
         .expect("Config write failed");
 
     println!("Config: {}={}", response.key, response.value);
 
-    //set a integer value
+    //set a boolean value
     let response = client
-        .config("Datastore.StorageGCWatermark", Some("90"), None, Some(true))
+        .config_set_bool("Pubsub.DisableSigning", "false")
+        .await
+        .expect("Config write failed");
+
+    println!("Config: {}={}", response.key, response.value);
+
+    //set a json value
+    let response = client
+        .config_set_json("Discovery", r#"{"MDNS":{"Enabled":true,"Interval":10}}"#)
         .await
         .expect("Config write failed");
 
