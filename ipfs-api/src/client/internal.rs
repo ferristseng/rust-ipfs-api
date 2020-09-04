@@ -789,6 +789,156 @@ impl IpfsClient {
         self.request(request::Commands, None).await
     }
 
+    /// Get ipfs config strings.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.config_get_string("Identity.PeerID");
+    /// ```
+    ///
+    #[inline]
+    pub async fn config_get_string(&self, key: &str) -> Result<response::ConfigResponse, Error> {
+        self.request(
+            request::Config {
+                key,
+                value: None,
+                boolean: None,
+                stringified_json: None,
+            },
+            None,
+        )
+        .await
+    }
+
+    /// Get ipfs config booleans.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.config_get_bool("Datastore.HashOnRead");
+    /// ```
+    ///
+    #[inline]
+    pub async fn config_get_bool(&self, key: &str) -> Result<response::ConfigResponse, Error> {
+        self.request(
+            request::Config {
+                key,
+                value: None,
+                boolean: None,
+                stringified_json: None,
+            },
+            None,
+        )
+        .await
+    }
+
+    /// Get ipfs config json.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.config_get_json("Mounts");
+    /// ```
+    ///
+    #[inline]
+    pub async fn config_get_json(&self, key: &str) -> Result<response::ConfigResponse, Error> {
+        self.request(
+            request::Config {
+                key,
+                value: None,
+                boolean: None,
+                stringified_json: None,
+            },
+            None,
+        )
+        .await
+    }
+
+    /// Set ipfs config string.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.config_set_string("Routing.Type", "dht");
+    /// ```
+    ///
+    #[inline]
+    pub async fn config_set_string(
+        &self,
+        key: &str,
+        value: &str,
+    ) -> Result<response::ConfigResponse, Error> {
+        self.request(
+            request::Config {
+                key,
+                value: Some(value),
+                boolean: None,
+                stringified_json: None,
+            },
+            None,
+        )
+        .await
+    }
+
+    /// Set ipfs config boolean.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.config_set_bool("Pubsub.DisableSigning", "false");
+    /// ```
+    ///
+    #[inline]
+    pub async fn config_set_bool(
+        &self,
+        key: &str,
+        value: bool,
+    ) -> Result<response::ConfigResponse, Error> {
+        self.request(
+            request::Config {
+                key,
+                value: Some(&value.to_string()),
+                boolean: Some(true),
+                stringified_json: None,
+            },
+            None,
+        )
+        .await
+    }
+
+    /// Set ipfs config json.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = config_set_json("Discovery", r#"{"MDNS":{"Enabled":true,"Interval":10}}"#);
+    /// ```
+    ///
+    #[inline]
+    pub async fn config_set_json(
+        &self,
+        key: &str,
+        value: &str,
+    ) -> Result<response::ConfigResponse, Error> {
+        self.request(
+            request::Config {
+                key,
+                value: Some(value),
+                boolean: None,
+                stringified_json: Some(true),
+            },
+            None,
+        )
+        .await
+    }
+
     /// Opens the config file for editing (on the server).
     ///
     /// ```no_run
