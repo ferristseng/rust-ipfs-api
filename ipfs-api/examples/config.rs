@@ -52,7 +52,7 @@ async fn main() {
 
     //set a boolean value
     let response = client
-        .config_set_bool("Pubsub.DisableSigning", "false")
+        .config_set_bool("Pubsub.DisableSigning", false)
         .await
         .expect("Config write failed");
 

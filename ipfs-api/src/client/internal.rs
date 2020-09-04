@@ -898,12 +898,12 @@ impl IpfsClient {
     pub async fn config_set_bool(
         &self,
         key: &str,
-        value: &str,
+        value: bool,
     ) -> Result<response::ConfigResponse, Error> {
         self.request(
             request::Config {
                 key,
-                value: Some(value),
+                value: Some(&value.to_string()),
                 boolean: Some(true),
                 stringified_json: None,
             },
