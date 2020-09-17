@@ -891,7 +891,7 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.config_set_bool("Pubsub.DisableSigning", "false");
+    /// let res = client.config_set_bool("Pubsub.DisableSigning", false);
     /// ```
     ///
     #[inline]
@@ -918,7 +918,7 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = config_set_json("Discovery", r#"{"MDNS":{"Enabled":true,"Interval":10}}"#);
+    /// let res = client.config_set_json("Discovery", r#"{"MDNS":{"Enabled":true,"Interval":10}}"#);
     /// ```
     ///
     #[inline]
