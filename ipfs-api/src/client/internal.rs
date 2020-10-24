@@ -1942,13 +1942,47 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.ls(None);
     /// let res = client.ls(Some("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY"));
     /// ```
     ///
     #[inline]
     pub async fn ls(&self, path: Option<&str>) -> Result<response::LsResponse, Error> {
-        self.request(request::Ls { path }, None).await
+        self.request(request::Ls {
+            path: path.expect("Path is not actually optional"),
+            stream: None,
+            resolve_type: None,
+            size: None,
+        }, None).await
+    }
+
+    /// List the contents of an Ipfs multihash.
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    /// let client = IpfsClient::default();
+    /// #[cfg(feature = "builder")]
+    /// let _ = client.ls_with_options(ipfs_api::request::Ls::builder()
+    ///     .path("/ipfs/QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n")
+    ///     .build()
+    /// );
+    /// let _ = client.ls_with_options(ipfs_api::request::Ls {
+    ///     path: "/ipfs/QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n",
+    ///     // Example options for fast listing
+    ///     stream: Some(true),
+    ///     resolve_type: Some(false),
+    ///     size: Some(false),
+    /// });
+    /// ```
+    ///
+    #[inline]
+    pub async fn ls_with_options(
+        &self,
+        options: request::Ls<'_>
+    ) -> impl Stream<Item = Result<response::LsResponse, Error>> {
+        impl_stream_api_response! {
+            (self, options, None) => request_stream_json
+        }
     }
 
     // TODO /mount
