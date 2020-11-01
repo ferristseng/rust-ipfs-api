@@ -1942,16 +1942,14 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.ls(Some("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY"));
+    /// let res = client.ls("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
     /// ```
     ///
     #[inline]
-    pub async fn ls(&self, path: Option<&str>) -> Result<response::LsResponse, Error> {
+    pub async fn ls(&self, path: &str) -> Result<response::LsResponse, Error> {
         self.request(request::Ls {
-            path: path.expect("Path is not actually optional"),
-            stream: None,
-            resolve_type: None,
-            size: None,
+            path: path,
+            .. Default::default()
         }, None).await
     }
 
