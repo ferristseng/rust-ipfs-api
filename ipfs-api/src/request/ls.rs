@@ -34,6 +34,22 @@ impl<'a> ApiRequest for Ls<'a> {
 mod tests {
     use super::Ls;
 
-    serialize_url_test!(test_serializes_0, Ls { path: "test", .. Default::default() }, "arg=test");
-    serialize_url_test!(test_serializes_1, Ls { path: "asdf", resolve_type: Some(true), size: Some(true), stream: Some(false) }, "arg=asdf&resolve-type=true&size=true&stream=false");
+    serialize_url_test!(
+        test_serializes_0,
+        Ls {
+            path: "test",
+            ..Default::default()
+        },
+        "arg=test"
+    );
+    serialize_url_test!(
+        test_serializes_1,
+        Ls {
+            path: "asdf",
+            resolve_type: Some(true),
+            size: Some(true),
+            stream: Some(false)
+        },
+        "arg=asdf&resolve-type=true&size=true&stream=false"
+    );
 }

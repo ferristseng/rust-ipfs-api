@@ -1947,10 +1947,14 @@ impl IpfsClient {
     ///
     #[inline]
     pub async fn ls(&self, path: &str) -> Result<response::LsResponse, Error> {
-        self.request(request::Ls {
-            path: path,
-            .. Default::default()
-        }, None).await
+        self.request(
+            request::Ls {
+                path: path,
+                ..Default::default()
+            },
+            None,
+        )
+        .await
     }
 
     /// List the contents of an Ipfs multihash.
@@ -1976,7 +1980,7 @@ impl IpfsClient {
     #[inline]
     pub async fn ls_with_options(
         &self,
-        options: request::Ls<'_>
+        options: request::Ls<'_>,
     ) -> impl Stream<Item = Result<response::LsResponse, Error>> {
         impl_stream_api_response! {
             (self, options, None) => request_stream_json
