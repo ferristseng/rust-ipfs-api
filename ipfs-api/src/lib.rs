@@ -171,8 +171,17 @@ pub mod response;
 use actix_http::{encoding, Payload, PayloadStream};
 #[cfg(feature = "hyper")]
 use hyper::{self, client::HttpConnector};
-#[cfg(feature = "hyper")]
-use hyper_tls::HttpsConnector;
+#[cfg(all(feature = "hyper-rustls", feature = "hyper-tls"))]
+compile_error!("Pick only one of the features: hyper-tls, hyper-rustls");
+#[cfg(all(feature = "hyper-tls", not(feature = "hyper-rustls")))]
+type HyperConnector = hyper_tls::HttpsConnector<HttpConnector>;
+#[cfg(all(feature = "hyper-rustls", not(feature = "hyper-tls")))]
+type HyperConnector = hyper_rustls::HttpsConnector<HttpConnector>;
+#[cfg(all(feature = "hyper", any(
+            not(any(feature = "hyper-tls", feature = "hyper-rustls")),
+            all(feature = "hyper-rustls", feature = "hyper-tls"),
+)))]
+type HyperConnector = HttpConnector;
 
 #[cfg(feature = "actix")]
 pub(crate) type Request = awc::SendClientRequest;
@@ -187,4 +196,4 @@ pub(crate) type Response = http::Response<hyper::Body>;
 #[cfg(feature = "actix")]
 pub(crate) type Client = awc::Client;
 #[cfg(feature = "hyper")]
-pub(crate) type Client = hyper::client::Client<HttpsConnector<HttpConnector>, hyper::Body>;
+pub(crate) type Client = hyper::client::Client<HyperConnector, hyper::Body>;

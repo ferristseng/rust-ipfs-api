@@ -26,7 +26,8 @@ use hyper::{body, client::Builder};
 #[cfg(feature = "hyper")]
 use hyper_multipart::client::multipart;
 #[cfg(feature = "hyper")]
-use hyper_tls::HttpsConnector;
+use crate::HyperConnector;
+
 use serde::{Deserialize, Serialize};
 use serde_json;
 #[cfg(feature = "actix")]
@@ -64,7 +65,7 @@ impl TryFromUri for IpfsClient {
             {
                 Builder::default()
                     .pool_max_idle_per_host(0)
-                    .build(HttpsConnector::new())
+                    .build(HyperConnector::new())
             }
             #[cfg(feature = "actix")]
             {
