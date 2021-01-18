@@ -11,8 +11,8 @@ use ipfs_api::IpfsClient;
 // Creates an Ipfs client, and gets information about your local address, and
 // connected peers.
 //
-#[cfg_attr(feature = "actix", actix_rt::main)]
-#[cfg_attr(feature = "hyper", tokio::main)]
+#[cfg_attr(feature = "with-actix", actix_rt::main)]
+#[cfg_attr(feature = "with-hyper", tokio::main)]
 async fn main() {
     eprintln!("connecting to localhost:5001...");
 

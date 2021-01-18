@@ -21,7 +21,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = { version = "0.9.0", features = ["actix"], default-features = false }
+//! ipfs-api = { version = "0.9.0", features = ["with-actix"], default-features = false }
 //! ```
 //!
 //! ## Examples
@@ -140,21 +140,21 @@
 //! ```
 //!
 
-#[cfg(feature = "actix")]
+#[cfg(feature = "with-actix")]
 extern crate actix_multipart_rfc7578 as actix_multipart;
-#[cfg(feature = "actix")]
+#[cfg(feature = "with-actix")]
 #[macro_use]
 extern crate derive_more;
 
-#[cfg(feature = "hyper")]
+#[cfg(feature = "with-hyper")]
 extern crate hyper_multipart_rfc7578 as hyper_multipart;
-#[cfg(feature = "hyper")]
+#[cfg(feature = "with-hyper")]
 #[macro_use]
 extern crate failure;
 
 extern crate serde;
 
-#[cfg(feature = "builder")]
+#[cfg(feature = "with-builder")]
 #[macro_use]
 extern crate typed_builder;
 
@@ -167,33 +167,36 @@ mod read;
 pub mod request;
 pub mod response;
 
-#[cfg(feature = "actix")]
+#[cfg(feature = "with-actix")]
 use actix_http::{encoding, Payload, PayloadStream};
-#[cfg(feature = "hyper")]
+#[cfg(feature = "with-hyper")]
 use hyper::{self, client::HttpConnector};
-#[cfg(all(feature = "hyper-rustls", feature = "hyper-tls"))]
+#[cfg(all(feature = "with-hyper-rustls", feature = "with-hyper-tls"))]
 compile_error!("Pick only one of the features: hyper-tls, hyper-rustls");
-#[cfg(all(feature = "hyper-tls", not(feature = "hyper-rustls")))]
+#[cfg(all(feature = "with-hyper-tls", not(feature = "with-hyper-rustls")))]
 type HyperConnector = hyper_tls::HttpsConnector<HttpConnector>;
-#[cfg(all(feature = "hyper-rustls", not(feature = "hyper-tls")))]
+#[cfg(all(feature = "with-hyper-rustls", not(feature = "with-hyper-tls")))]
 type HyperConnector = hyper_rustls::HttpsConnector<HttpConnector>;
-#[cfg(all(feature = "hyper", any(
-            not(any(feature = "hyper-tls", feature = "hyper-rustls")),
-            all(feature = "hyper-rustls", feature = "hyper-tls"),
+#[cfg(all(feature = "with-hyper", any(
+            not(any(feature = "with-hyper-tls", feature = "with-hyper-rustls")),
+            all(feature = "with-hyper-rustls", feature = "with-hyper-tls"),
 )))]
 type HyperConnector = HttpConnector;
 
-#[cfg(feature = "actix")]
+#[cfg(feature = "with-actix")]
 pub(crate) type Request = awc::SendClientRequest;
-#[cfg(feature = "hyper")]
+#[cfg(feature = "with-hyper")]
 pub(crate) type Request = http::Request<hyper::Body>;
 
-#[cfg(feature = "actix")]
+#[cfg(feature = "with-actix")]
 pub(crate) type Response = awc::ClientResponse<encoding::Decoder<Payload<PayloadStream>>>;
-#[cfg(feature = "hyper")]
+#[cfg(feature = "with-hyper")]
 pub(crate) type Response = http::Response<hyper::Body>;
 
-#[cfg(feature = "actix")]
+#[cfg(feature = "with-actix")]
 pub(crate) type Client = awc::Client;
-#[cfg(feature = "hyper")]
+#[cfg(feature = "with-hyper")]
 pub(crate) type Client = hyper::client::Client<HyperConnector, hyper::Body>;
+
+#[cfg(not(any(feature = "with-actix", feature = "with-hyper")))]
+compile_error!("Pick exactly one of these features: with-hyper, with-actix");

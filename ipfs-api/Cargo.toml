@@ -15,9 +15,15 @@ license                   = "MIT OR Apache-2.0"
 travis-ci                 = { repository = "ferristseng/rust-ipfs-api" }
 
 [features]
-default                   = ["hyper", "hyper-multipart-rfc7578", "hyper-tls", "failure"]
-actix                     = ["actix-http", "actix-multipart-rfc7578", "awc", "derive_more"]
-builder                   = ["typed-builder"]
+default                   = ["with-hyper-tls", "with-builder"]
+with-hyper-tls            = ["with-hyper", "hyper-tls"]
+with-hyper-rustls         = ["with-hyper", "hyper-rustls"]
+with-hyper                = ["hyper", "hyper-multipart-rfc7578", "failure"]
+with-actix                = ["actix-http", "actix-multipart-rfc7578", "awc", "derive_more"]
+with-builder              = ["typed-builder"]
+# Old features, kept for compatibility
+actix                     = ["with-actix"]
+builder                   = ["with-builder"]
 
 [dependencies]
 actix-http                = { version = "1.0", optional = true }

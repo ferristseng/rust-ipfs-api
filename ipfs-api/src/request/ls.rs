@@ -9,20 +9,20 @@
 use crate::request::ApiRequest;
 use crate::serde::Serialize;
 
-#[cfg_attr(feature = "builder", derive(TypedBuilder))]
+#[cfg_attr(feature = "with-builder", derive(TypedBuilder))]
 #[derive(Serialize, Default)]
 #[serde(rename_all = "kebab-case")]
 pub struct Ls<'a> {
     #[serde(rename = "arg")]
     pub path: &'a str,
     /// Resolve linked objects to find out their types. Default: `true`
-    #[cfg_attr(feature = "builder", builder(default, setter(strip_option)))]
+    #[cfg_attr(feature = "with-builder", builder(default, setter(strip_option)))]
     pub resolve_type: Option<bool>,
     /// Resolve linked objects to find out their file size. Default: `true`
-    #[cfg_attr(feature = "builder", builder(default, setter(strip_option)))]
+    #[cfg_attr(feature = "with-builder", builder(default, setter(strip_option)))]
     pub size: Option<bool>,
     /// Enable experimental streaming of directory entries as they are traversed.
-    #[cfg_attr(feature = "builder", builder(default, setter(strip_option)))]
+    #[cfg_attr(feature = "with-builder", builder(default, setter(strip_option)))]
     pub stream: Option<bool>,
 }
 
