@@ -6,8 +6,7 @@ rust:
 script:
   - cargo build --verbose
   - cargo test --verbose
-  - cd ipfs-api; cargo build --verbose --features actix --no-default-features
-  - cd ipfs-api; cargo test --verbose --features actix --no-default-features
-  - cd ipfs-api; cargo build --verbose --features builder
-  - cd ipfs-api; cargo test --verbose --features builder
-  - cd ipfs-api; cargo test --verbose --features actix builder --no-default-features
+  - cd ipfs-api; cargo build --verbose --features with-actix --no-default-features
+  - cd ipfs-api; cargo test --verbose --features with-actix --no-default-features
+  - cd ipfs-api; cargo build --verbose --features with-hyper-rustls --no-default-features
+  - cd ipfs-api; cargo test --verbose --features with-hyper-rustls --no-default-features
