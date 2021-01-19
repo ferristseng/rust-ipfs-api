@@ -25,8 +25,8 @@ fn get_client() -> IpfsClient {
 // Creates an Ipfs client, and simultaneously publishes and reads from a pubsub
 // topic.
 //
-#[cfg_attr(feature = "actix", actix_rt::main)]
-#[cfg_attr(feature = "hyper", tokio::main)]
+#[cfg_attr(feature = "with-actix", actix_rt::main)]
+#[cfg_attr(feature = "with-hyper", tokio::main)]
 async fn main() {
     eprintln!("note: ipfs must be run with the --enable-pubsub-experiment flag");
 

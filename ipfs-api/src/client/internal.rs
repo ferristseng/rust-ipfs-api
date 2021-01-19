@@ -13,7 +13,7 @@ use crate::{
     response::{self, Error},
     Client, Request, Response,
 };
-#[cfg(feature = "actix")]
+#[cfg(feature = "with-actix")]
 use actix_multipart::client::multipart;
 use bytes::Bytes;
 use futures::{future, FutureExt, Stream, StreamExt, TryFutureExt, TryStreamExt};
@@ -21,15 +21,16 @@ use http::{
     uri::{Scheme, Uri},
     StatusCode,
 };
-#[cfg(feature = "hyper")]
+#[cfg(feature = "with-hyper")]
 use hyper::{body, client::Builder};
-#[cfg(feature = "hyper")]
+#[cfg(feature = "with-hyper")]
 use hyper_multipart::client::multipart;
-#[cfg(feature = "hyper")]
-use hyper_tls::HttpsConnector;
+#[cfg(feature = "with-hyper")]
+use crate::HyperConnector;
+
 use serde::{Deserialize, Serialize};
 use serde_json;
-#[cfg(feature = "actix")]
+#[cfg(feature = "with-actix")]
 use std::time::Duration;
 use std::{
     fs::File,
@@ -44,7 +45,7 @@ fn default<T: Default>() -> T {
 
 const FILE_DESCRIPTOR_LIMIT: usize = 127;
 
-#[cfg(feature = "actix")]
+#[cfg(feature = "with-actix")]
 const ACTIX_REQUEST_TIMEOUT: Duration = Duration::from_secs(90);
 
 /// Asynchronous Ipfs client.
@@ -60,13 +61,13 @@ impl TryFromUri for IpfsClient {
     ///
     fn build_with_base_uri(uri: Uri) -> IpfsClient {
         let client = {
-            #[cfg(feature = "hyper")]
+            #[cfg(feature = "with-hyper")]
             {
                 Builder::default()
                     .pool_max_idle_per_host(0)
-                    .build(HttpsConnector::new())
+                    .build(HyperConnector::new())
             }
-            #[cfg(feature = "actix")]
+            #[cfg(feature = "with-actix")]
             {
                 Client::default()
             }
@@ -104,7 +105,7 @@ impl IpfsClient {
             ::serde_urlencoded::to_string(req)?
         );
 
-        #[cfg(feature = "hyper")]
+        #[cfg(feature = "with-hyper")]
         {
             url.parse::<Uri>().map_err(From::from).and_then(move |url| {
                 let builder = http::Request::builder().method(http::Method::POST).uri(url);
@@ -118,7 +119,7 @@ impl IpfsClient {
                 req.map_err(From::from)
             })
         }
-        #[cfg(feature = "actix")]
+        #[cfg(feature = "with-actix")]
         {
             let req = if let Some(form) = form {
                 self.client
@@ -170,11 +171,11 @@ impl IpfsClient {
     where
         D: Decoder<Item = Res, Error = Error> + Send,
     {
-        #[cfg(feature = "hyper")]
+        #[cfg(feature = "with-hyper")]
         {
             FramedRead::new(StreamReader::new(res.into_body()), decoder)
         }
-        #[cfg(feature = "actix")]
+        #[cfg(feature = "with-actix")]
         {
             FramedRead::new(StreamReader::new(res), decoder)
         }
@@ -192,7 +193,7 @@ impl IpfsClient {
     {
         let req = self.build_base_request(req, form)?;
 
-        #[cfg(feature = "hyper")]
+        #[cfg(feature = "with-hyper")]
         {
             let res = self.client.request(req).await?;
             let status = res.status();
@@ -200,7 +201,7 @@ impl IpfsClient {
 
             Ok((status, body))
         }
-        #[cfg(feature = "actix")]
+        #[cfg(feature = "with-actix")]
         {
             let mut res = req.await?;
             let status = res.status();
@@ -279,7 +280,7 @@ impl IpfsClient {
         OutStream: Stream<Item = Result<Res, Error>>,
         F: 'static + Fn(Response) -> OutStream,
     {
-        #[cfg(feature = "hyper")]
+        #[cfg(feature = "with-hyper")]
         {
             self.client
                 .request(req)
@@ -303,7 +304,7 @@ impl IpfsClient {
                 })
                 .try_flatten_stream()
         }
-        #[cfg(feature = "actix")]
+        #[cfg(feature = "with-actix")]
         {
             req.err_into()
                 .map_ok(move |mut res| {
@@ -331,11 +332,11 @@ impl IpfsClient {
     /// back a raw stream of bytes.
     ///
     fn request_stream_bytes(&self, req: Request) -> impl Stream<Item = Result<Bytes, Error>> {
-        #[cfg(feature = "hyper")]
+        #[cfg(feature = "with-hyper")]
         {
             self.request_stream(req, |res| res.into_body().err_into())
         }
-        #[cfg(feature = "actix")]
+        #[cfg(feature = "with-actix")]
         {
             self.request_stream(req, |res| res.err_into())
         }
@@ -432,11 +433,11 @@ impl IpfsClient {
     /// # fn main() {
     /// let client = IpfsClient::default();
     /// let data = Cursor::new("Hello World!");
-    /// #[cfg(feature = "builder")]
+    /// #[cfg(feature = "with-builder")]
     /// let add = ipfs_api::request::Add::builder()
     ///     .chunker("rabin-512-1024-2048")
     ///     .build();
-    /// #[cfg(not(feature = "builder"))]
+    /// #[cfg(not(feature = "with-builder"))]
     /// let add = ipfs_api::request::Add {
     ///     chunker: Some("rabin-512-1024-2048"),
     ///     ..Default::default()
@@ -1323,13 +1324,13 @@ impl IpfsClient {
     ///
     /// ```no_run
     /// let client = ipfs_api::IpfsClient::default();
-    /// #[cfg(feature = "builder")]
+    /// #[cfg(feature = "with-builder")]
     /// let req = ipfs_api::request::FilesLs::builder()
     ///     // .path("/") // defaults to /
     ///     .unsorted(false)
     ///     .long(true)
     ///     .build();
-    /// #[cfg(not(feature = "builder"))]
+    /// #[cfg(not(feature = "with-builder"))]
     /// let req = ipfs_api::request::FilesLs {
     ///     path: None, // defaults to /
     ///     unsorted: Some(false),
@@ -1378,13 +1379,13 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// #[cfg(feature = "builder")]
+    /// #[cfg(feature = "with-builder")]
     /// let req = ipfs_api::request::FilesMkdir::builder()
     ///     .path("/test/nested/dir")
     ///     .parents(true)
     ///     .flush(false)
     ///     .build();
-    /// #[cfg(not(feature = "builder"))]
+    /// #[cfg(not(feature = "with-builder"))]
     /// let req = ipfs_api::request::FilesMkdir {
     ///     path: "/test/nested/dir",
     ///     parents: Some(true),
@@ -1471,13 +1472,13 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// #[cfg(feature = "builder")]
+    /// #[cfg(feature = "with-builder")]
     /// let req = ipfs_api::request::FilesRead::builder()
     ///     .path("/test/file.json")
     ///     .offset(1024)
     ///     .count(8)
     ///     .build();
-    /// #[cfg(not(feature = "builder"))]
+    /// #[cfg(not(feature = "with-builder"))]
     /// let req = ipfs_api::request::FilesRead {
     ///     path: "/test/file.json",
     ///     offset: Some(1024),
@@ -1524,13 +1525,13 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// #[cfg(feature = "builder")]
+    /// #[cfg(feature = "with-builder")]
     /// let req = ipfs_api::request::FilesRm::builder()
     ///     .path("/test/somefile.json")
     ///     .recursive(false)
     ///     .flush(false)
     ///     .build();
-    /// #[cfg(not(feature = "builder"))]
+    /// #[cfg(not(feature = "with-builder"))]
     /// let req = ipfs_api::request::FilesRm {
     ///     path: "/test/somefile.json",
     ///     recursive: Some(false),
@@ -1620,7 +1621,7 @@ impl IpfsClient {
     /// ```no_run
     /// let client = ipfs_api::IpfsClient::default();
     /// let data = std::io::Cursor::new((1..128).collect::<Vec<u8>>());
-    /// #[cfg(feature = "builder")]
+    /// #[cfg(feature = "with-builder")]
     /// let req = ipfs_api::request::FilesWrite::builder()
     ///     .path("/test/outfile.bin")
     ///     .create(false)
@@ -1629,7 +1630,7 @@ impl IpfsClient {
     ///     .flush(false)
     ///     // see FilesWriteBuilder for the full set of options
     ///     .build();
-    /// #[cfg(not(feature = "builder"))]
+    /// #[cfg(not(feature = "with-builder"))]
     /// let req = ipfs_api::request::FilesWrite {
     ///     path: "/test/outfile.bin",
     ///     create: Some(false),
@@ -1693,14 +1694,14 @@ impl IpfsClient {
     /// use std::fs::File;
     ///
     /// let client = IpfsClient::default();
-    /// #[cfg(feature = "builder")]
+    /// #[cfg(feature = "with-builder")]
     /// let req = ipfs_api::request::FilesChcid::builder()
     ///     .path("/test/")
     ///     .cid_version(1)
     ///     .hash("sha3-512")
     ///     .flush(true)
     ///     .build();
-    /// #[cfg(not(feature = "builder"))]
+    /// #[cfg(not(feature = "with-builder"))]
     /// let req = ipfs_api::request::FilesChcid {
     ///     path: Some("/test/"),
     ///     cid_version: Some(1),
@@ -1963,7 +1964,7 @@ impl IpfsClient {
     /// use ipfs_api::IpfsClient;
     ///
     /// let client = IpfsClient::default();
-    /// #[cfg(feature = "builder")]
+    /// #[cfg(feature = "with-builder")]
     /// let _ = client.ls_with_options(ipfs_api::request::Ls::builder()
     ///     .path("/ipfs/QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n")
     ///     .build()

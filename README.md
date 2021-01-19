@@ -17,7 +17,7 @@ You can use `actix-web` as a backend instead of `hyper`.
 
 ```toml
 [dependencies]
-ipfs-api = { version = "0.9.0", features = ["actix"], default-features = false }
+ipfs-api = { version = "0.9.0", features = ["with-actix"], default-features = false }
 ```
 
 ### Examples

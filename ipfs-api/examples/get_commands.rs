@@ -32,8 +32,8 @@ fn print_recursive(indent: usize, cmd: &response::CommandsResponse) {
 // Creates an Ipfs client, and gets a list of available commands from the
 // Ipfs server.
 //
-#[cfg_attr(feature = "actix", actix_rt::main)]
-#[cfg_attr(feature = "hyper", tokio::main)]
+#[cfg_attr(feature = "with-actix", actix_rt::main)]
+#[cfg_attr(feature = "with-hyper", tokio::main)]
 async fn main() {
     eprintln!("connecting to localhost:5001...");
 
