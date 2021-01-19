@@ -10,14 +10,30 @@ Rust library for connecting to the IPFS HTTP API using tokio.
 
 ```toml
 [dependencies]
-ipfs-api = "0.9.0"
+ipfs-api = "0.10.0"
 ```
+#### Feature Flags
 
 You can use `actix-web` as a backend instead of `hyper`.
 
 ```toml
 [dependencies]
-ipfs-api = { version = "0.9.0", features = ["with-actix"], default-features = false }
+ipfs-api = { version = "0.10.0", features = ["with-actix"], default-features = false }
+```
+
+You also have the option of using [`rustls`](https://crates.io/crates/rustls)
+instead of native tls:
+
+```toml
+[dependencies]
+ipfs-api = { version = "0.10.0", features = ["with-hyper-rustls"], default-features = false }
+```
+
+To enable the builder pattern (default) use the `with-builder` feature:
+
+```toml
+[dependencies]
+ipfs-api = { version = "0.10.0", features = ["with-hyper-rustls", "with-builder"], default-features = false }
 ```
 
 ### Examples
