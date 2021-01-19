@@ -4,7 +4,7 @@
 [![Crates.io](https://img.shields.io/crates/v/ipfs-api.svg)](https://crates.io/crates/ipfs-api)
 [![Docs.rs](https://docs.rs/ipfs-api/badge.svg)](https://docs.rs/ipfs-api/)
 
-Rust library for connecting to the IPFS HTTP API using tokio.
+Rust library for connecting to the IPFS HTTP API using Hyper/Actix.
 
 ### Usage
 

@@ -8,7 +8,7 @@
 
 #![recursion_limit = "128"]
 
-//! Rust library for connecting to the IPFS HTTP API using tokio.
+//! Rust library for connecting to the IPFS HTTP API using Hyper/Actix.
 //!
 //! ## Usage
 //!
