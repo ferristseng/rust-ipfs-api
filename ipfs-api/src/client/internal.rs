@@ -38,6 +38,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use tokio_util::codec::{Decoder, FramedRead};
+use crate::request::global_options::GlobalOptions;
 
 fn default<T: Default>() -> T {
     Default::default()
@@ -54,6 +55,23 @@ const ACTIX_REQUEST_TIMEOUT: Duration = Duration::from_secs(90);
 pub struct IpfsClient {
     base: Uri,
     client: Client,
+
+    /// Can be used to configure some of the global IPFS API options
+    ///
+    /// Example:
+    ///
+    /// ```no_run
+    /// use ipfs_api::IpfsClient;
+    ///
+    ///# async fn foo() -> bool {
+    /// let mut client = IpfsClient::default();
+    /// // check whether you unpinned the initial files on your node:
+    /// client.global_options.offline = Some(true);
+    /// client.object_stat("QmPXME1oRtoT627YKaDPDQ3PwA8tdP9rWuAAweLzqSwAWT").await.is_ok()
+    ///# }
+    /// ```
+    ///
+    pub global_options: GlobalOptions,
 }
 
 impl TryFromUri for IpfsClient {
@@ -73,7 +91,7 @@ impl TryFromUri for IpfsClient {
             }
         };
 
-        IpfsClient { base: uri, client }
+        IpfsClient { base: uri, client, global_options: GlobalOptions::default() }
     }
 }
 
@@ -98,11 +116,20 @@ impl IpfsClient {
     where
         Req: ApiRequest + Serialize,
     {
+        #[derive(Serialize)]
+        struct OptCombiner<'a, Req> {
+            #[serde(flatten)]
+            global: &'a GlobalOptions,
+            #[serde(flatten)]
+            request: &'a Req,
+        }
+        let query = OptCombiner { global: &self.global_options, request: &req };
+
         let url = format!(
             "{}{}?{}",
             self.base,
             Req::PATH,
-            ::serde_urlencoded::to_string(req)?
+            ::serde_urlencoded::to_string(query)?
         );
 
         #[cfg(feature = "with-hyper")]

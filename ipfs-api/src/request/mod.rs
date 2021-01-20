@@ -97,6 +97,7 @@ mod stats;
 mod swarm;
 mod tar;
 mod version;
+pub mod global_options;
 
 /// A request that can be made against the Ipfs API.
 ///
