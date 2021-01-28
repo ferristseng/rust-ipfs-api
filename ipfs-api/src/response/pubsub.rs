@@ -9,11 +9,8 @@
 use crate::response::serde;
 use crate::serde::{Deserialize, Deserializer};
 
-use std::convert::TryFrom;
 use std::convert::TryInto;
-use std::str::FromStr;
 
-use cid::Cid;
 use multibase::Base;
 
 #[derive(Debug, Deserialize)]
@@ -34,11 +31,11 @@ pub type PubsubPubResponse = ();
 
 #[derive(Debug, Deserialize)]
 pub struct PubsubSubResponse {
-    //#[serde(deserialize_with = "deserialize_from_field")]
+    #[serde(deserialize_with = "deserialize_from_field")]
     pub from: Option<String>,
 
     #[serde(deserialize_with = "deserialize_data_field")]
-    pub data: Option<String>,
+    pub data: Option<Vec<u8>>,
 
     #[serde(deserialize_with = "deserialize_seqno_field")]
     pub seqno: Option<usize>,
@@ -50,11 +47,11 @@ pub struct PubsubSubResponse {
     pub unrecognized: Option<Vec<u8>>,
 }
 
-/* fn deserialize_from_field<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+fn deserialize_from_field<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where
     D: Deserializer<'de>,
 {
-    let from: Option<String> = Deserialize::deserialize(deserializer)?;
+    let from: Option<&str> = Deserialize::deserialize(deserializer)?;
 
     let from = match from {
         Some(from) => from,
@@ -63,14 +60,13 @@ where
 
     let from = Base::decode(&Base::Base64Pad, from).expect("Multibase decoding failed");
 
-    //let from = String::from_utf8(from).expect("Invalid UTF-8");
-
-    //let from = Cid::try_from(from).expect("Deserialize string to CID failed");
+    //This is the most common encoding for PeerIds
+    let from = Base::encode(&Base::Base58Btc, from);
 
     Ok(Some(from))
-} */
+}
 
-fn deserialize_data_field<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+fn deserialize_data_field<'de, D>(deserializer: D) -> Result<Option<Vec<u8>>, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -82,8 +78,6 @@ where
     };
 
     let data = Base::decode(&Base::Base64Pad, data).expect("Multibase decoding failed");
-
-    let data = String::from_utf8(data).expect("Invalid UTF-8");
 
     Ok(Some(data))
 }
