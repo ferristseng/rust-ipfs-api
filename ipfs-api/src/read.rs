@@ -13,9 +13,8 @@ use futures::{
     Stream,
 };
 use serde::Deserialize;
-use serde_json;
 use std::{cmp, fmt::Display, io, marker::PhantomData, pin::Pin};
-use tokio::io::AsyncRead;
+use tokio::io::{AsyncRead, ReadBuf};
 use tokio_util::codec::Decoder;
 
 /// A decoder for a response where each line is a full json object.
@@ -167,13 +166,13 @@ where
     fn poll_read(
         mut self: Pin<&mut Self>,
         cx: &mut Context,
-        mut buf: &mut [u8],
-    ) -> Poll<io::Result<usize>> {
+        buf: &mut ReadBuf<'_>,
+    ) -> Poll<io::Result<()>> {
         match self.state {
             // Stream yielded a Chunk to read.
             //
             ReadState::Ready(ref mut chunk, ref mut pos) => {
-                let bytes_read = copy_from_chunk_to(buf, chunk, *pos);
+                let bytes_read = copy_from_chunk_to(buf.filled_mut(), chunk, *pos);
 
                 if *pos + bytes_read >= chunk.len() {
                     self.state = ReadState::NotReady;
@@ -181,7 +180,7 @@ where
                     *pos += bytes_read;
                 }
 
-                return Poll::Ready(Ok(bytes_read));
+                return Poll::Ready(Ok(()));
             }
             // Stream is not ready, and a Chunk needs to be read.
             //
@@ -190,7 +189,7 @@ where
                     // Polling stream yielded a Chunk that can be read from.
                     //
                     Poll::Ready(Some(Ok(mut chunk))) => {
-                        let bytes_read = copy_from_chunk_to(&mut buf, &mut chunk, 0);
+                        let bytes_read = copy_from_chunk_to(buf.filled_mut(), &mut chunk, 0);
 
                         if bytes_read >= chunk.len() {
                             self.state = ReadState::NotReady;
@@ -198,7 +197,7 @@ where
                             self.state = ReadState::Ready(chunk, bytes_read);
                         }
 
-                        return Poll::Ready(Ok(bytes_read));
+                        return Poll::Ready(Ok(()));
                     }
                     Poll::Ready(Some(Err(e))) => {
                         return Poll::Ready(Err(io::Error::new(
@@ -208,7 +207,7 @@ where
                     }
                     // Polling stream yielded EOF.
                     //
-                    Poll::Ready(None) => return Poll::Ready(Ok(0)),
+                    Poll::Ready(None) => return Poll::Ready(Ok(())),
                     // Stream could not be read from.
                     //
                     Poll::Pending => (),
