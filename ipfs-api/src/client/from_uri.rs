@@ -13,7 +13,7 @@ use std::{
     str::FromStr,
 };
 
-const VERSION_PATH_V0: &'static str = "/api/v0";
+const VERSION_PATH_V0: &str = "/api/v0";
 
 /// Builds the base url path for the Ipfs api.
 ///
