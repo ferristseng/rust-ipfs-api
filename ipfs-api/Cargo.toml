@@ -27,7 +27,7 @@ builder                   = ["with-builder"]
 
 [dependencies]
 actix-http                = { version = "2.2", optional = true }
-actix-multipart-rfc7578   = { version = "0.4", git = "https://github.com/ferristseng/rust-multipart-rfc7578", branch = "ftseng/upgrade-tokio-hyper-actix", optional = true }
+actix-multipart-rfc7578   = { version = "0.4", optional = true }
 awc                       = { version = "2.0", optional = true }
 bytes                     = "1.0"
 derive_more               = { version = "0.99", optional = true }
@@ -37,7 +37,7 @@ http                      = "0.2"
 hyper                     = { version = "0.14", features = ["http1", "http2", "client"], optional = true }
 hyper-tls                 = { version = "0.5", optional = true }
 hyper-rustls              = { version = "0.22", optional = true }
-hyper-multipart-rfc7578   = { version = "0.5", git = "https://github.com/ferristseng/rust-multipart-rfc7578", branch = "ftseng/upgrade-tokio-hyper-actix", optional = true }
+hyper-multipart-rfc7578   = { version = "0.5", optional = true }
 serde                     = { version = "1.0", features = ["derive"] }
 serde_json                = "1.0"
 serde_urlencoded          = "0.7"
