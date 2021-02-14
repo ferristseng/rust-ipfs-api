@@ -13,6 +13,7 @@ use futures::{future, FutureExt, StreamExt, TryStreamExt};
 use ipfs_api::IpfsClient;
 use std::time::Duration;
 use tokio::time;
+use tokio_stream::wrappers::IntervalStream;
 
 static TOPIC: &'static str = "test";
 
@@ -35,7 +36,8 @@ async fn main() {
     // This block will execute a repeating function that sends
     // a message to the "test" topic.
     //
-    let mut publish = time::interval(Duration::from_secs(1))
+    let interval = time::interval(Duration::from_secs(1));
+    let mut publish = IntervalStream::new(interval)
         .then(|_| future::ok(())) // Coerce the stream into a TryStream
         .try_for_each(|_| {
             eprintln!();

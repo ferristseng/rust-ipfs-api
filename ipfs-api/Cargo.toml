@@ -7,7 +7,7 @@ documentation             = "https://docs.rs/ipfs-api"
 repository                = "https://github.com/ferristseng/rust-ipfs-api"
 keywords                  = ["ipfs"]
 categories                = ["filesystem", "web-programming"]
-version                   = "0.10.0"
+version                   = "0.11.0"
 readme                    = "../README.md"
 license                   = "MIT OR Apache-2.0"
 
@@ -26,34 +26,34 @@ actix                     = ["with-actix"]
 builder                   = ["with-builder"]
 
 [dependencies]
-actix-http                = { version = "1.0", optional = true }
-actix-multipart-rfc7578   = { version = "0.3.0-rc", optional = true }
-awc                       = { version = "1.0", optional = true }
-bytes                     = "0.5"
+actix-http                = { version = "2.2", optional = true }
+actix-multipart-rfc7578   = { version = "0.4", optional = true }
+awc                       = { version = "2.0", optional = true }
+bytes                     = "1.0"
 derive_more               = { version = "0.99", optional = true }
-failure                   = { version = "0.1.6", optional = true }
+failure                   = { version = "0.1", optional = true }
 futures                   = "0.3"
 http                      = "0.2"
-hyper                     = { version = "0.13", optional = true }
-hyper-tls                 = { version = "0.4", optional = true }
-hyper-rustls              = { version = "0.20", optional = true }
-hyper-multipart-rfc7578   = { version = "0.4.0-rc", optional = true }
+hyper                     = { version = "0.14", features = ["http1", "http2", "client"], optional = true }
+hyper-tls                 = { version = "0.5", optional = true }
+hyper-rustls              = { version = "0.22", optional = true }
+hyper-multipart-rfc7578   = { version = "0.5", optional = true }
 serde                     = { version = "1.0", features = ["derive"] }
 serde_json                = "1.0"
-serde_urlencoded          = "0.6"
-tokio                     = "0.2"
-tokio-util                = { version = "0.3", features = ["codec"] }
+serde_urlencoded          = "0.7"
+tokio                     = "1.2"
+tokio-util                = { version = "0.6", features = ["codec"] }
 walkdir                   = "2.3"
 dirs                      = "3.0"
-parity-multiaddr          = "0.9"
-typed-builder             = { version = "0.6", optional = true }
+parity-multiaddr          = "0.11"
+typed-builder             = { version = "0.9", optional = true }
 
 [dev-dependencies]
-actix-http                = "1.0"
-actix-multipart-rfc7578   = "0.3.0-rc"
+actix-http                = "2.2"
 actix-rt                  = "1.0"
-awc                       = "1.0"
-hyper                     = "0.13"
-hyper-tls                 = "0.4"
+awc                       = "2.0"
+hyper                     = "0.14"
+hyper-tls                 = "0.5"
 tar                       = "0.4"
-tokio                     = { version = "0.2", features = ["rt-threaded", "macros", "time"] }
+tokio                     = { version = "1.2", features = ["rt-multi-thread", "macros", "time"] }
+tokio-stream              = { version = "0.1", features = ["time"] }

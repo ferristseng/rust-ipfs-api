@@ -8,13 +8,12 @@
 use crate::{
     client::TryFromUri,
     header::TRAILER,
+    multipart,
     read::{JsonLineDecoder, LineDecoder, StreamReader},
     request::{self, ApiRequest},
     response::{self, Error},
     Client, Request, Response,
 };
-#[cfg(feature = "with-actix")]
-use actix_multipart::client::multipart;
 use bytes::Bytes;
 use futures::{future, FutureExt, Stream, StreamExt, TryFutureExt, TryStreamExt};
 use http::{
@@ -23,13 +22,7 @@ use http::{
 };
 #[cfg(feature = "with-hyper")]
 use hyper::{body, client::Builder};
-#[cfg(feature = "with-hyper")]
-use hyper_multipart::client::multipart;
-#[cfg(feature = "with-hyper")]
-use crate::HyperConnector;
-
 use serde::{Deserialize, Serialize};
-use serde_json;
 #[cfg(feature = "with-actix")]
 use std::time::Duration;
 use std::{
@@ -38,10 +31,6 @@ use std::{
     path::{Path, PathBuf},
 };
 use tokio_util::codec::{Decoder, FramedRead};
-
-fn default<T: Default>() -> T {
-    Default::default()
-}
 
 const FILE_DESCRIPTOR_LIMIT: usize = 127;
 
@@ -63,9 +52,14 @@ impl TryFromUri for IpfsClient {
         let client = {
             #[cfg(feature = "with-hyper")]
             {
+                #[cfg(feature = "with-hyper-rustls")]
+                let connector = crate::HyperConnector::with_native_roots();
+                #[cfg(not(feature = "with-hyper-rustls"))]
+                let connector = crate::HyperConnector::new();
+
                 Builder::default()
                     .pool_max_idle_per_host(0)
-                    .build(HyperConnector::new())
+                    .build(connector)
             }
             #[cfg(feature = "with-actix")]
             {
@@ -177,7 +171,10 @@ impl IpfsClient {
         }
         #[cfg(feature = "with-actix")]
         {
-            FramedRead::new(StreamReader::new(res), decoder)
+            // FIXME: Actix compat with bytes 1.0
+            let stream = res.map_ok(|bytes| Bytes::copy_from_slice(bytes.as_ref()));
+
+            FramedRead::new(StreamReader::new(stream), decoder)
         }
     }
 
@@ -207,7 +204,8 @@ impl IpfsClient {
             let status = res.status();
             let body = res.body().await?;
 
-            Ok((status, body))
+            // FIXME: Actix compat with bytes 1.0
+            Ok((status, Bytes::copy_from_slice(body.as_ref())))
         }
     }
 
@@ -317,7 +315,12 @@ impl IpfsClient {
                         _ => res
                             .body()
                             .map(|maybe_body| match maybe_body {
-                                Ok(body) => Err(Self::process_error_from_body(body)),
+                                Ok(body) => {
+                                    // FIXME: Actix compat with bytes 1.0
+                                    let body = Bytes::copy_from_slice(body.as_ref());
+
+                                    Err(Self::process_error_from_body(body))
+                                }
                                 Err(e) => Err(e.into()),
                             })
                             .into_stream()
@@ -338,7 +341,11 @@ impl IpfsClient {
         }
         #[cfg(feature = "with-actix")]
         {
-            self.request_stream(req, |res| res.err_into())
+            self.request_stream(req, |res| {
+                // FIXME: Actix compat with bytes 1.0
+                res.map_ok(|bytes| Bytes::copy_from_slice(bytes.as_ref()))
+                    .err_into()
+            })
         }
     }
 
@@ -1261,7 +1268,7 @@ impl IpfsClient {
         self.files_cp_with_options(request::FilesCp {
             path,
             dest,
-            ..default()
+            ..Default::default()
         })
         .await
     }
@@ -1314,8 +1321,8 @@ impl IpfsClient {
     #[inline]
     pub async fn files_ls(&self, path: Option<&str>) -> Result<response::FilesLsResponse, Error> {
         self.files_ls_with_options(request::FilesLs {
-            path: path,
-            ..default()
+            path,
+            ..Default::default()
         })
         .await
     }
@@ -1368,7 +1375,7 @@ impl IpfsClient {
         self.files_mkdir_with_options(request::FilesMkdir {
             path,
             parents: Some(parents),
-            ..default()
+            ..Default::default()
         })
         .await
     }
@@ -1421,7 +1428,7 @@ impl IpfsClient {
         self.files_mv_with_options(request::FilesMv {
             path,
             dest,
-            ..default()
+            ..Default::default()
         })
         .await
     }
@@ -1514,7 +1521,7 @@ impl IpfsClient {
         self.files_rm_with_options(request::FilesRm {
             path,
             recursive: Some(recursive),
-            ..default()
+            ..Default::default()
         })
         .await
     }
@@ -1559,8 +1566,11 @@ impl IpfsClient {
     ///
     #[inline]
     pub async fn files_stat(&self, path: &str) -> Result<response::FilesStatResponse, Error> {
-        self.files_stat_with_options(request::FilesStat { path, ..default() })
-            .await
+        self.files_stat_with_options(request::FilesStat {
+            path,
+            ..Default::default()
+        })
+        .await
     }
 
     /// Display a file's status in MFS.
@@ -1680,7 +1690,7 @@ impl IpfsClient {
             request::FilesChcid {
                 path: Some(path),
                 cid_version: Some(cid_version),
-                ..default()
+                ..Default::default()
             },
             None,
         )
@@ -1950,7 +1960,7 @@ impl IpfsClient {
     pub async fn ls(&self, path: &str) -> Result<response::LsResponse, Error> {
         self.request(
             request::Ls {
-                path: path,
+                path,
                 ..Default::default()
             },
             None,
