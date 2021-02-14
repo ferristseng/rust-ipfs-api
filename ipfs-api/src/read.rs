@@ -116,11 +116,11 @@ impl Decoder for LineDecoder {
 /// Copies bytes from a Bytes chunk into a destination buffer, and returns
 /// the number of bytes that were read.
 ///
-fn copy_from_chunk_to(dest: &mut [u8], chunk: &mut Bytes, chunk_start: usize) -> usize {
-    let len = cmp::min(dest.len(), chunk.len() - chunk_start);
+fn copy_from_chunk_to(dest: &mut ReadBuf<'_>, chunk: &mut Bytes, chunk_start: usize) -> usize {
+    let len = cmp::min(dest.capacity(), chunk.len() - chunk_start);
     let chunk_end = chunk_start + len;
 
-    dest[..len].copy_from_slice(&chunk[chunk_start..chunk_end]);
+    dest.put_slice(&chunk[chunk_start..chunk_end]);
 
     len
 }
@@ -172,7 +172,7 @@ where
             // Stream yielded a Chunk to read.
             //
             ReadState::Ready(ref mut chunk, ref mut pos) => {
-                let bytes_read = copy_from_chunk_to(buf.filled_mut(), chunk, *pos);
+                let bytes_read = copy_from_chunk_to(buf, chunk, *pos);
 
                 if *pos + bytes_read >= chunk.len() {
                     self.state = ReadState::NotReady;
@@ -189,7 +189,7 @@ where
                     // Polling stream yielded a Chunk that can be read from.
                     //
                     Poll::Ready(Some(Ok(mut chunk))) => {
-                        let bytes_read = copy_from_chunk_to(buf.filled_mut(), &mut chunk, 0);
+                        let bytes_read = copy_from_chunk_to(buf, &mut chunk, 0);
 
                         if bytes_read >= chunk.len() {
                             self.state = ReadState::NotReady;
