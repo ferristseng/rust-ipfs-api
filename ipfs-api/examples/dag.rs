@@ -15,6 +15,8 @@ use std::io::Cursor;
 #[cfg_attr(feature = "with-actix", actix_rt::main)]
 #[cfg_attr(feature = "with-hyper", tokio::main)]
 async fn main() {
+    tracing_subscriber::fmt::init();
+
     eprintln!("note: this must be run in the root of the project repository");
     eprintln!("connecting to localhost:5001...");
 

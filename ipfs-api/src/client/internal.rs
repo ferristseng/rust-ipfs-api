@@ -31,6 +31,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use tokio_util::codec::{Decoder, FramedRead};
+use tracing::{event, Level};
 
 const FILE_DESCRIPTOR_LIMIT: usize = 127;
 
@@ -98,6 +99,8 @@ impl IpfsClient {
             Req::PATH,
             ::serde_urlencoded::to_string(req)?
         );
+
+        event!(Level::INFO, url = ?url);
 
         #[cfg(feature = "with-hyper")]
         {

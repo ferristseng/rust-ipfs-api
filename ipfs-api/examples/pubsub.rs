@@ -29,6 +29,8 @@ fn get_client() -> IpfsClient {
 #[cfg_attr(feature = "with-actix", actix_rt::main)]
 #[cfg_attr(feature = "with-hyper", tokio::main)]
 async fn main() {
+    tracing_subscriber::fmt::init();
+
     eprintln!("note: ipfs must be run with the --enable-pubsub-experiment flag");
 
     let publish_client = get_client();

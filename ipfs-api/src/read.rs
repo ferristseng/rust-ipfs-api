@@ -16,6 +16,7 @@ use serde::Deserialize;
 use std::{cmp, fmt::Display, io, marker::PhantomData, pin::Pin};
 use tokio::io::{AsyncRead, ReadBuf};
 use tokio_util::codec::Decoder;
+use tracing::{event, instrument, Level};
 
 /// A decoder for a response where each line is a full json object.
 ///
@@ -49,10 +50,13 @@ where
     /// Tries to find a new line character. If it does, it will split the buffer,
     /// and parse the first slice.
     ///
+    #[instrument(skip(self, src), fields(stream_trailer = self.parse_stream_error))]
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
         let nl_index = src.iter().position(|b| *b == b'\n');
 
         if let Some(pos) = nl_index {
+            event!(Level::INFO, "Found new line delimeter in buffer");
+
             let slice = src.split_to(pos + 1);
             let slice = &slice[..slice.len() - 1];
 
@@ -81,6 +85,8 @@ where
                 }
             }
         } else {
+            event!(Level::INFO, "Waiting for more data to decode JSON");
+
             Ok(None)
         }
     }
