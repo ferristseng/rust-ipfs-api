@@ -14,7 +14,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = "0.10.0"
+//! ipfs-api = "0.11.0"
 //! ```
 //! ### Feature Flags
 //!
@@ -22,7 +22,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = { version = "0.10.0", features = ["with-actix"], default-features = false }
+//! ipfs-api = { version = "0.11.0", features = ["with-actix"], default-features = false }
 //! ```
 //!
 //! You also have the option of using [`rustls`](https://crates.io/crates/rustls)
@@ -30,14 +30,14 @@
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = { version = "0.10.0", features = ["with-hyper-rustls"], default-features = false }
+//! ipfs-api = { version = "0.11.0", features = ["with-hyper-rustls"], default-features = false }
 //! ```
 //!
 //! To enable the builder pattern (default) use the `with-builder` feature:
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = { version = "0.10.0", features = ["with-hyper-rustls", "with-builder"], default-features = false }
+//! ipfs-api = { version = "0.11.0", features = ["with-hyper-rustls", "with-builder"], default-features = false }
 //! ```
 //!
 //! ## Examples
