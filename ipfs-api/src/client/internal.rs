@@ -32,10 +32,6 @@ use std::{
 };
 use tokio_util::codec::{Decoder, FramedRead};
 
-fn default<T: Default>() -> T {
-    Default::default()
-}
-
 const FILE_DESCRIPTOR_LIMIT: usize = 127;
 
 #[cfg(feature = "with-actix")]
@@ -1272,7 +1268,7 @@ impl IpfsClient {
         self.files_cp_with_options(request::FilesCp {
             path,
             dest,
-            ..default()
+            ..Default::default()
         })
         .await
     }
@@ -1324,7 +1320,7 @@ impl IpfsClient {
     ///
     #[inline]
     pub async fn files_ls(&self, path: Option<&str>) -> Result<response::FilesLsResponse, Error> {
-        self.files_ls_with_options(request::FilesLs { path, ..default() })
+        self.files_ls_with_options(request::FilesLs { path, ..Default::default() })
             .await
     }
 
@@ -1376,7 +1372,7 @@ impl IpfsClient {
         self.files_mkdir_with_options(request::FilesMkdir {
             path,
             parents: Some(parents),
-            ..default()
+            ..Default::default()
         })
         .await
     }
@@ -1429,7 +1425,7 @@ impl IpfsClient {
         self.files_mv_with_options(request::FilesMv {
             path,
             dest,
-            ..default()
+            ..Default::default()
         })
         .await
     }
@@ -1522,7 +1518,7 @@ impl IpfsClient {
         self.files_rm_with_options(request::FilesRm {
             path,
             recursive: Some(recursive),
-            ..default()
+            ..Default::default()
         })
         .await
     }
@@ -1567,7 +1563,7 @@ impl IpfsClient {
     ///
     #[inline]
     pub async fn files_stat(&self, path: &str) -> Result<response::FilesStatResponse, Error> {
-        self.files_stat_with_options(request::FilesStat { path, ..default() })
+        self.files_stat_with_options(request::FilesStat { path, ..Default::default() })
             .await
     }
 
@@ -1688,7 +1684,7 @@ impl IpfsClient {
             request::FilesChcid {
                 path: Some(path),
                 cid_version: Some(cid_version),
-                ..default()
+                ..Default::default()
             },
             None,
         )
