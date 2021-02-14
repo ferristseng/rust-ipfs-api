@@ -1320,8 +1320,11 @@ impl IpfsClient {
     ///
     #[inline]
     pub async fn files_ls(&self, path: Option<&str>) -> Result<response::FilesLsResponse, Error> {
-        self.files_ls_with_options(request::FilesLs { path, ..Default::default() })
-            .await
+        self.files_ls_with_options(request::FilesLs {
+            path,
+            ..Default::default()
+        })
+        .await
     }
 
     /// List directories in MFS..
@@ -1563,8 +1566,11 @@ impl IpfsClient {
     ///
     #[inline]
     pub async fn files_stat(&self, path: &str) -> Result<response::FilesStatResponse, Error> {
-        self.files_stat_with_options(request::FilesStat { path, ..Default::default() })
-            .await
+        self.files_stat_with_options(request::FilesStat {
+            path,
+            ..Default::default()
+        })
+        .await
     }
 
     /// Display a file's status in MFS.
