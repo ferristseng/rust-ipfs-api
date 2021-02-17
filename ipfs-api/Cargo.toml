@@ -15,10 +15,11 @@ license                   = "MIT OR Apache-2.0"
 travis-ci                 = { repository = "ferristseng/rust-ipfs-api" }
 
 [features]
-default                   = ["with-hyper-tls", "with-builder"]
+default                   = ["with-reqwest"]
 with-hyper-tls            = ["with-hyper", "hyper-tls"]
 with-hyper-rustls         = ["with-hyper", "hyper-rustls"]
 with-hyper                = ["hyper", "hyper-multipart-rfc7578", "failure"]
+with-reqwest              = ["reqwest", "failure", "futures-util"]
 with-actix                = ["actix-http", "actix-multipart-rfc7578", "awc", "derive_more"]
 with-builder              = ["typed-builder"]
 # Old features, kept for compatibility
@@ -33,11 +34,13 @@ bytes                     = "1.0"
 derive_more               = { version = "0.99", optional = true }
 failure                   = { version = "0.1", optional = true }
 futures                   = "0.3"
+futures-util              = { version = "0.3", optional = true }
 http                      = "0.2"
 hyper                     = { version = "0.14", features = ["http1", "http2", "client"], optional = true }
 hyper-tls                 = { version = "0.5", optional = true }
 hyper-rustls              = { version = "0.22", optional = true }
 hyper-multipart-rfc7578   = { version = "0.5", optional = true }
+reqwest                   = { version = "0.11", features = ["multipart", "stream"], optional = true }
 serde                     = { version = "1.0", features = ["derive"] }
 serde_json                = "1.0"
 serde_urlencoded          = "0.7"

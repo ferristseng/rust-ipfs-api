@@ -66,6 +66,10 @@ impl TryFromUri for IpfsClient {
             {
                 Client::default()
             }
+            #[cfg(feature = "with-reqwest")]
+            {
+                reqwest::Client::new()
+            }
         };
 
         IpfsClient { base: uri, client }
@@ -88,7 +92,7 @@ impl IpfsClient {
     fn build_base_request<Req>(
         &self,
         req: Req,
-        form: Option<multipart::Form<'static>>,
+        form: Option<multipart::Form>,
     ) -> Result<Request, Error>
     where
         Req: ApiRequest + Serialize,
@@ -126,6 +130,20 @@ impl IpfsClient {
                     .send_body(multipart::Body::from(form))
             } else {
                 self.client.post(url).timeout(ACTIX_REQUEST_TIMEOUT).send()
+            };
+
+            Ok(req)
+        }
+        #[cfg(feature = "with-reqwest")]
+        {
+            let req = if let Some(form) = form {
+                self.client
+                    .post(&url)
+                    .multipart(form)
+                    .build()
+                    .expect("Build failed")
+            } else {
+                self.client.post(&url).build().expect("Build failed")
             };
 
             Ok(req)
@@ -179,6 +197,10 @@ impl IpfsClient {
 
             FramedRead::new(StreamReader::new(stream), decoder)
         }
+        #[cfg(feature = "with-reqwest")]
+        {
+            FramedRead::new(StreamReader::new(res.bytes_stream()), decoder)
+        }
     }
 
     /// Generates a request, and returns the unprocessed response future.
@@ -186,7 +208,7 @@ impl IpfsClient {
     async fn request_raw<Req>(
         &self,
         req: Req,
-        form: Option<multipart::Form<'static>>,
+        form: Option<multipart::Form>,
     ) -> Result<(StatusCode, Bytes), Error>
     where
         Req: ApiRequest + Serialize,
@@ -210,16 +232,20 @@ impl IpfsClient {
             // FIXME: Actix compat with bytes 1.0
             Ok((status, Bytes::copy_from_slice(body.as_ref())))
         }
+        #[cfg(feature = "with-reqwest")]
+        {
+            let res = self.client.execute(req).await?;
+            let status = res.status();
+            let body = res.bytes().await?;
+
+            Ok((status, body))
+        }
     }
 
     /// Generic method for making a request to the Ipfs server, and getting
     /// a deserializable response.
     ///
-    async fn request<Req, Res>(
-        &self,
-        req: Req,
-        form: Option<multipart::Form<'static>>,
-    ) -> Result<Res, Error>
+    async fn request<Req, Res>(&self, req: Req, form: Option<multipart::Form>) -> Result<Res, Error>
     where
         Req: ApiRequest + Serialize,
         for<'de> Res: 'static + Deserialize<'de>,
@@ -232,11 +258,7 @@ impl IpfsClient {
     /// Generic method for making a request to the Ipfs server, and getting
     /// back a response with no body.
     ///
-    async fn request_empty<Req>(
-        &self,
-        req: Req,
-        form: Option<multipart::Form<'static>>,
-    ) -> Result<(), Error>
+    async fn request_empty<Req>(&self, req: Req, form: Option<multipart::Form>) -> Result<(), Error>
     where
         Req: ApiRequest + Serialize,
     {
@@ -254,7 +276,7 @@ impl IpfsClient {
     async fn request_string<Req>(
         &self,
         req: Req,
-        form: Option<multipart::Form<'static>>,
+        form: Option<multipart::Form>,
     ) -> Result<String, Error>
     where
         Req: ApiRequest + Serialize,
@@ -332,6 +354,31 @@ impl IpfsClient {
                 })
                 .try_flatten_stream()
         }
+        #[cfg(feature = "with-reqwest")]
+        {
+            //TODO
+            self.client
+                .execute(req)
+                .err_into()
+                .map_ok(move |res| {
+                    match res.status() {
+                        StatusCode::OK => process(res).right_stream(),
+                        // If the server responded with an error status code, the body
+                        // still needs to be read so an error can be built. This block will
+                        // read the entire body stream, then immediately return an error.
+                        //
+                        _ => res
+                            .bytes()
+                            .map(|maybe_body| match maybe_body {
+                                Ok(body) => Err(Self::process_error_from_body(body)),
+                                Err(e) => Err(e.into()),
+                            })
+                            .into_stream()
+                            .left_stream(),
+                    }
+                })
+                .try_flatten_stream()
+        }
     }
 
     /// Generic method for making a request to the Ipfs server, and getting
@@ -349,6 +396,11 @@ impl IpfsClient {
                 res.map_ok(|bytes| Bytes::copy_from_slice(bytes.as_ref()))
                     .err_into()
             })
+        }
+        #[cfg(feature = "with-reqwest")]
+        {
+            //TODO
+            self.request_stream(req, |res| res.bytes().err_into())
         }
     }
 

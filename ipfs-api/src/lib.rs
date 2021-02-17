@@ -164,6 +164,10 @@ extern crate derive_more;
 #[macro_use]
 extern crate failure;
 
+#[cfg(feature = "with-reqwest")]
+#[macro_use]
+extern crate failure;
+
 #[cfg(feature = "with-builder")]
 #[macro_use]
 extern crate typed_builder;
@@ -200,6 +204,8 @@ type HyperConnector = hyper::client::HttpConnector;
 pub(crate) use actix_multipart_rfc7578::client::multipart;
 #[cfg(feature = "with-hyper")]
 pub(crate) use hyper_multipart_rfc7578::client::multipart;
+#[cfg(feature = "with-reqwest")]
+pub(crate) use reqwest::multipart;
 
 // --- Request Types ---
 
@@ -207,6 +213,8 @@ pub(crate) use hyper_multipart_rfc7578::client::multipart;
 pub(crate) type Request = awc::SendClientRequest;
 #[cfg(feature = "with-hyper")]
 pub(crate) type Request = http::Request<hyper::Body>;
+#[cfg(feature = "with-reqwest")]
+pub(crate) type Request = reqwest::Request;
 
 // --- Response Types ---
 
@@ -216,6 +224,8 @@ pub(crate) type Response = awc::ClientResponse<
 >;
 #[cfg(feature = "with-hyper")]
 pub(crate) type Response = http::Response<hyper::Body>;
+#[cfg(feature = "with-reqwest")]
+pub(crate) type Response = reqwest::Response;
 
 // --- Client Types ----
 
@@ -223,11 +233,17 @@ pub(crate) type Response = http::Response<hyper::Body>;
 pub(crate) type Client = awc::Client;
 #[cfg(feature = "with-hyper")]
 pub(crate) type Client = hyper::client::Client<HyperConnector, hyper::Body>;
+#[cfg(feature = "with-reqwest")]
+pub(crate) type Client = reqwest::Client;
 
 // --- Validations ---
 
 #[cfg(all(feature = "with-hyper-rustls", feature = "with-hyper-tls"))]
 compile_error!("Pick only one of the features: hyper-tls, hyper-rustls");
 
-#[cfg(not(any(feature = "with-actix", feature = "with-hyper")))]
-compile_error!("Pick exactly one of these features: with-hyper, with-actix");
+#[cfg(not(any(
+    feature = "with-actix",
+    feature = "with-hyper",
+    feature = "with-reqwest"
+)))]
+compile_error!("Pick exactly one of these features: with-hyper, with-actix, with-reqwest");

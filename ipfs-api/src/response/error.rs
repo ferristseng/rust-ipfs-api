@@ -11,6 +11,7 @@ use std::string::FromUtf8Error;
 
 #[cfg_attr(feature = "with-actix", derive(Display), display(fmt = "{}", message))]
 #[cfg_attr(feature = "with-hyper", derive(Fail), fail(display = "{}", message))]
+#[cfg_attr(feature = "with-reqwest", derive(Fail), fail(display = "{}", message))]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ApiError {
@@ -20,6 +21,7 @@ pub struct ApiError {
 
 #[cfg_attr(feature = "with-actix", derive(Display))]
 #[cfg_attr(feature = "with-hyper", derive(Fail))]
+#[cfg_attr(feature = "with-reqwest", derive(Fail))]
 #[derive(Debug)]
 pub enum Error {
     /// Foreign errors.
@@ -40,6 +42,13 @@ pub enum Error {
         display(fmt = "actix client send request error '{}'", _0)
     )]
     ClientSend(awc::error::SendRequestError),
+
+    #[cfg(feature = "with-reqwest")]
+    #[cfg_attr(
+        feature = "with-reqwest",
+        fail(display = "hyper client error '{}'", _0)
+    )]
+    Client(reqwest::Error),
 
     #[cfg_attr(feature = "with-actix", display(fmt = "http error '{}'", _0))]
     #[cfg_attr(feature = "with-hyper", fail(display = "http error '{}'", _0))]
@@ -121,6 +130,13 @@ impl From<awc::error::SendRequestError> for Error {
 impl From<awc::error::PayloadError> for Error {
     fn from(err: awc::error::PayloadError) -> Error {
         Error::ClientPayload(err)
+    }
+}
+
+#[cfg(feature = "with-reqwest")]
+impl From<reqwest::Error> for Error {
+    fn from(err: reqwest::Error) -> Error {
+        Error::Client(err)
     }
 }
 
