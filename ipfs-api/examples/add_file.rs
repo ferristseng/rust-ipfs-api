@@ -7,7 +7,6 @@
 //
 
 use ipfs_api::IpfsClient;
-use std::fs::File;
 
 // Creates an Ipfs client, and adds this source file to Ipfs.
 //
@@ -15,6 +14,14 @@ use std::fs::File;
 #[cfg_attr(feature = "with-hyper", tokio::main)]
 #[cfg_attr(feature = "with-reqwest", tokio::main)]
 async fn main() {
+    add_file().await
+}
+
+#[cfg(feature = "with-actix")]
+#[cfg(feature = "with-hyper")]
+async fn add_file() {
+    use std::fs::File;
+
     tracing_subscriber::fmt::init();
 
     eprintln!("note: this must be run in the root of the project repository");
@@ -22,6 +29,25 @@ async fn main() {
 
     let client = IpfsClient::default();
     let file = File::open(file!()).expect("could not read source file");
+
+    match client.add(file).await {
+        Ok(file) => eprintln!("added file: {:?}", file),
+        Err(e) => eprintln!("error adding file: {}", e),
+    }
+}
+
+#[cfg(feature = "with-reqwest")]
+async fn add_file() {
+    use tokio::fs::File;
+
+    tracing_subscriber::fmt::init();
+
+    eprintln!("note: this must be run in the root of the project repository");
+    eprintln!("connecting to localhost:5001...");
+
+    let client = IpfsClient::default();
+
+    let file = File::open(file!()).await.expect("Could open source file");
 
     match client.add(file).await {
         Ok(file) => eprintln!("added file: {:?}", file),

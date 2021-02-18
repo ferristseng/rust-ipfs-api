@@ -164,10 +164,6 @@ extern crate derive_more;
 #[macro_use]
 extern crate failure;
 
-#[cfg(feature = "with-reqwest")]
-#[macro_use]
-extern crate failure;
-
 #[cfg(feature = "with-builder")]
 #[macro_use]
 extern crate typed_builder;
