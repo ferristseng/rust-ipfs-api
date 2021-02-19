@@ -1,6 +1,6 @@
 # ipfs-api
 
-[![Travis](https://img.shields.io/travis/ferristseng/rust-ipfs-api.svg)](https://travis-ci.org/ferristseng/rust-ipfs-api)
+[![Status](https://github.com/ferristseng/rust-ipfs-api/workflows/Rust/badge.svg?branch=master)](https://github.com/ferristseng/rust-ipfs-api/actions?query=workflow%3ARust)
 [![Crates.io](https://img.shields.io/crates/v/ipfs-api.svg)](https://crates.io/crates/ipfs-api)
 [![Docs.rs](https://docs.rs/ipfs-api/badge.svg)](https://docs.rs/ipfs-api/)
 
@@ -10,7 +10,7 @@ Rust library for connecting to the IPFS HTTP API using Hyper/Actix.
 
 ```toml
 [dependencies]
-ipfs-api = "0.10.0"
+ipfs-api = "0.11.0"
 ```
 #### Feature Flags
 
@@ -18,7 +18,7 @@ You can use `actix-web` as a backend instead of `hyper`.
 
 ```toml
 [dependencies]
-ipfs-api = { version = "0.10.0", features = ["with-actix"], default-features = false }
+ipfs-api = { version = "0.11.0", features = ["with-actix"], default-features = false }
 ```
 
 You also have the option of using [`rustls`](https://crates.io/crates/rustls)
@@ -26,14 +26,14 @@ instead of native tls:
 
 ```toml
 [dependencies]
-ipfs-api = { version = "0.10.0", features = ["with-hyper-rustls"], default-features = false }
+ipfs-api = { version = "0.11.0", features = ["with-hyper-rustls"], default-features = false }
 ```
 
 To enable the builder pattern (default) use the `with-builder` feature:
 
 ```toml
 [dependencies]
-ipfs-api = { version = "0.10.0", features = ["with-hyper-rustls", "with-builder"], default-features = false }
+ipfs-api = { version = "0.11.0", features = ["with-hyper-rustls", "with-builder"], default-features = false }
 ```
 
 ### Examples

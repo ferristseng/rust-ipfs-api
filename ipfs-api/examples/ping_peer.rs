@@ -15,6 +15,8 @@ use ipfs_api::{response::PingResponse, IpfsClient};
 #[cfg_attr(feature = "with-actix", actix_rt::main)]
 #[cfg_attr(feature = "with-hyper", tokio::main)]
 async fn main() {
+    tracing_subscriber::fmt::init();
+
     eprintln!("connecting to localhost:5001...");
 
     let client = IpfsClient::default();

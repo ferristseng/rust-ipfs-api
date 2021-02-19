@@ -1,0 +1,30 @@
+name: Rust
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build (Default)
+      run: cargo build --verbose
+    - name: Run tests (Default)
+      run: cargo test --verbose
+    - name: Build (Actix)
+      run: cd ipfs-api; cargo build --verbose --features with-actix --no-default-features
+    - name: Run tests (Actix)
+      run: cd ipfs-api; cargo test --verbose --features with-actix --no-default-features
+    - name: Build (Hyper with rustls)
+      run: cd ipfs-api; cargo build --verbose --features with-hyper-rustls --no-default-features
+    - name: Run tests (Hyper with rustls)
+      run: cd ipfs-api; cargo test --verbose --features with-hyper-rustls --no-default-features
