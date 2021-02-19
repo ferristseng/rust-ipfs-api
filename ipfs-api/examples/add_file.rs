@@ -8,10 +8,17 @@
 
 use ipfs_api::IpfsClient;
 
+#[cfg(feature = "with-actix")]
+#[cfg(feature = "with-hyper")]
+use std::fs::File;
+
+#[cfg(feature = "with-reqwest")]
+use tokio::fs::File;
+
 // Creates an Ipfs client, and adds this source file to Ipfs.
 //
 #[cfg_attr(feature = "with-actix", actix_rt::main)]
-#[cfg_attr(feature = "with-hyper", tokio::main)]
+#[cfg_attr(features = "with-hyper", tokio::main)]
 #[cfg_attr(feature = "with-reqwest", tokio::main)]
 async fn main() {
     add_file().await
@@ -20,8 +27,6 @@ async fn main() {
 #[cfg(feature = "with-actix")]
 #[cfg(feature = "with-hyper")]
 async fn add_file() {
-    use std::fs::File;
-
     tracing_subscriber::fmt::init();
 
     eprintln!("note: this must be run in the root of the project repository");
@@ -38,8 +43,6 @@ async fn add_file() {
 
 #[cfg(feature = "with-reqwest")]
 async fn add_file() {
-    use tokio::fs::File;
-
     tracing_subscriber::fmt::init();
 
     eprintln!("note: this must be run in the root of the project repository");

@@ -5,7 +5,6 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 //
-use crate::request::PubsubSub;
 use crate::{
     client::TryFromUri,
     header::TRAILER,
@@ -15,28 +14,41 @@ use crate::{
     response::{self, Error},
     Client, Request, Response,
 };
+
 use bytes::Bytes;
+
 use futures::{future, FutureExt, Stream, StreamExt, TryFutureExt, TryStreamExt};
-use futures_util::stream::TryStream;
+
 use http::{
     uri::{Scheme, Uri},
     StatusCode,
 };
+
 #[cfg(feature = "with-hyper")]
 use hyper::{body, client::Builder};
-#[cfg(feature = "with-reqwest")]
-use reqwest::Method;
+
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+
 #[cfg(feature = "with-actix")]
 use std::time::Duration;
+
 use std::{
     io::Cursor,
     path::{Path, PathBuf},
 };
+
+#[cfg(feature = "with-reqwest")]
+use reqwest::Body;
+
+#[cfg(feature = "with-reqwest")]
 use tokio::fs::File;
-use tokio::io::{AsyncRead, AsyncReadExt};
+#[cfg(feature = "with-reqwest")]
+use tokio::io::AsyncRead;
+#[cfg(feature = "with-reqwest")]
 use tokio_util::codec::{Decoder, FramedRead};
+#[cfg(feature = "with-reqwest")]
+use tokio_util::io::ReaderStream;
+
 use tracing::{event, Level};
 
 const FILE_DESCRIPTOR_LIMIT: usize = 127;
@@ -126,6 +138,31 @@ impl IpfsClient {
         })
     }
 
+    #[cfg(feature = "with-reqwest")]
+    fn build_base_request<Req>(
+        &self,
+        req: Req,
+        form: Option<multipart::Form>,
+    ) -> Result<Request, Error>
+    where
+        Req: ApiRequest + Serialize,
+    {
+        let url = format!("{}{}", self.base, Req::PATH);
+
+        event!(Level::INFO, url = ?url);
+
+        let mut builder = self.client.post(&url).query(&req);
+
+        if let Some(form) = form {
+            builder = builder.multipart(form);
+        }
+
+        match builder.build() {
+            Ok(req) => Ok(req),
+            Err(e) => Err(e.into()),
+        }
+    }
+
     #[cfg(feature = "with-actix")]
     fn build_base_request<Req>(
         &self,
@@ -197,6 +234,17 @@ impl IpfsClient {
         FramedRead::new(StreamReader::new(res.into_body()), decoder)
     }
 
+    #[cfg(feature = "with-reqwest")]
+    fn process_stream_response<D, Res>(
+        res: Response,
+        decoder: D,
+    ) -> impl Stream<Item = Result<Res, Error>>
+    where
+        D: Decoder<Item = Res, Error = Error> + Send,
+    {
+        FramedRead::new(StreamReader::new(res.bytes_stream()), decoder)
+    }
+
     #[cfg(feature = "with-actix")]
     fn process_stream_response<D, Res>(
         res: Response,
@@ -231,6 +279,24 @@ impl IpfsClient {
         Ok((status, body))
     }
 
+    #[cfg(feature = "with-reqwest")]
+    async fn request_raw<Req>(
+        &self,
+        req: Req,
+        form: Option<multipart::Form>,
+    ) -> Result<(StatusCode, Bytes), Error>
+    where
+        Req: ApiRequest + Serialize,
+    {
+        let req = self.build_base_request(req, form)?;
+
+        let res = self.client.execute(req).await?;
+        let status = res.status();
+        let body = res.bytes().await?;
+
+        Ok((status, body))
+    }
+
     #[cfg(feature = "with-actix")]
     async fn request_raw<Req>(
         &self,
@@ -253,8 +319,6 @@ impl IpfsClient {
     /// Generic method for making a request to the Ipfs server, and getting
     /// a deserializable response.
     ///
-    #[cfg(feature = "with-hyper")]
-    #[cfg(feature = "with-actix")]
     async fn request<Req, Res>(&self, req: Req, form: Option<multipart::Form>) -> Result<Res, Error>
     where
         Req: ApiRequest + Serialize,
@@ -268,8 +332,6 @@ impl IpfsClient {
     /// Generic method for making a request to the Ipfs server, and getting
     /// back a response with no body.
     ///
-    #[cfg(feature = "with-hyper")]
-    #[cfg(feature = "with-actix")]
     async fn request_empty<Req>(&self, req: Req, form: Option<multipart::Form>) -> Result<(), Error>
     where
         Req: ApiRequest + Serialize,
@@ -285,8 +347,6 @@ impl IpfsClient {
     /// Generic method for making a request to the Ipfs server, and getting
     /// back a raw String response.
     ///
-    #[cfg(feature = "with-hyper")]
-    #[cfg(feature = "with-actix")]
     async fn request_string<Req>(
         &self,
         req: Req,
@@ -329,6 +389,40 @@ impl IpfsClient {
                     // read the entire body stream, then immediately return an error.
                     //
                     _ => body::to_bytes(res.into_body())
+                        .boxed()
+                        .map(|maybe_body| match maybe_body {
+                            Ok(body) => Err(Self::process_error_from_body(body)),
+                            Err(e) => Err(e.into()),
+                        })
+                        .into_stream()
+                        .left_stream(),
+                }
+            })
+            .try_flatten_stream()
+    }
+
+    #[cfg(feature = "with-reqwest")]
+    fn request_stream<Res, F, OutStream>(
+        &self,
+        req: Request,
+        process: F,
+    ) -> impl Stream<Item = Result<Res, Error>>
+    where
+        OutStream: Stream<Item = Result<Res, Error>>,
+        F: 'static + Fn(Response) -> OutStream,
+    {
+        self.client
+            .execute(req)
+            .err_into()
+            .map_ok(move |res| {
+                match res.status() {
+                    StatusCode::OK => process(res).right_stream(),
+                    // If the server responded with an error status code, the body
+                    // still needs to be read so an error can be built. This block will
+                    // read the entire body stream, then immediately return an error.
+                    //
+                    _ => res
+                        .bytes()
                         .boxed()
                         .map(|maybe_body| match maybe_body {
                             Ok(body) => Err(Self::process_error_from_body(body)),
@@ -385,6 +479,11 @@ impl IpfsClient {
         self.request_stream(req, |res| res.into_body().err_into())
     }
 
+    #[cfg(feature = "with-reqwest")]
+    fn request_stream_bytes(&self, req: Request) -> impl Stream<Item = Result<Bytes, Error>> {
+        self.request_stream(req, |res| res.bytes_stream().err_into())
+    }
+
     #[cfg(feature = "with-actix")]
     fn request_stream_bytes(&self, req: Request) -> impl Stream<Item = Result<Bytes, Error>> {
         self.request_stream(req, |res| {
@@ -397,8 +496,6 @@ impl IpfsClient {
     /// Generic method to return a streaming response of deserialized json
     /// objects delineated by new line separators.
     ///
-    #[cfg(feature = "with-hyper")]
-    #[cfg(feature = "with-actix")]
     fn request_stream_json<Res>(&self, req: Request) -> impl Stream<Item = Result<Res, Error>>
     where
         for<'de> Res: 'static + Deserialize<'de> + Send,
@@ -467,8 +564,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-hyper")]
-    #[cfg(feature = "with-actix")]
+    #[cfg(any(feature = "with-hyper", feature = "with-actix"))]
     pub async fn add<R>(&self, data: R) -> Result<response::AddResponse, Error>
     where
         R: 'static + Read + Send + Sync,
@@ -478,7 +574,7 @@ impl IpfsClient {
 
     #[inline]
     #[cfg(feature = "with-reqwest")]
-    pub async fn add<R>(&self, data: R) -> Result<response::AddResponse, reqwest::Error>
+    pub async fn add<R>(&self, data: R) -> Result<response::AddResponse, Error>
     where
         R: 'static + AsyncRead + Send + Sync,
     {
@@ -512,8 +608,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
+    #[cfg(any(feature = "with-hyper", feature = "with-actix"))]
     pub async fn add_with_options<R>(
         &self,
         data: R,
@@ -534,32 +629,17 @@ impl IpfsClient {
         &self,
         add: request::Add<'_>,
         data: R,
-    ) -> Result<response::AddResponse, reqwest::Error>
+    ) -> Result<response::AddResponse, Error>
     where
         R: 'static + AsyncRead + Send + Sync,
     {
-        //TODO fix allocations
-
-        use reqwest::Body;
-        use tokio_util::codec::BytesCodec;
-
-        let url = format!("{}{}", self.base, "/add");
-
-        let stream = FramedRead::new(data, BytesCodec::new());
+        let stream = ReaderStream::new(data);
         let body = Body::wrap_stream(stream);
-        let part = reqwest::multipart::Part::stream(body);
+        let part = multipart::Part::stream(body);
 
         let form = multipart::Form::new().part("path", part);
 
-        let res = self
-            .client
-            .post(&url)
-            .query(&add)
-            .multipart(form)
-            .send()
-            .await?;
-
-        res.json::<response::AddResponse>().await
+        self.request(add, Some(form)).await
     }
 
     /// Add a path to Ipfs. Can be a file or directory.
@@ -577,8 +657,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
+    #[cfg(any(feature = "with-hyper", feature = "with-actix"))]
     pub async fn add_path<P>(&self, path: P) -> Result<Vec<response::AddResponse>, Error>
     where
         P: AsRef<Path>,
@@ -633,6 +712,63 @@ impl IpfsClient {
         self.request_stream_json(req).try_collect().await
     }
 
+    #[cfg(feature = "with-reqwest")]
+    pub async fn add_path<P>(&self, path: P) -> Result<Vec<response::AddResponse>, Error>
+    where
+        P: AsRef<Path>,
+    {
+        let prefix = path.as_ref().parent();
+        let mut paths_to_add: Vec<(PathBuf, u64)> = vec![];
+
+        for path in walkdir::WalkDir::new(path.as_ref()) {
+            match path {
+                Ok(entry) if entry.file_type().is_file() => {
+                    if entry.file_type().is_file() {
+                        let file_size = entry
+                            .metadata()
+                            .map(|metadata| metadata.len())
+                            .map_err(|e| Error::Io(e.into()))?;
+
+                        paths_to_add.push((entry.path().to_path_buf(), file_size));
+                    }
+                }
+                Ok(_) => (),
+                Err(err) => return Err(Error::Io(err.into())),
+            }
+        }
+
+        paths_to_add.sort_unstable_by(|(_, a), (_, b)| a.cmp(b).reverse());
+
+        let mut it = 0;
+        let mut form = multipart::Form::new();
+
+        for (path, file_size) in paths_to_add {
+            let file = File::open(&path).await?;
+
+            let file_name = match prefix {
+                Some(prefix) => path.strip_prefix(prefix).unwrap(),
+                None => path.as_path(),
+            }
+            .to_string_lossy();
+
+            let stream = ReaderStream::new(file);
+            let body = Body::wrap_stream(stream);
+            let mut part = multipart::Part::stream_with_length(body, file_size);
+
+            if it < FILE_DESCRIPTOR_LIMIT {
+                it += 1;
+            } else {
+                part = part.file_name(file_name);
+            }
+
+            form = form.part("path", part);
+        }
+
+        let req = self.build_base_request(request::Add::default(), Some(form))?;
+
+        self.request_stream_json(req).try_collect().await
+    }
+
     /// Returns the current ledger for a peer.
     ///
     /// # Examples
@@ -645,8 +781,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn bitswap_ledger(
         &self,
         peer: &str,
@@ -666,8 +800,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn bitswap_reprovide(&self) -> Result<response::BitswapReprovideResponse, Error> {
         self.request_empty(request::BitswapReprovide, None).await
     }
@@ -684,8 +816,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn bitswap_stat(&self) -> Result<response::BitswapStatResponse, Error> {
         self.request(request::BitswapStat, None).await
     }
@@ -702,8 +832,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn bitswap_unwant(
         &self,
         key: &str,
@@ -726,8 +854,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn bitswap_wantlist(
         &self,
         peer: Option<&str>,
@@ -752,8 +878,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn block_get(&self, hash: &str) -> impl Stream<Item = Result<Bytes, Error>> {
         impl_stream_api_response! {
             (self, request::BlockGet { hash }, None) => request_stream_bytes
@@ -774,8 +898,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
+    #[cfg(any(feature = "with-actix", feature = "with-hyper"))]
     pub async fn block_put<R>(&self, data: R) -> Result<response::BlockPutResponse, Error>
     where
         R: 'static + Read + Send + Sync,
@@ -783,6 +906,21 @@ impl IpfsClient {
         let mut form = multipart::Form::default();
 
         form.add_reader("data", data);
+
+        self.request(request::BlockPut, Some(form)).await
+    }
+
+    #[inline]
+    #[cfg(feature = "with-reqwest")]
+    pub async fn block_put<R>(&self, data: R) -> Result<response::BlockPutResponse, Error>
+    where
+        R: 'static + AsyncRead + Send + Sync,
+    {
+        let stream = ReaderStream::new(data);
+        let body = Body::wrap_stream(stream);
+        let part = multipart::Part::stream(body);
+
+        let form = multipart::Form::new().part("data", part);
 
         self.request(request::BlockPut, Some(form)).await
     }
@@ -799,8 +937,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn block_rm(&self, hash: &str) -> Result<response::BlockRmResponse, Error> {
         self.request(request::BlockRm { hash }, None).await
     }
@@ -817,8 +953,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn block_stat(&self, hash: &str) -> Result<response::BlockStatResponse, Error> {
         self.request(request::BlockStat { hash }, None).await
     }
@@ -835,8 +969,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn bootstrap_add_default(
         &self,
     ) -> Result<response::BootstrapAddDefaultResponse, Error> {
@@ -855,8 +987,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn bootstrap_list(&self) -> Result<response::BootstrapListResponse, Error> {
         self.request(request::BootstrapList, None).await
     }
@@ -873,8 +1003,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn bootstrap_rm_all(&self) -> Result<response::BootstrapRmAllResponse, Error> {
         self.request(request::BootstrapRmAll, None).await
     }
@@ -896,8 +1024,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn cat(&self, path: &str) -> impl Stream<Item = Result<Bytes, Error>> {
         impl_stream_api_response! {
             (self, request::Cat { path }, None) => request_stream_bytes
@@ -914,8 +1040,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn commands(&self) -> Result<response::CommandsResponse, Error> {
         self.request(request::Commands, None).await
     }
@@ -930,8 +1054,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn config_get_string(&self, key: &str) -> Result<response::ConfigResponse, Error> {
         self.request(
             request::Config {
@@ -955,8 +1077,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn config_get_bool(&self, key: &str) -> Result<response::ConfigResponse, Error> {
         self.request(
             request::Config {
@@ -980,8 +1100,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn config_get_json(&self, key: &str) -> Result<response::ConfigResponse, Error> {
         self.request(
             request::Config {
@@ -1005,8 +1123,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn config_set_string(
         &self,
         key: &str,
@@ -1034,8 +1150,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn config_set_bool(
         &self,
         key: &str,
@@ -1063,8 +1177,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn config_set_json(
         &self,
         key: &str,
@@ -1092,8 +1204,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn config_edit(&self) -> Result<response::ConfigEditResponse, Error> {
         self.request(request::ConfigEdit, None).await
     }
@@ -1110,8 +1220,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
+    #[cfg(any(feature = "with-actix", feature = "with-hyper"))]
     pub async fn config_replace<R>(&self, data: R) -> Result<response::ConfigReplaceResponse, Error>
     where
         R: 'static + Read + Send + Sync,
@@ -1119,6 +1228,21 @@ impl IpfsClient {
         let mut form = multipart::Form::default();
 
         form.add_reader("file", data);
+
+        self.request_empty(request::ConfigReplace, Some(form)).await
+    }
+
+    #[inline]
+    #[cfg(feature = "with-reqwest")]
+    pub async fn config_replace<R>(&self, data: R) -> Result<response::ConfigReplaceResponse, Error>
+    where
+        R: 'static + AsyncRead + Send + Sync,
+    {
+        let stream = ReaderStream::new(data);
+        let body = Body::wrap_stream(stream);
+        let part = multipart::Part::stream(body);
+
+        let form = multipart::Form::new().part("file", part);
 
         self.request_empty(request::ConfigReplace, Some(form)).await
     }
@@ -1135,8 +1259,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn config_show(&self) -> Result<response::ConfigShowResponse, Error> {
         self.request_string(request::ConfigShow, None).await
     }
@@ -1156,8 +1278,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn dag_get(&self, path: &str) -> impl Stream<Item = Result<Bytes, Error>> {
         impl_stream_api_response! {
             (self, request::DagGet { path }, None) => request_stream_bytes
@@ -1176,8 +1296,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
+    #[cfg(any(feature = "with-actix", feature = "with-hyper"))]
     pub async fn dag_put<R>(&self, data: R) -> Result<response::DagPutResponse, Error>
     where
         R: 'static + Read + Send + Sync,
@@ -1185,6 +1304,21 @@ impl IpfsClient {
         let mut form = multipart::Form::default();
 
         form.add_reader("object data", data);
+
+        self.request(request::DagPut, Some(form)).await
+    }
+
+    #[inline]
+    #[cfg(feature = "with-reqwest")]
+    pub async fn dag_put<R>(&self, data: R) -> Result<response::DagPutResponse, Error>
+    where
+        R: 'static + AsyncRead + Send + Sync,
+    {
+        let stream = ReaderStream::new(data);
+        let body = Body::wrap_stream(stream);
+        let part = multipart::Part::stream(body);
+
+        let form = multipart::Form::new().part("object data", part);
 
         self.request(request::DagPut, Some(form)).await
     }
@@ -1203,8 +1337,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn dht_findpeer(
         &self,
         peer: &str,
@@ -1226,8 +1358,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn dht_findprovs(
         &self,
         key: &str,
@@ -1249,8 +1379,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn dht_get(
         &self,
         key: &str,
@@ -1272,8 +1400,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn dht_provide(
         &self,
         key: &str,
@@ -1294,8 +1420,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn dht_put(
         &self,
         key: &str,
@@ -1318,8 +1442,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn dht_query(
         &self,
         peer: &str,
@@ -1339,8 +1461,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn diag_cmds_clear(&self) -> Result<response::DiagCmdsClearResponse, Error> {
         self.request_empty(request::DiagCmdsClear, None).await
     }
@@ -1355,8 +1475,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn diag_cmds_set_time(
         &self,
         time: &str,
@@ -1379,8 +1497,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn diag_sys(&self) -> Result<response::DiagSysResponse, Error> {
         self.request_string(request::DiagSys, None).await
     }
@@ -1395,8 +1511,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn dns(&self, link: &str, recursive: bool) -> Result<response::DnsResponse, Error> {
         self.request(request::Dns { link, recursive }, None).await
     }
@@ -1411,8 +1525,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn file_ls(&self, path: &str) -> Result<response::FileLsResponse, Error> {
         self.request(request::FileLs { path }, None).await
     }
@@ -1427,8 +1539,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn files_cp(
         &self,
         path: &str,
@@ -1452,8 +1562,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn files_cp_with_options(
         &self,
         options: request::FilesCp<'_>,
@@ -1472,8 +1580,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn files_flush(
         &self,
         path: Option<&str>,
@@ -1492,8 +1598,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn files_ls(&self, path: Option<&str>) -> Result<response::FilesLsResponse, Error> {
         self.files_ls_with_options(request::FilesLs {
             path,
@@ -1524,8 +1628,6 @@ impl IpfsClient {
     /// Defaults to `-U`, so the output is unsorted.
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn files_ls_with_options(
         &self,
         options: request::FilesLs<'_>,
@@ -1544,8 +1646,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn files_mkdir(
         &self,
         path: &str,
@@ -1582,8 +1682,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn files_mkdir_with_options(
         &self,
         options: request::FilesMkdir<'_>,
@@ -1601,8 +1699,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn files_mv(
         &self,
         path: &str,
@@ -1632,8 +1728,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn files_mv_with_options(
         &self,
         options: request::FilesMv<'_>,
@@ -1651,8 +1745,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn files_read(&self, path: &str) -> impl Stream<Item = Result<Bytes, Error>> {
         self.files_read_with_options(request::FilesRead {
             path,
@@ -1682,8 +1774,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn files_read_with_options(
         &self,
         options: request::FilesRead,
@@ -1702,8 +1792,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn files_rm(
         &self,
         path: &str,
@@ -1739,8 +1827,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn files_rm_with_options(
         &self,
         options: request::FilesRm<'_>,
@@ -1758,8 +1844,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn files_stat(&self, path: &str) -> Result<response::FilesStatResponse, Error> {
         self.files_stat_with_options(request::FilesStat {
             path,
@@ -1783,8 +1867,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn files_stat_with_options(
         &self,
         options: request::FilesStat<'_>,
@@ -1804,8 +1886,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
+    #[cfg(any(feature = "with-actix", feature = "with-hyper"))]
     pub async fn files_write<R>(
         &self,
         path: &str,
@@ -1822,6 +1903,28 @@ impl IpfsClient {
             truncate: Some(truncate),
             ..request::FilesWrite::default()
         };
+        self.files_write_with_options(options, data).await
+    }
+
+    #[inline]
+    #[cfg(feature = "with-reqwest")]
+    pub async fn files_write<R>(
+        &self,
+        path: &str,
+        create: bool,
+        truncate: bool,
+        data: R,
+    ) -> Result<response::FilesWriteResponse, Error>
+    where
+        R: 'static + AsyncRead + Send + Sync,
+    {
+        let options = request::FilesWrite {
+            path,
+            create: Some(create),
+            truncate: Some(truncate),
+            ..request::FilesWrite::default()
+        };
+
         self.files_write_with_options(options, data).await
     }
 
@@ -1852,8 +1955,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
+    #[cfg(any(feature = "with-actix", feature = "with-hyper"))]
     pub async fn files_write_with_options<R>(
         &self,
         options: request::FilesWrite<'_>,
@@ -1865,6 +1967,25 @@ impl IpfsClient {
         let mut form = multipart::Form::default();
 
         form.add_reader("data", data);
+
+        self.request_empty(options, Some(form)).await
+    }
+
+    #[inline]
+    #[cfg(feature = "with-reqwest")]
+    pub async fn files_write_with_options<R>(
+        &self,
+        options: request::FilesWrite<'_>,
+        data: R,
+    ) -> Result<response::FilesWriteResponse, Error>
+    where
+        R: 'static + AsyncRead + Send + Sync,
+    {
+        let stream = ReaderStream::new(data);
+        let body = Body::wrap_stream(stream);
+        let part = multipart::Part::stream(body);
+
+        let form = multipart::Form::new().part("data", part);
 
         self.request_empty(options, Some(form)).await
     }
@@ -1882,8 +2003,6 @@ impl IpfsClient {
     /// Not specifying a byte `count` writes the entire input.
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn files_chcid(
         &self,
         path: &str,
@@ -1927,8 +2046,6 @@ impl IpfsClient {
     /// Not specifying a byte `count` writes the entire input.
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn files_chcid_with_options(
         &self,
         options: request::FilesChcid<'_>,
@@ -1946,8 +2063,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn filestore_dups(
         &self,
     ) -> impl Stream<Item = Result<response::FilestoreDupsResponse, Error>> {
@@ -1968,8 +2083,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn filestore_ls(
         &self,
         cid: Option<&str>,
@@ -1989,8 +2102,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn filestore_verify(
         &self,
         cid: Option<&str>,
@@ -2010,8 +2121,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn get(&self, path: &str) -> impl Stream<Item = Result<Bytes, Error>> {
         impl_stream_api_response! {
             (self, request::Get { path }, None) => request_stream_bytes
@@ -2031,8 +2140,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn id(&self, peer: Option<&str>) -> Result<response::IdResponse, Error> {
         self.request(request::Id { peer }, None).await
     }
@@ -2047,8 +2154,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn key_gen(
         &self,
         name: &str,
@@ -2069,8 +2174,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn key_list(&self) -> Result<response::KeyListResponse, Error> {
         self.request(request::KeyList, None).await
     }
@@ -2085,8 +2188,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn key_rename(
         &self,
         name: &str,
@@ -2107,8 +2208,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn key_rm(&self, name: &str) -> Result<response::KeyRmResponse, Error> {
         self.request(request::KeyRm { name }, None).await
     }
@@ -2128,8 +2227,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn log_level(
         &self,
         logger: request::Logger<'_>,
@@ -2149,8 +2246,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn log_ls(&self) -> Result<response::LogLsResponse, Error> {
         self.request(request::LogLs, None).await
     }
@@ -2164,8 +2259,7 @@ impl IpfsClient {
     /// let res = client.log_tail();
     /// ```
     ///
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
+    #[inline]
     pub fn log_tail(&self) -> impl Stream<Item = Result<String, Error>> {
         impl_stream_api_response! {
             (self, request::LogTail, None) |req| => {
@@ -2186,8 +2280,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn ls(&self, path: &str) -> Result<response::LsResponse, Error> {
         self.request(
             request::Ls {
@@ -2220,8 +2312,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn ls_with_options(
         &self,
         options: request::Ls<'_>,
@@ -2248,8 +2338,7 @@ impl IpfsClient {
     /// );
     /// ```
     ///
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
+    #[inline]
     pub async fn name_publish(
         &self,
         path: &str,
@@ -2284,8 +2373,7 @@ impl IpfsClient {
     /// );
     /// ```
     ///
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
+    #[inline]
     pub async fn name_resolve(
         &self,
         name: Option<&str>,
@@ -2313,8 +2401,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn object_data(&self, key: &str) -> impl Stream<Item = Result<Bytes, Error>> {
         impl_stream_api_response! {
             (self, request::ObjectData { key }, None) => request_stream_bytes
@@ -2334,8 +2420,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn object_diff(
         &self,
         key0: &str,
@@ -2354,8 +2438,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn object_get(&self, key: &str) -> Result<response::ObjectGetResponse, Error> {
         self.request(request::ObjectGet { key }, None).await
     }
@@ -2370,8 +2452,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn object_links(&self, key: &str) -> Result<response::ObjectLinksResponse, Error> {
         self.request(request::ObjectLinks { key }, None).await
     }
@@ -2387,8 +2467,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn object_new(
         &self,
         template: Option<request::ObjectTemplate>,
@@ -2416,8 +2494,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn object_stat(&self, key: &str) -> Result<response::ObjectStatResponse, Error> {
         self.request(request::ObjectStat { key }, None).await
     }
@@ -2452,8 +2528,6 @@ impl IpfsClient {
     /// let res = client.pin_add("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ", true);
     /// ```
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn pin_add(
         &self,
         key: &str,
@@ -2485,8 +2559,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn pin_ls(
         &self,
         key: Option<&str>,
@@ -2512,8 +2584,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn pin_rm(
         &self,
         key: &str,
@@ -2537,8 +2607,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn ping(
         &self,
         peer: &str,
@@ -2559,8 +2627,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn pubsub_ls(&self) -> Result<response::PubsubLsResponse, Error> {
         self.request(request::PubsubLs, None).await
     }
@@ -2576,8 +2642,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn pubsub_peers(
         &self,
         topic: Option<&str>,
@@ -2595,8 +2659,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn pubsub_pub(
         &self,
         topic: &str,
@@ -2617,8 +2679,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn pubsub_sub(
         &self,
         topic: &str,
@@ -2628,18 +2688,6 @@ impl IpfsClient {
             (self, request::PubsubSub { topic, discover }, None) => request_stream_json
         }
     }
-
-    /* #[cfg(feature = "with-reqwest")]
-    pub async fn pubsub_sub(
-        &self,
-        req: PubsubSub<'_>,
-    ) -> impl Stream<Item = Result<response::PubsubSubResponse, reqwest::Error>> {
-        let url = format!("{}{}", self.base, "/pubsub/sub");
-
-        let res = self.client.post(&url).query(&req).send().await?;
-
-        res.json::<response::PubsubSubResponse>().await
-    } */
 
     /// Gets a list of local references.
     ///
@@ -2651,8 +2699,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn refs_local(&self) -> impl Stream<Item = Result<response::RefsLocalResponse, Error>> {
         impl_stream_api_response! {
             (self, request::RefsLocal, None) => request_stream_json
@@ -2680,8 +2726,7 @@ impl IpfsClient {
     /// let res = client.shutdown();
     /// ```
     ///
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
+    #[inline]
     pub async fn shutdown(&self) -> Result<response::ShutdownResponse, Error> {
         self.request_empty(request::Shutdown, None).await
     }
@@ -2696,8 +2741,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn stats_bitswap(&self) -> Result<response::StatsBitswapResponse, Error> {
         self.request(request::StatsBitswap, None).await
     }
@@ -2712,8 +2755,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn stats_bw(&self) -> Result<response::StatsBwResponse, Error> {
         self.request(request::StatsBw, None).await
     }
@@ -2728,8 +2769,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn stats_repo(&self) -> Result<response::StatsRepoResponse, Error> {
         self.request(request::StatsRepo, None).await
     }
@@ -2746,8 +2785,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn swarm_addrs_local(&self) -> Result<response::SwarmAddrsLocalResponse, Error> {
         self.request(request::SwarmAddrsLocal, None).await
     }
@@ -2770,8 +2807,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn swarm_peers(&self) -> Result<response::SwarmPeersResponse, Error> {
         self.request(request::SwarmPeers, None).await
     }
@@ -2791,8 +2826,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
+    #[cfg(any(feature = "with-actix", feature = "with-hyper"))]
     pub async fn tar_add<R>(&self, data: R) -> Result<response::TarAddResponse, Error>
     where
         R: 'static + Read + Send + Sync,
@@ -2814,8 +2848,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub fn tar_cat(&self, path: &str) -> impl Stream<Item = Result<Bytes, Error>> {
         impl_stream_api_response! {
             (self, request::TarCat { path }, None) => request_stream_bytes
@@ -2832,8 +2864,6 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
-    #[cfg(feature = "with-actix")]
-    #[cfg(feature = "with-hyper")]
     pub async fn version(&self) -> Result<response::VersionResponse, Error> {
         self.request(request::Version, None).await
     }

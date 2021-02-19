@@ -27,6 +27,7 @@ actix                     = ["with-actix"]
 builder                   = ["with-builder"]
 
 [dependencies]
+async-stream              = "0.3"
 actix-http                = { version = "2.2", optional = true }
 actix-multipart-rfc7578   = { version = "0.4", optional = true }
 awc                       = { version = "2.0", optional = true }
@@ -45,7 +46,8 @@ serde                     = { version = "1.0", features = ["derive"] }
 serde_json                = "1.0"
 serde_urlencoded          = "0.7"
 tokio                     = { version = "1.2", features = ["fs", "io-util"] }
-tokio-util                = { version = "0.6", features = ["codec"] }
+tokio-util                = { version = "0.6", features = ["codec", "io"] }
+tokio-stream              = { version = "0.1.3" }
 tracing                   = "0.1"
 walkdir                   = "2.3"
 dirs                      = "3.0"

@@ -160,7 +160,7 @@
 #[macro_use]
 extern crate derive_more;
 
-#[cfg(feature = "with-hyper")]
+#[cfg(any(feature = "with-hyper", feature = "with-reqwest"))]
 #[macro_use]
 extern crate failure;
 
