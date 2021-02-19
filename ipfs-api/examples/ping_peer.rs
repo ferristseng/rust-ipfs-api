@@ -13,7 +13,7 @@ use ipfs_api::{response::PingResponse, IpfsClient};
 // streaming Api, and by collecting it into a collection.
 //
 #[cfg_attr(feature = "with-actix", actix_rt::main)]
-#[cfg_attr(feature = "with-hyper", tokio::main)]
+#[cfg_attr(any(feature = "with-hyper", feature = "with-reqwest"), tokio::main)]
 async fn main() {
     tracing_subscriber::fmt::init();
 

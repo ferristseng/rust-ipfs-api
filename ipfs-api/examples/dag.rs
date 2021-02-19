@@ -13,7 +13,7 @@ use std::io::Cursor;
 // Creates an Ipfs client, and adds this dag object to Ipfs then fetch it back.
 //
 #[cfg_attr(feature = "with-actix", actix_rt::main)]
-#[cfg_attr(feature = "with-hyper", tokio::main)]
+#[cfg_attr(any(feature = "with-hyper", feature = "with-reqwest"), tokio::main)]
 async fn main() {
     tracing_subscriber::fmt::init();
 

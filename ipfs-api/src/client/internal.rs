@@ -32,10 +32,12 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "with-actix")]
 use std::time::Duration;
 
-use std::{
-    io::Cursor,
-    path::{Path, PathBuf},
-};
+#[cfg(any(feature = "with-actix", feature = "with-hyper"))]
+use std::fs::File;
+#[cfg(any(feature = "with-actix", feature = "with-hyper"))]
+use std::io::{Cursor, Read};
+
+use std::path::{Path, PathBuf};
 
 #[cfg(feature = "with-reqwest")]
 use reqwest::Body;
@@ -44,7 +46,7 @@ use reqwest::Body;
 use tokio::fs::File;
 #[cfg(feature = "with-reqwest")]
 use tokio::io::AsyncRead;
-#[cfg(feature = "with-reqwest")]
+
 use tokio_util::codec::{Decoder, FramedRead};
 #[cfg(feature = "with-reqwest")]
 use tokio_util::io::ReaderStream;
@@ -319,6 +321,22 @@ impl IpfsClient {
     /// Generic method for making a request to the Ipfs server, and getting
     /// a deserializable response.
     ///
+    #[cfg(any(feature = "with-hyper", feature = "with-actix"))]
+    async fn request<Req, Res>(
+        &self,
+        req: Req,
+        form: Option<multipart::Form<'static>>,
+    ) -> Result<Res, Error>
+    where
+        Req: ApiRequest + Serialize,
+        for<'de> Res: 'static + Deserialize<'de>,
+    {
+        let (status, chunk) = self.request_raw(req, form).await?;
+
+        IpfsClient::process_json_response(status, chunk)
+    }
+
+    #[cfg(feature = "with-reqwest")]
     async fn request<Req, Res>(&self, req: Req, form: Option<multipart::Form>) -> Result<Res, Error>
     where
         Req: ApiRequest + Serialize,
@@ -332,6 +350,24 @@ impl IpfsClient {
     /// Generic method for making a request to the Ipfs server, and getting
     /// back a response with no body.
     ///
+    #[cfg(any(feature = "with-hyper", feature = "with-actix"))]
+    async fn request_empty<Req>(
+        &self,
+        req: Req,
+        form: Option<multipart::Form<'static>>,
+    ) -> Result<(), Error>
+    where
+        Req: ApiRequest + Serialize,
+    {
+        let (status, chunk) = self.request_raw(req, form).await?;
+
+        match status {
+            StatusCode::OK => Ok(()),
+            _ => Err(Self::process_error_from_body(chunk)),
+        }
+    }
+
+    #[cfg(feature = "with-reqwest")]
     async fn request_empty<Req>(&self, req: Req, form: Option<multipart::Form>) -> Result<(), Error>
     where
         Req: ApiRequest + Serialize,
@@ -347,6 +383,24 @@ impl IpfsClient {
     /// Generic method for making a request to the Ipfs server, and getting
     /// back a raw String response.
     ///
+    #[cfg(any(feature = "with-hyper", feature = "with-actix"))]
+    async fn request_string<Req>(
+        &self,
+        req: Req,
+        form: Option<multipart::Form<'static>>,
+    ) -> Result<String, Error>
+    where
+        Req: ApiRequest + Serialize,
+    {
+        let (status, chunk) = self.request_raw(req, form).await?;
+
+        match status {
+            StatusCode::OK => String::from_utf8(chunk.to_vec()).map_err(From::from),
+            _ => Err(Self::process_error_from_body(chunk)),
+        }
+    }
+
+    #[cfg(feature = "with-reqwest")]
     async fn request_string<Req>(
         &self,
         req: Req,
@@ -758,7 +812,7 @@ impl IpfsClient {
             if it < FILE_DESCRIPTOR_LIMIT {
                 it += 1;
             } else {
-                part = part.file_name(file_name);
+                part = part.file_name::<String>(file_name.into());
             }
 
             form = form.part("path", part);
@@ -2834,6 +2888,21 @@ impl IpfsClient {
         let mut form = multipart::Form::default();
 
         form.add_reader("file", data);
+
+        self.request(request::TarAdd, Some(form)).await
+    }
+
+    #[inline]
+    #[cfg(feature = "with-reqwest")]
+    pub async fn tar_add<R>(&self, data: R) -> Result<response::TarAddResponse, Error>
+    where
+        R: 'static + AsyncRead + Send + Sync,
+    {
+        let stream = ReaderStream::new(data);
+        let body = Body::wrap_stream(stream);
+        let part = multipart::Part::stream(body);
+
+        let form = multipart::Form::new().part("file", part);
 
         self.request(request::TarAdd, Some(form)).await
     }

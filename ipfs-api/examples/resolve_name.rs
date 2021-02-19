@@ -14,7 +14,7 @@ const IPFS_IPNS: &str = "/ipns/ipfs.io";
 // publishes a path to Ipns.
 //
 #[cfg_attr(feature = "with-actix", actix_rt::main)]
-#[cfg_attr(feature = "with-hyper", tokio::main)]
+#[cfg_attr(any(feature = "with-hyper", feature = "with-reqwest"), tokio::main)]
 async fn main() {
     tracing_subscriber::fmt::init();
 
