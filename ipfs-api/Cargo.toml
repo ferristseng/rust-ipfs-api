@@ -19,7 +19,7 @@ default                   = ["with-hyper-tls", "with-builder"]
 with-hyper-tls            = ["with-hyper", "hyper-tls"]
 with-hyper-rustls         = ["with-hyper", "hyper-rustls"]
 with-hyper                = ["hyper", "hyper-multipart-rfc7578", "failure"]
-with-reqwest              = ["reqwest", "failure",   "tokio-stream"]
+with-reqwest              = ["reqwest", "failure", "tokio-stream"]
 with-actix                = ["actix-http", "actix-multipart-rfc7578", "awc", "derive_more"]
 with-builder              = ["typed-builder"]
 # Old features, kept for compatibility
@@ -27,7 +27,6 @@ actix                     = ["with-actix"]
 builder                   = ["with-builder"]
 
 [dependencies]
-async-stream              = "0.3"
 actix-http                = { version = "2.2", optional = true }
 actix-multipart-rfc7578   = { version = "0.4", optional = true }
 awc                       = { version = "2.0", optional = true }
@@ -40,7 +39,7 @@ hyper                     = { version = "0.14", features = ["http1", "http2", "c
 hyper-tls                 = { version = "0.5", optional = true }
 hyper-rustls              = { version = "0.22", optional = true }
 hyper-multipart-rfc7578   = { version = "0.5", optional = true }
-reqwest                   = { version = "0.11", features = ["multipart", "stream", "json"], optional = true }
+reqwest                   = { version = "0.11", features = ["multipart", "stream"], optional = true }
 serde                     = { version = "1.0", features = ["derive"] }
 serde_json                = "1.0"
 serde_urlencoded          = "0.7"

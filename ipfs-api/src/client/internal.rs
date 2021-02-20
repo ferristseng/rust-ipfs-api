@@ -5,11 +5,13 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 //
+#[cfg(any(feature = "with-actix", feature = "with-hyper"))]
+use crate::read::StreamReader;
 use crate::{
     client::TryFromUri,
     header::TRAILER,
     multipart,
-    read::{JsonLineDecoder, LineDecoder, StreamReader},
+    read::{JsonLineDecoder, LineDecoder},
     request::{self, ApiRequest},
     response::{self, Error},
     Client, Request, Response,
@@ -29,24 +31,20 @@ use hyper::{body, client::Builder};
 
 use serde::{Deserialize, Serialize};
 
-#[cfg(feature = "with-actix")]
-use std::time::Duration;
-
 #[cfg(any(feature = "with-actix", feature = "with-hyper"))]
 use std::fs::File;
 #[cfg(any(feature = "with-actix", feature = "with-hyper"))]
 use std::io::{Cursor, Read};
-
 use std::path::{Path, PathBuf};
+#[cfg(feature = "with-actix")]
+use std::time::Duration;
 
 #[cfg(feature = "with-reqwest")]
 use reqwest::Body;
-
 #[cfg(feature = "with-reqwest")]
 use tokio::fs::File;
 #[cfg(feature = "with-reqwest")]
 use tokio::io::AsyncRead;
-
 use tokio_util::codec::{Decoder, FramedRead};
 #[cfg(feature = "with-reqwest")]
 use tokio_util::io::ReaderStream;
