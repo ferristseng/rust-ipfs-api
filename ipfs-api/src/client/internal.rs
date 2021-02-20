@@ -632,7 +632,7 @@ impl IpfsClient {
     where
         R: 'static + AsyncRead + Send + Sync,
     {
-        self.add_with_options(request::Add::default(), data).await
+        self.add_with_options(data, request::Add::default()).await
     }
 
     /// Add a file to IPFS with options.
@@ -681,8 +681,8 @@ impl IpfsClient {
     #[cfg(feature = "with-reqwest")]
     pub async fn add_with_options<R>(
         &self,
-        add: request::Add<'_>,
         data: R,
+        add: request::Add<'_>,
     ) -> Result<response::AddResponse, Error>
     where
         R: 'static + AsyncRead + Send + Sync,
