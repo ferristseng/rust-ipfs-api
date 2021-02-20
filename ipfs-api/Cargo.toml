@@ -15,7 +15,7 @@ license                   = "MIT OR Apache-2.0"
 travis-ci                 = { repository = "ferristseng/rust-ipfs-api" }
 
 [features]
-default                   = ["with-reqwest"]
+default                   = ["with-hyper-tls", "with-builder"]
 with-hyper-tls            = ["with-hyper", "hyper-tls"]
 with-hyper-rustls         = ["with-hyper", "hyper-rustls"]
 with-hyper                = ["hyper", "hyper-multipart-rfc7578", "failure"]
