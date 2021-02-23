@@ -13,13 +13,14 @@ use crate::{
 };
 use async_trait::async_trait;
 use bytes::Bytes;
+use common_multipart_rfc7578::client::multipart;
 use futures::{future, FutureExt, Stream, StreamExt, TryStreamExt};
 use http::{
     header::{HeaderName, HeaderValue},
     StatusCode,
 };
 use serde::{Deserialize, Serialize};
-use std::{fmt::Display, string::FromUtf8Error};
+use std::fmt::Display;
 use tokio_util::codec::{Decoder, FramedRead};
 
 #[async_trait(?Send)]
@@ -32,10 +33,6 @@ pub trait Backend: Default {
     ///
     type HttpResponse;
 
-    /// HTTP multipart form type.
-    ///
-    type MultipartForm: Default;
-
     /// Error type for Result.
     ///
     type Error: Display + From<ApiError> + From<crate::Error> + 'static;
@@ -43,7 +40,7 @@ pub trait Backend: Default {
     fn build_base_request<Req>(
         &self,
         req: &Req,
-        form: Option<Self::MultipartForm>,
+        form: Option<multipart::Form<'static>>,
     ) -> Result<Self::HttpRequest, Self::Error>
     where
         Req: ApiRequest;
@@ -53,7 +50,7 @@ pub trait Backend: Default {
     async fn request_raw<Req>(
         &self,
         req: Req,
-        form: Option<Self::MultipartForm>,
+        form: Option<multipart::Form<'static>>,
     ) -> Result<(StatusCode, Bytes), Self::Error>
     where
         Req: ApiRequest + Serialize;
@@ -125,7 +122,7 @@ pub trait Backend: Default {
     async fn request<Req, Res>(
         &self,
         req: Req,
-        form: Option<Self::MultipartForm>,
+        form: Option<multipart::Form<'static>>,
     ) -> Result<Res, Self::Error>
     where
         Req: ApiRequest + Serialize,
@@ -142,7 +139,7 @@ pub trait Backend: Default {
     async fn request_empty<Req>(
         &self,
         req: Req,
-        form: Option<Self::MultipartForm>,
+        form: Option<multipart::Form<'static>>,
     ) -> Result<(), Self::Error>
     where
         Req: ApiRequest + Serialize,
@@ -161,7 +158,7 @@ pub trait Backend: Default {
     async fn request_string<Req>(
         &self,
         req: Req,
-        form: Option<Self::MultipartForm>,
+        form: Option<multipart::Form<'static>>,
     ) -> Result<String, Self::Error>
     where
         Req: ApiRequest + Serialize,

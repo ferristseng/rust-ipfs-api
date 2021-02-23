@@ -13,6 +13,7 @@ use hyper::{
 };
 use hyper_tls::HttpsConnector;
 use ipfs_api_prelude::{ApiRequest, Backend, TryFromUri};
+use multipart::client::multipart;
 use serde::Serialize;
 
 pub struct HyperBackend {
@@ -43,14 +44,12 @@ impl Backend for HyperBackend {
 
     type HttpResponse = http::Response<hyper::Body>;
 
-    type MultipartForm = multipart::client::multipart::Form<'static>;
-
     type Error = Error;
 
     fn build_base_request<Req>(
         &self,
         req: &Req,
-        form: Option<Self::MultipartForm>,
+        form: Option<multipart::Form<'static>>,
     ) -> Result<Self::HttpRequest, Error>
     where
         Req: ApiRequest,
@@ -76,7 +75,7 @@ impl Backend for HyperBackend {
     async fn request_raw<Req>(
         &self,
         req: Req,
-        form: Option<Self::MultipartForm>,
+        form: Option<multipart::Form<'static>>,
     ) -> Result<(StatusCode, Bytes), Self::Error>
     where
         Req: ApiRequest + Serialize,

@@ -9,6 +9,7 @@
 use crate::{request, response, Backend};
 use async_trait::async_trait;
 use bytes::Bytes;
+use common_multipart_rfc7578::client::multipart;
 use futures::{future, FutureExt, Stream, StreamExt, TryStreamExt};
 use std::{
     fs::File,
@@ -46,7 +47,7 @@ pub trait IpfsApi: Backend {
     /// # Examples
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     /// use std::io::Cursor;
     ///
     /// let client = IpfsClient::default();
@@ -68,7 +69,7 @@ pub trait IpfsApi: Backend {
     /// ```no_run
     /// # extern crate ipfs_api;
     /// #
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     /// use std::io::Cursor;
     ///
     /// # fn main() {
@@ -95,9 +96,9 @@ pub trait IpfsApi: Backend {
     where
         R: 'static + Read + Send + Sync,
     {
-        let mut form = Self::MultipartForm::default();
+        let mut form = multipart::Form::default();
 
-        //form.add_reader("path", data);
+        form.add_reader("path", data);
 
         self.request(add, Some(form)).await
     }
@@ -109,7 +110,7 @@ pub trait IpfsApi: Backend {
     /// # Examples
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let path = "./src";
@@ -141,7 +142,7 @@ pub trait IpfsApi: Backend {
         paths_to_add.sort_unstable_by(|(_, a), (_, b)| a.cmp(b).reverse());
 
         let mut it = 0;
-        let mut form = Self::MultipartForm::default();
+        let mut form = multipart::Form::default();
 
         for (path, file_size) in paths_to_add {
             let mut file = File::open(&path).map_err(|e| crate::Error::Io(e))?;
@@ -152,7 +153,7 @@ pub trait IpfsApi: Backend {
             .to_string_lossy();
 
             if it < FILE_DESCRIPTOR_LIMIT {
-                //form.add_reader_file("path", file, file_name);
+                form.add_reader_file("path", file, file_name);
 
                 it += 1;
             } else {
@@ -161,7 +162,7 @@ pub trait IpfsApi: Backend {
                     .read_to_end(&mut buf)
                     .map_err(|e| crate::Error::Io(e))?;
 
-                //form.add_reader_file("path", Cursor::new(buf), file_name);
+                form.add_reader_file("path", Cursor::new(buf), file_name);
             }
         }
 
@@ -175,7 +176,7 @@ pub trait IpfsApi: Backend {
     /// # Examples
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.bitswap_ledger("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ");
@@ -193,7 +194,7 @@ pub trait IpfsApi: Backend {
     /// # Examples
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.bitswap_reprovide();
@@ -208,7 +209,7 @@ pub trait IpfsApi: Backend {
     /// # Examples
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.bitswap_stat();
@@ -223,7 +224,7 @@ pub trait IpfsApi: Backend {
     /// # Examples
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.bitswap_unwant("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
@@ -242,7 +243,7 @@ pub trait IpfsApi: Backend {
     /// # Examples
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.bitswap_wantlist(
@@ -263,7 +264,7 @@ pub trait IpfsApi: Backend {
     ///
     /// ```no_run
     /// use futures::TryStreamExt;
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let hash = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
@@ -284,7 +285,7 @@ pub trait IpfsApi: Backend {
     /// # Examples
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     /// use std::io::Cursor;
     ///
     /// let client = IpfsClient::default();
@@ -296,9 +297,9 @@ pub trait IpfsApi: Backend {
     where
         R: 'static + Read + Send + Sync,
     {
-        let mut form = Self::MultipartForm::default();
+        let mut form = multipart::Form::default();
 
-        //form.add_reader("data", data);
+        form.add_reader("data", data);
 
         self.request(request::BlockPut, Some(form)).await
     }
@@ -308,7 +309,7 @@ pub trait IpfsApi: Backend {
     /// # Examples
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.block_rm("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
@@ -323,7 +324,7 @@ pub trait IpfsApi: Backend {
     /// # Examples
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.block_stat("QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA");
@@ -338,7 +339,7 @@ pub trait IpfsApi: Backend {
     /// # Examples
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.bootstrap_add_default();
@@ -355,7 +356,7 @@ pub trait IpfsApi: Backend {
     /// # Examples
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.bootstrap_list();
@@ -370,7 +371,7 @@ pub trait IpfsApi: Backend {
     /// # Examples
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.bootstrap_rm_all();
@@ -386,7 +387,7 @@ pub trait IpfsApi: Backend {
     ///
     /// ```no_run
     /// use futures::TryStreamExt;
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let hash = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
@@ -405,7 +406,7 @@ pub trait IpfsApi: Backend {
     /// List available commands that the server accepts.
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.commands();
@@ -418,7 +419,7 @@ pub trait IpfsApi: Backend {
     /// Get ipfs config strings.
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.config_get_string("Identity.PeerID");
@@ -440,7 +441,7 @@ pub trait IpfsApi: Backend {
     /// Get ipfs config booleans.
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.config_get_bool("Datastore.HashOnRead");
@@ -462,7 +463,7 @@ pub trait IpfsApi: Backend {
     /// Get ipfs config json.
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.config_get_json("Mounts");
@@ -484,7 +485,7 @@ pub trait IpfsApi: Backend {
     /// Set ipfs config string.
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.config_set_string("Routing.Type", "dht");
@@ -510,7 +511,7 @@ pub trait IpfsApi: Backend {
     /// Set ipfs config boolean.
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.config_set_bool("Pubsub.DisableSigning", false);
@@ -536,7 +537,7 @@ pub trait IpfsApi: Backend {
     /// Set ipfs config json.
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.config_set_json("Discovery", r#"{"MDNS":{"Enabled":true,"Interval":10}}"#);
@@ -562,7 +563,7 @@ pub trait IpfsApi: Backend {
     /// Opens the config file for editing (on the server).
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.config_edit();
@@ -575,7 +576,7 @@ pub trait IpfsApi: Backend {
     /// Replace the config file.
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     /// use std::io::Cursor;
     ///
     /// let client = IpfsClient::default();
@@ -583,13 +584,16 @@ pub trait IpfsApi: Backend {
     /// let res = client.config_replace(config);
     /// ```
     ///
-    async fn config_replace<R>(&self, data: R) -> Result<response::ConfigReplaceResponse, Self::Error>
+    async fn config_replace<R>(
+        &self,
+        data: R,
+    ) -> Result<response::ConfigReplaceResponse, Self::Error>
     where
         R: 'static + Read + Send + Sync,
     {
-        let mut form = Self::MultipartForm::default();
+        let mut form = multipart::Form::default();
 
-        //form.add_reader("file", data);
+        form.add_reader("file", data);
 
         self.request_empty(request::ConfigReplace, Some(form)).await
     }
@@ -599,7 +603,7 @@ pub trait IpfsApi: Backend {
     /// Returns an unparsed json string, due to an unclear spec.
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.config_show();
@@ -613,7 +617,7 @@ pub trait IpfsApi: Backend {
     ///
     /// ```no_run
     /// use futures::TryStreamExt;
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let hash = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
@@ -632,7 +636,7 @@ pub trait IpfsApi: Backend {
     /// Add a DAG node to Ipfs.
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     /// use std::io::Cursor;
     ///
     /// let client = IpfsClient::default();
@@ -644,9 +648,9 @@ pub trait IpfsApi: Backend {
     where
         R: 'static + Read + Send + Sync,
     {
-        let mut form = Self::MultipartForm::default();
+        let mut form = multipart::Form::default();
 
-        //form.add_reader("object data", data);
+        form.add_reader("object data", data);
 
         self.request(request::DagPut, Some(form)).await
     }
@@ -657,7 +661,7 @@ pub trait IpfsApi: Backend {
     ///
     /// ```no_run
     /// use futures::TryStreamExt;
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let peer = "QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM";
@@ -677,7 +681,7 @@ pub trait IpfsApi: Backend {
     ///
     /// ```no_run
     /// use futures::TryStreamExt;
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let key = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
@@ -697,7 +701,7 @@ pub trait IpfsApi: Backend {
     ///
     /// ```no_run
     /// use futures::TryStreamExt;
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let key = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
@@ -717,7 +721,7 @@ pub trait IpfsApi: Backend {
     ///
     /// ```no_run
     /// use futures::TryStreamExt;
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let key = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
@@ -737,7 +741,7 @@ pub trait IpfsApi: Backend {
     ///
     /// ```no_run
     /// use futures::TryStreamExt;
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.dht_put("test", "Hello World!").try_collect::<Vec<_>>();
@@ -757,7 +761,7 @@ pub trait IpfsApi: Backend {
     ///
     /// ```no_run
     /// use futures::TryStreamExt;
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let peer = "QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM";
@@ -776,7 +780,7 @@ pub trait IpfsApi: Backend {
     /// Clear inactive requests from the log.
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.diag_cmds_clear();
@@ -789,7 +793,7 @@ pub trait IpfsApi: Backend {
     /// Set how long to keep inactive requests in the log.
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.diag_cmds_set_time("1m");
@@ -810,7 +814,7 @@ pub trait IpfsApi: Backend {
     /// an actual object.
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.diag_sys();
@@ -823,7 +827,7 @@ pub trait IpfsApi: Backend {
     /// Resolve DNS link.
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.dns("ipfs.io", true);
@@ -836,7 +840,7 @@ pub trait IpfsApi: Backend {
     /// List directory for Unix filesystem objects.
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.file_ls("/ipns/ipfs.io");
@@ -849,7 +853,7 @@ pub trait IpfsApi: Backend {
     /// Copy files into MFS.
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.files_cp("/path/to/file", "/dest");
@@ -871,7 +875,7 @@ pub trait IpfsApi: Backend {
     /// Copy files into MFS.
     ///
     /// ```no_run
-    /// use ipfs_api::IpfsClient;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.files_cp("/path/to/file", "/dest");
@@ -884,3 +888,5 @@ pub trait IpfsApi: Backend {
         self.request_empty(options, None).await
     }
 }
+
+impl<B> IpfsApi for B where B: Backend {}

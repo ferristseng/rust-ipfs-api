@@ -9,6 +9,7 @@ use http::{
     StatusCode, Uri,
 };
 use ipfs_api_prelude::{ApiRequest, Backend, TryFromUri};
+use multipart::client::multipart;
 use serde::Serialize;
 use std::time::Duration;
 
@@ -42,14 +43,12 @@ impl Backend for ActixBackend {
         actix_http::encoding::Decoder<actix_http::Payload<actix_http::PayloadStream>>,
     >;
 
-    type MultipartForm = multipart::client::multipart::Form<'static>;
-
     type Error = Error;
 
     fn build_base_request<Req>(
         &self,
         req: &Req,
-        form: Option<Self::MultipartForm>,
+        form: Option<multipart::Form<'static>>,
     ) -> Result<Self::HttpRequest, Error>
     where
         Req: ApiRequest,
@@ -73,7 +72,7 @@ impl Backend for ActixBackend {
     async fn request_raw<Req>(
         &self,
         req: Req,
-        form: Option<Self::MultipartForm>,
+        form: Option<multipart::Form<'static>>,
     ) -> Result<(StatusCode, Bytes), Self::Error>
     where
         Req: ApiRequest + Serialize,
