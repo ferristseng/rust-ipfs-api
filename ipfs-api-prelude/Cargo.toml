@@ -1,0 +1,28 @@
+[package]
+name                      = "ipfs-api-prelude"
+description               = "Shared code for IPFS HTTP API client"
+authors                   = ["Ferris Tseng <ferristseng@fastmail.fm>"]
+edition                   = "2018"
+documentation             = "https://docs.rs/ipfs-api"
+repository                = "https://github.com/ferristseng/rust-ipfs-api"
+keywords                  = ["ipfs"]
+categories                = ["filesystem", "web-programming"]
+version                   = "0.1.0"
+readme                    = "../README.md"
+license                   = "MIT OR Apache-2.0"
+
+[dependencies]
+async-trait               = "0.1"
+bytes                     = "1.0"
+dirs                      = "3.0"
+futures                   = "0.3"
+http                      = "0.2"
+parity-multiaddr          = "0.11"
+serde                     = { version = "1.0", features = ["derive"] }
+serde_json                = "1.0"
+serde_urlencoded          = "0.7"
+thiserror                 = "1.0"
+tokio                     = "1.2"
+tokio-util                = { version = "0.6", features = ["codec"] }
+tracing                   = "0.1"
+walkdir                   = "2.3"

@@ -1,0 +1,5 @@
+{
+  "IPFS": "/home/ftseng/.ipfsmnt/ipfs",
+  "IPNS": "/home/ftseng/.ipfsmnt/ipns",
+  "FuseAllowOther": false
+}
