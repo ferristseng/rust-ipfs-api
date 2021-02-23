@@ -34,7 +34,7 @@ macro_rules! impl_stream_api_response {
     };
     (($self:ident, $req:expr, $form:expr) |$var:ident| => $impl:block) => {
         match $self.build_base_request(&$req, $form) {
-            Ok($var) => Box::new($impl),
+            Ok($var) => $impl,
             Err(e) => Box::new(future::err(e).into_stream()),
         }
     };
@@ -397,7 +397,7 @@ pub trait IpfsApi: Backend {
     ///     .try_concat();
     /// ```
     ///
-    fn cat(&self, path: &str) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>>> {
+    fn cat(&self, path: &str) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
         impl_stream_api_response! {
             (self, request::Cat { path }, None) => request_stream_bytes
         }
@@ -627,7 +627,7 @@ pub trait IpfsApi: Backend {
     ///     .try_concat();
     /// ```
     ///
-    fn dag_get(&self, path: &str) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>>> {
+    fn dag_get(&self, path: &str) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
         impl_stream_api_response! {
             (self, request::DagGet { path }, None) => request_stream_bytes
         }
@@ -711,7 +711,7 @@ pub trait IpfsApi: Backend {
     fn dht_get(
         &self,
         key: &str,
-    ) -> Box<dyn Stream<Item = Result<response::DhtGetResponse, Self::Error>>> {
+    ) -> Box<dyn Stream<Item = Result<response::DhtGetResponse, Self::Error>> + Unpin> {
         impl_stream_api_response! {
             (self, request::DhtGet { key }, None) => request_stream_json
         }
@@ -731,7 +731,7 @@ pub trait IpfsApi: Backend {
     fn dht_provide(
         &self,
         key: &str,
-    ) -> Box<dyn Stream<Item = Result<response::DhtProvideResponse, Self::Error>>> {
+    ) -> Box<dyn Stream<Item = Result<response::DhtProvideResponse, Self::Error>> + Unpin> {
         impl_stream_api_response! {
             (self, request::DhtProvide { key }, None) => request_stream_json
         }
@@ -751,7 +751,7 @@ pub trait IpfsApi: Backend {
         &self,
         key: &str,
         value: &str,
-    ) -> Box<dyn Stream<Item = Result<response::DhtPutResponse, Self::Error>>> {
+    ) -> Box<dyn Stream<Item = Result<response::DhtPutResponse, Self::Error>> + Unpin> {
         impl_stream_api_response! {
             (self, request::DhtPut { key, value }, None) => request_stream_json
         }
@@ -771,7 +771,7 @@ pub trait IpfsApi: Backend {
     fn dht_query(
         &self,
         peer: &str,
-    ) -> Box<dyn Stream<Item = Result<response::DhtQueryResponse, Self::Error>>> {
+    ) -> Box<dyn Stream<Item = Result<response::DhtQueryResponse, Self::Error>> + Unpin> {
         impl_stream_api_response! {
             (self, request::DhtQuery { peer }, None) => request_stream_json
         }
