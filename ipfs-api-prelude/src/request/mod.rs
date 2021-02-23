@@ -112,7 +112,7 @@ pub trait ApiRequest: Serialize {
 
     /// Method used to make the request.
     ///
-    const METHOD: &'static http::Method = &http::Method::GET;
+    const METHOD: http::Method = http::Method::POST;
 
     /// Creates the absolute URL for an API resource given the base path
     /// of the service.
