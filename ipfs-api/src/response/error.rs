@@ -10,7 +10,11 @@ use crate::serde::Deserialize;
 use std::string::FromUtf8Error;
 
 #[cfg_attr(feature = "with-actix", derive(Display), display(fmt = "{}", message))]
-#[cfg_attr(feature = "with-hyper", derive(Fail), fail(display = "{}", message))]
+#[cfg_attr(
+    any(feature = "with-hyper", feature = "with-reqwest"),
+    derive(Fail),
+    fail(display = "{}", message)
+)]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ApiError {
@@ -19,13 +23,20 @@ pub struct ApiError {
 }
 
 #[cfg_attr(feature = "with-actix", derive(Display))]
-#[cfg_attr(feature = "with-hyper", derive(Fail))]
+#[cfg_attr(any(feature = "with-hyper", feature = "with-reqwest"), derive(Fail))]
 #[derive(Debug)]
 pub enum Error {
     /// Foreign errors.
     #[cfg(feature = "with-hyper")]
     #[cfg_attr(feature = "with-hyper", fail(display = "hyper client error '{}'", _0))]
     Client(hyper::Error),
+
+    #[cfg(feature = "with-reqwest")]
+    #[cfg_attr(
+        feature = "with-reqwest",
+        fail(display = "reqwest client error '{}'", _0)
+    )]
+    Client(reqwest::Error),
 
     #[cfg(feature = "with-actix")]
     #[cfg_attr(
@@ -42,32 +53,53 @@ pub enum Error {
     ClientSend(awc::error::SendRequestError),
 
     #[cfg_attr(feature = "with-actix", display(fmt = "http error '{}'", _0))]
-    #[cfg_attr(feature = "with-hyper", fail(display = "http error '{}'", _0))]
+    #[cfg_attr(
+        any(feature = "with-hyper", feature = "with-reqwest"),
+        fail(display = "http error '{}'", _0)
+    )]
     Http(http::Error),
 
     #[cfg_attr(feature = "with-actix", display(fmt = "json parse error '{}'", _0))]
-    #[cfg_attr(feature = "with-hyper", fail(display = "json parse error '{}'", _0))]
+    #[cfg_attr(
+        any(feature = "with-hyper", feature = "with-reqwest"),
+        fail(display = "json parse error '{}'", _0)
+    )]
     Parse(serde_json::Error),
 
     #[cfg_attr(feature = "with-actix", display(fmt = "utf8 decoding error '{}'", _0))]
-    #[cfg_attr(feature = "with-hyper", fail(display = "utf8 decoding error '{}'", _0))]
+    #[cfg_attr(
+        any(feature = "with-hyper", feature = "with-reqwest"),
+        fail(display = "utf8 decoding error '{}'", _0)
+    )]
     ParseUtf8(FromUtf8Error),
 
     #[cfg_attr(feature = "with-actix", display(fmt = "uri error '{}'", _0))]
-    #[cfg_attr(feature = "with-hyper", fail(display = "uri error '{}'", _0))]
+    #[cfg_attr(
+        any(feature = "with-hyper", feature = "with-reqwest"),
+        fail(display = "uri error '{}'", _0)
+    )]
     Url(http::uri::InvalidUri),
 
     #[cfg_attr(feature = "with-actix", display(fmt = "io error '{}'", _0))]
-    #[cfg_attr(feature = "with-hyper", fail(display = "io error '{}'", _0))]
+    #[cfg_attr(
+        any(feature = "with-hyper", feature = "with-reqwest"),
+        fail(display = "io error '{}'", _0)
+    )]
     Io(std::io::Error),
 
     #[cfg_attr(feature = "with-actix", display(fmt = "url encoding error '{}'", _0))]
-    #[cfg_attr(feature = "with-hyper", fail(display = "url encoding error '{}'", _0))]
+    #[cfg_attr(
+        any(feature = "with-hyper", feature = "with-reqwest"),
+        fail(display = "url encoding error '{}'", _0)
+    )]
     EncodeUrl(serde_urlencoded::ser::Error),
 
     /// An error returned by the Ipfs api.
     #[cfg_attr(feature = "with-actix", display(fmt = "api returned error '{}'", _0))]
-    #[cfg_attr(feature = "with-hyper", fail(display = "api returned error '{}'", _0))]
+    #[cfg_attr(
+        any(feature = "with-hyper", feature = "with-reqwest"),
+        fail(display = "api returned error '{}'", _0)
+    )]
     Api(ApiError),
 
     /// A stream error indicated in the Trailer header.
@@ -76,7 +108,7 @@ pub enum Error {
         display(fmt = "api returned an error while streaming: '{}'", _0)
     )]
     #[cfg_attr(
-        feature = "with-hyper",
+        any(feature = "with-hyper", feature = "with-reqwest"),
         fail(display = "api returned an error while streaming: '{}'", _0)
     )]
     StreamError(String),
@@ -87,7 +119,7 @@ pub enum Error {
         display(fmt = "api returned a trailer header with unknown value: '{}'", _0)
     )]
     #[cfg_attr(
-        feature = "with-hyper",
+        any(feature = "with-hyper", feature = "with-reqwest"),
         fail(display = "api returned a trailer header with unknown value: '{}'", _0)
     )]
     UnrecognizedTrailerHeader(String),
@@ -97,7 +129,7 @@ pub enum Error {
         display(fmt = "api returned unknwon error '{}'", _0)
     )]
     #[cfg_attr(
-        feature = "with-hyper",
+        any(feature = "with-hyper", feature = "with-reqwest"),
         fail(display = "api returned unknwon error '{}'", _0)
     )]
     Uncategorized(String),
@@ -106,6 +138,13 @@ pub enum Error {
 #[cfg(feature = "with-hyper")]
 impl From<hyper::Error> for Error {
     fn from(err: hyper::Error) -> Error {
+        Error::Client(err)
+    }
+}
+
+#[cfg(feature = "with-reqwest")]
+impl From<reqwest::Error> for Error {
+    fn from(err: reqwest::Error) -> Error {
         Error::Client(err)
     }
 }

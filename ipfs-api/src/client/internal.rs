@@ -5,32 +5,50 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 //
+#[cfg(any(feature = "with-actix", feature = "with-hyper"))]
+use crate::read::StreamReader;
 use crate::{
     client::TryFromUri,
     header::TRAILER,
     multipart,
-    read::{JsonLineDecoder, LineDecoder, StreamReader},
+    read::{JsonLineDecoder, LineDecoder},
     request::{self, ApiRequest},
     response::{self, Error},
     Client, Request, Response,
 };
+
 use bytes::Bytes;
+
 use futures::{future, FutureExt, Stream, StreamExt, TryFutureExt, TryStreamExt};
+
 use http::{
     uri::{Scheme, Uri},
     StatusCode,
 };
+
 #[cfg(feature = "with-hyper")]
 use hyper::{body, client::Builder};
+
 use serde::{Deserialize, Serialize};
+
+#[cfg(any(feature = "with-actix", feature = "with-hyper"))]
+use std::fs::File;
+#[cfg(any(feature = "with-actix", feature = "with-hyper"))]
+use std::io::{Cursor, Read};
+use std::path::{Path, PathBuf};
 #[cfg(feature = "with-actix")]
 use std::time::Duration;
-use std::{
-    fs::File,
-    io::{Cursor, Read},
-    path::{Path, PathBuf},
-};
+
+#[cfg(feature = "with-reqwest")]
+use reqwest::Body;
+#[cfg(feature = "with-reqwest")]
+use tokio::fs::File;
+#[cfg(feature = "with-reqwest")]
+use tokio::io::AsyncRead;
 use tokio_util::codec::{Decoder, FramedRead};
+#[cfg(feature = "with-reqwest")]
+use tokio_util::io::ReaderStream;
+
 use tracing::{event, Level};
 
 const FILE_DESCRIPTOR_LIMIT: usize = 127;
@@ -66,6 +84,10 @@ impl TryFromUri for IpfsClient {
             {
                 Client::default()
             }
+            #[cfg(feature = "with-reqwest")]
+            {
+                reqwest::Client::new()
+            }
         };
 
         IpfsClient { base: uri, client }
@@ -85,6 +107,7 @@ impl Default for IpfsClient {
 impl IpfsClient {
     /// Builds the url for an api call.
     ///
+    #[cfg(feature = "with-hyper")]
     fn build_base_request<Req>(
         &self,
         req: Req,
@@ -102,34 +125,73 @@ impl IpfsClient {
 
         event!(Level::INFO, url = ?url);
 
-        #[cfg(feature = "with-hyper")]
-        {
-            url.parse::<Uri>().map_err(From::from).and_then(move |url| {
-                let builder = http::Request::builder().method(http::Method::POST).uri(url);
+        url.parse::<Uri>().map_err(From::from).and_then(move |url| {
+            let builder = http::Request::builder().method(http::Method::POST).uri(url);
 
-                let req = if let Some(form) = form {
-                    form.set_body_convert::<hyper::Body, multipart::Body>(builder)
-                } else {
-                    builder.body(hyper::Body::empty())
-                };
-
-                req.map_err(From::from)
-            })
-        }
-        #[cfg(feature = "with-actix")]
-        {
             let req = if let Some(form) = form {
-                self.client
-                    .post(url)
-                    .timeout(ACTIX_REQUEST_TIMEOUT)
-                    .content_type(form.content_type())
-                    .send_body(multipart::Body::from(form))
+                form.set_body_convert::<hyper::Body, multipart::Body>(builder)
             } else {
-                self.client.post(url).timeout(ACTIX_REQUEST_TIMEOUT).send()
+                builder.body(hyper::Body::empty())
             };
 
-            Ok(req)
+            req.map_err(From::from)
+        })
+    }
+
+    #[cfg(feature = "with-reqwest")]
+    fn build_base_request<Req>(
+        &self,
+        req: Req,
+        form: Option<multipart::Form>,
+    ) -> Result<Request, Error>
+    where
+        Req: ApiRequest + Serialize,
+    {
+        let url = format!("{}{}", self.base, Req::PATH);
+
+        event!(Level::INFO, url = ?url);
+
+        let mut builder = self.client.post(&url).query(&req);
+
+        if let Some(form) = form {
+            builder = builder.multipart(form);
         }
+
+        match builder.build() {
+            Ok(req) => Ok(req),
+            Err(e) => Err(e.into()),
+        }
+    }
+
+    #[cfg(feature = "with-actix")]
+    fn build_base_request<Req>(
+        &self,
+        req: Req,
+        form: Option<multipart::Form<'static>>,
+    ) -> Result<Request, Error>
+    where
+        Req: ApiRequest + Serialize,
+    {
+        let url = format!(
+            "{}{}?{}",
+            self.base,
+            Req::PATH,
+            ::serde_urlencoded::to_string(req)?
+        );
+
+        event!(Level::INFO, url = ?url);
+
+        let req = if let Some(form) = form {
+            self.client
+                .post(url)
+                .timeout(ACTIX_REQUEST_TIMEOUT)
+                .content_type(form.content_type())
+                .send_body(multipart::Body::from(form))
+        } else {
+            self.client.post(url).timeout(ACTIX_REQUEST_TIMEOUT).send()
+        };
+
+        Ok(req)
     }
 
     /// Builds an Api error from a response body.
@@ -161,6 +223,7 @@ impl IpfsClient {
     /// Processes a response that returns a stream of json deserializable
     /// results.
     ///
+    #[cfg(feature = "with-hyper")]
     fn process_stream_response<D, Res>(
         res: Response,
         decoder: D,
@@ -168,21 +231,37 @@ impl IpfsClient {
     where
         D: Decoder<Item = Res, Error = Error> + Send,
     {
-        #[cfg(feature = "with-hyper")]
-        {
-            FramedRead::new(StreamReader::new(res.into_body()), decoder)
-        }
-        #[cfg(feature = "with-actix")]
-        {
-            // FIXME: Actix compat with bytes 1.0
-            let stream = res.map_ok(|bytes| Bytes::copy_from_slice(bytes.as_ref()));
+        FramedRead::new(StreamReader::new(res.into_body()), decoder)
+    }
 
-            FramedRead::new(StreamReader::new(stream), decoder)
-        }
+    #[cfg(feature = "with-reqwest")]
+    fn process_stream_response<D, Res>(
+        res: Response,
+        decoder: D,
+    ) -> impl Stream<Item = Result<Res, Error>>
+    where
+        D: Decoder<Item = Res, Error = Error> + Send,
+    {
+        FramedRead::new(StreamReader::new(res.bytes_stream()), decoder)
+    }
+
+    #[cfg(feature = "with-actix")]
+    fn process_stream_response<D, Res>(
+        res: Response,
+        decoder: D,
+    ) -> impl Stream<Item = Result<Res, Error>>
+    where
+        D: Decoder<Item = Res, Error = Error> + Send,
+    {
+        // FIXME: Actix compat with bytes 1.0
+        let stream = res.map_ok(|bytes| Bytes::copy_from_slice(bytes.as_ref()));
+
+        FramedRead::new(StreamReader::new(stream), decoder)
     }
 
     /// Generates a request, and returns the unprocessed response future.
     ///
+    #[cfg(feature = "with-hyper")]
     async fn request_raw<Req>(
         &self,
         req: Req,
@@ -193,28 +272,54 @@ impl IpfsClient {
     {
         let req = self.build_base_request(req, form)?;
 
-        #[cfg(feature = "with-hyper")]
-        {
-            let res = self.client.request(req).await?;
-            let status = res.status();
-            let body = body::to_bytes(res.into_body()).await?;
+        let res = self.client.request(req).await?;
+        let status = res.status();
+        let body = body::to_bytes(res.into_body()).await?;
 
-            Ok((status, body))
-        }
-        #[cfg(feature = "with-actix")]
-        {
-            let mut res = req.await?;
-            let status = res.status();
-            let body = res.body().await?;
+        Ok((status, body))
+    }
 
-            // FIXME: Actix compat with bytes 1.0
-            Ok((status, Bytes::copy_from_slice(body.as_ref())))
-        }
+    #[cfg(feature = "with-reqwest")]
+    async fn request_raw<Req>(
+        &self,
+        req: Req,
+        form: Option<multipart::Form>,
+    ) -> Result<(StatusCode, Bytes), Error>
+    where
+        Req: ApiRequest + Serialize,
+    {
+        let req = self.build_base_request(req, form)?;
+
+        let res = self.client.execute(req).await?;
+        let status = res.status();
+        let body = res.bytes().await?;
+
+        Ok((status, body))
+    }
+
+    #[cfg(feature = "with-actix")]
+    async fn request_raw<Req>(
+        &self,
+        req: Req,
+        form: Option<multipart::Form<'static>>,
+    ) -> Result<(StatusCode, Bytes), Error>
+    where
+        Req: ApiRequest + Serialize,
+    {
+        let req = self.build_base_request(req, form)?;
+
+        let mut res = req.await?;
+        let status = res.status();
+        let body = res.body().await?;
+
+        // FIXME: Actix compat with bytes 1.0
+        Ok((status, Bytes::copy_from_slice(body.as_ref())))
     }
 
     /// Generic method for making a request to the Ipfs server, and getting
     /// a deserializable response.
     ///
+    #[cfg(any(feature = "with-hyper", feature = "with-actix"))]
     async fn request<Req, Res>(
         &self,
         req: Req,
@@ -229,9 +334,21 @@ impl IpfsClient {
         IpfsClient::process_json_response(status, chunk)
     }
 
+    #[cfg(feature = "with-reqwest")]
+    async fn request<Req, Res>(&self, req: Req, form: Option<multipart::Form>) -> Result<Res, Error>
+    where
+        Req: ApiRequest + Serialize,
+        for<'de> Res: 'static + Deserialize<'de>,
+    {
+        let (status, chunk) = self.request_raw(req, form).await?;
+
+        IpfsClient::process_json_response(status, chunk)
+    }
+
     /// Generic method for making a request to the Ipfs server, and getting
     /// back a response with no body.
     ///
+    #[cfg(any(feature = "with-hyper", feature = "with-actix"))]
     async fn request_empty<Req>(
         &self,
         req: Req,
@@ -248,13 +365,44 @@ impl IpfsClient {
         }
     }
 
+    #[cfg(feature = "with-reqwest")]
+    async fn request_empty<Req>(&self, req: Req, form: Option<multipart::Form>) -> Result<(), Error>
+    where
+        Req: ApiRequest + Serialize,
+    {
+        let (status, chunk) = self.request_raw(req, form).await?;
+
+        match status {
+            StatusCode::OK => Ok(()),
+            _ => Err(Self::process_error_from_body(chunk)),
+        }
+    }
+
     /// Generic method for making a request to the Ipfs server, and getting
     /// back a raw String response.
     ///
+    #[cfg(any(feature = "with-hyper", feature = "with-actix"))]
     async fn request_string<Req>(
         &self,
         req: Req,
         form: Option<multipart::Form<'static>>,
+    ) -> Result<String, Error>
+    where
+        Req: ApiRequest + Serialize,
+    {
+        let (status, chunk) = self.request_raw(req, form).await?;
+
+        match status {
+            StatusCode::OK => String::from_utf8(chunk.to_vec()).map_err(From::from),
+            _ => Err(Self::process_error_from_body(chunk)),
+        }
+    }
+
+    #[cfg(feature = "with-reqwest")]
+    async fn request_string<Req>(
+        &self,
+        req: Req,
+        form: Option<multipart::Form>,
     ) -> Result<String, Error>
     where
         Req: ApiRequest + Serialize,
@@ -272,6 +420,7 @@ impl IpfsClient {
     /// Generic method for making a request that expects back a streaming
     /// response.
     ///
+    #[cfg(feature = "with-hyper")]
     fn request_stream<Res, F, OutStream>(
         &self,
         req: Request,
@@ -281,75 +430,119 @@ impl IpfsClient {
         OutStream: Stream<Item = Result<Res, Error>>,
         F: 'static + Fn(Response) -> OutStream,
     {
-        #[cfg(feature = "with-hyper")]
-        {
-            self.client
-                .request(req)
-                .err_into()
-                .map_ok(move |res| {
-                    match res.status() {
-                        StatusCode::OK => process(res).right_stream(),
-                        // If the server responded with an error status code, the body
-                        // still needs to be read so an error can be built. This block will
-                        // read the entire body stream, then immediately return an error.
-                        //
-                        _ => body::to_bytes(res.into_body())
-                            .boxed()
-                            .map(|maybe_body| match maybe_body {
-                                Ok(body) => Err(Self::process_error_from_body(body)),
-                                Err(e) => Err(e.into()),
-                            })
-                            .into_stream()
-                            .left_stream(),
-                    }
-                })
-                .try_flatten_stream()
-        }
-        #[cfg(feature = "with-actix")]
-        {
-            req.err_into()
-                .map_ok(move |mut res| {
-                    match res.status() {
-                        StatusCode::OK => process(res).right_stream(),
-                        // If the server responded with an error status code, the body
-                        // still needs to be read so an error can be built. This block will
-                        // read the entire body stream, then immediately return an error.
-                        //
-                        _ => res
-                            .body()
-                            .map(|maybe_body| match maybe_body {
-                                Ok(body) => {
-                                    // FIXME: Actix compat with bytes 1.0
-                                    let body = Bytes::copy_from_slice(body.as_ref());
+        self.client
+            .request(req)
+            .err_into()
+            .map_ok(move |res| {
+                match res.status() {
+                    StatusCode::OK => process(res).right_stream(),
+                    // If the server responded with an error status code, the body
+                    // still needs to be read so an error can be built. This block will
+                    // read the entire body stream, then immediately return an error.
+                    //
+                    _ => body::to_bytes(res.into_body())
+                        .boxed()
+                        .map(|maybe_body| match maybe_body {
+                            Ok(body) => Err(Self::process_error_from_body(body)),
+                            Err(e) => Err(e.into()),
+                        })
+                        .into_stream()
+                        .left_stream(),
+                }
+            })
+            .try_flatten_stream()
+    }
 
-                                    Err(Self::process_error_from_body(body))
-                                }
-                                Err(e) => Err(e.into()),
-                            })
-                            .into_stream()
-                            .left_stream(),
-                    }
-                })
-                .try_flatten_stream()
-        }
+    #[cfg(feature = "with-reqwest")]
+    fn request_stream<Res, F, OutStream>(
+        &self,
+        req: Request,
+        process: F,
+    ) -> impl Stream<Item = Result<Res, Error>>
+    where
+        OutStream: Stream<Item = Result<Res, Error>>,
+        F: 'static + Fn(Response) -> OutStream,
+    {
+        self.client
+            .execute(req)
+            .err_into()
+            .map_ok(move |res| {
+                match res.status() {
+                    StatusCode::OK => process(res).right_stream(),
+                    // If the server responded with an error status code, the body
+                    // still needs to be read so an error can be built. This block will
+                    // read the entire body stream, then immediately return an error.
+                    //
+                    _ => res
+                        .bytes()
+                        .boxed()
+                        .map(|maybe_body| match maybe_body {
+                            Ok(body) => Err(Self::process_error_from_body(body)),
+                            Err(e) => Err(e.into()),
+                        })
+                        .into_stream()
+                        .left_stream(),
+                }
+            })
+            .try_flatten_stream()
+    }
+
+    #[cfg(feature = "with-actix")]
+    fn request_stream<Res, F, OutStream>(
+        &self,
+        req: Request,
+        process: F,
+    ) -> impl Stream<Item = Result<Res, Error>>
+    where
+        OutStream: Stream<Item = Result<Res, Error>>,
+        F: 'static + Fn(Response) -> OutStream,
+    {
+        req.err_into()
+            .map_ok(move |mut res| {
+                match res.status() {
+                    StatusCode::OK => process(res).right_stream(),
+                    // If the server responded with an error status code, the body
+                    // still needs to be read so an error can be built. This block will
+                    // read the entire body stream, then immediately return an error.
+                    //
+                    _ => res
+                        .body()
+                        .map(|maybe_body| match maybe_body {
+                            Ok(body) => {
+                                // FIXME: Actix compat with bytes 1.0
+                                let body = Bytes::copy_from_slice(body.as_ref());
+
+                                Err(Self::process_error_from_body(body))
+                            }
+                            Err(e) => Err(e.into()),
+                        })
+                        .into_stream()
+                        .left_stream(),
+                }
+            })
+            .try_flatten_stream()
     }
 
     /// Generic method for making a request to the Ipfs server, and getting
     /// back a raw stream of bytes.
     ///
+    #[cfg(feature = "with-hyper")]
     fn request_stream_bytes(&self, req: Request) -> impl Stream<Item = Result<Bytes, Error>> {
-        #[cfg(feature = "with-hyper")]
-        {
-            self.request_stream(req, |res| res.into_body().err_into())
-        }
-        #[cfg(feature = "with-actix")]
-        {
-            self.request_stream(req, |res| {
-                // FIXME: Actix compat with bytes 1.0
-                res.map_ok(|bytes| Bytes::copy_from_slice(bytes.as_ref()))
-                    .err_into()
-            })
-        }
+        self.request_stream(req, |res| res.into_body().err_into())
+    }
+
+    #[cfg(feature = "with-reqwest")]
+    fn request_stream_bytes(&self, req: Request) -> impl Stream<Item = Result<Bytes, Error>> {
+        self.request_stream(req, |res| res.bytes_stream().err_into())
+    }
+
+    #[cfg(feature = "with-actix")]
+    fn request_stream_bytes(&self, req: Request) -> impl Stream<Item = Result<Bytes, Error>> {
+        self.request_stream(req, |res| {
+            // FIXME: Actix compat with bytes 1.0
+            res.map_ok(|bytes| Bytes::copy_from_slice(bytes.as_ref()))
+                .err_into()
+        })
     }
 
     /// Generic method to return a streaming response of deserialized json
@@ -423,9 +616,19 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
+    #[cfg(any(feature = "with-hyper", feature = "with-actix"))]
     pub async fn add<R>(&self, data: R) -> Result<response::AddResponse, Error>
     where
         R: 'static + Read + Send + Sync,
+    {
+        self.add_with_options(data, request::Add::default()).await
+    }
+
+    #[inline]
+    #[cfg(feature = "with-reqwest")]
+    pub async fn add<R>(&self, data: R) -> Result<response::AddResponse, Error>
+    where
+        R: 'static + AsyncRead + Send + Sync,
     {
         self.add_with_options(data, request::Add::default()).await
     }
@@ -457,6 +660,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
+    #[cfg(any(feature = "with-hyper", feature = "with-actix"))]
     pub async fn add_with_options<R>(
         &self,
         data: R,
@@ -468,6 +672,24 @@ impl IpfsClient {
         let mut form = multipart::Form::default();
 
         form.add_reader("path", data);
+
+        self.request(add, Some(form)).await
+    }
+
+    #[cfg(feature = "with-reqwest")]
+    pub async fn add_with_options<R>(
+        &self,
+        data: R,
+        add: request::Add<'_>,
+    ) -> Result<response::AddResponse, Error>
+    where
+        R: 'static + AsyncRead + Send + Sync,
+    {
+        let stream = ReaderStream::new(data);
+        let body = Body::wrap_stream(stream);
+        let part = multipart::Part::stream(body);
+
+        let form = multipart::Form::new().part("path", part);
 
         self.request(add, Some(form)).await
     }
@@ -487,6 +709,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
+    #[cfg(any(feature = "with-hyper", feature = "with-actix"))]
     pub async fn add_path<P>(&self, path: P) -> Result<Vec<response::AddResponse>, Error>
     where
         P: AsRef<Path>,
@@ -534,6 +757,63 @@ impl IpfsClient {
 
                 form.add_reader_file("path", Cursor::new(buf), file_name);
             }
+        }
+
+        let req = self.build_base_request(request::Add::default(), Some(form))?;
+
+        self.request_stream_json(req).try_collect().await
+    }
+
+    #[cfg(feature = "with-reqwest")]
+    pub async fn add_path<P>(&self, path: P) -> Result<Vec<response::AddResponse>, Error>
+    where
+        P: AsRef<Path>,
+    {
+        let prefix = path.as_ref().parent();
+        let mut paths_to_add: Vec<(PathBuf, u64)> = vec![];
+
+        for path in walkdir::WalkDir::new(path.as_ref()) {
+            match path {
+                Ok(entry) if entry.file_type().is_file() => {
+                    if entry.file_type().is_file() {
+                        let file_size = entry
+                            .metadata()
+                            .map(|metadata| metadata.len())
+                            .map_err(|e| Error::Io(e.into()))?;
+
+                        paths_to_add.push((entry.path().to_path_buf(), file_size));
+                    }
+                }
+                Ok(_) => (),
+                Err(err) => return Err(Error::Io(err.into())),
+            }
+        }
+
+        paths_to_add.sort_unstable_by(|(_, a), (_, b)| a.cmp(b).reverse());
+
+        let mut it = 0;
+        let mut form = multipart::Form::new();
+
+        for (path, file_size) in paths_to_add {
+            let file = File::open(&path).await?;
+
+            let file_name = match prefix {
+                Some(prefix) => path.strip_prefix(prefix).unwrap(),
+                None => path.as_path(),
+            }
+            .to_string_lossy();
+
+            let stream = ReaderStream::new(file);
+            let body = Body::wrap_stream(stream);
+            let mut part = multipart::Part::stream_with_length(body, file_size);
+
+            if it < FILE_DESCRIPTOR_LIMIT {
+                it += 1;
+            } else {
+                part = part.file_name::<String>(file_name.into());
+            }
+
+            form = form.part("path", part);
         }
 
         let req = self.build_base_request(request::Add::default(), Some(form))?;
@@ -670,6 +950,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
+    #[cfg(any(feature = "with-actix", feature = "with-hyper"))]
     pub async fn block_put<R>(&self, data: R) -> Result<response::BlockPutResponse, Error>
     where
         R: 'static + Read + Send + Sync,
@@ -677,6 +958,21 @@ impl IpfsClient {
         let mut form = multipart::Form::default();
 
         form.add_reader("data", data);
+
+        self.request(request::BlockPut, Some(form)).await
+    }
+
+    #[inline]
+    #[cfg(feature = "with-reqwest")]
+    pub async fn block_put<R>(&self, data: R) -> Result<response::BlockPutResponse, Error>
+    where
+        R: 'static + AsyncRead + Send + Sync,
+    {
+        let stream = ReaderStream::new(data);
+        let body = Body::wrap_stream(stream);
+        let part = multipart::Part::stream(body);
+
+        let form = multipart::Form::new().part("data", part);
 
         self.request(request::BlockPut, Some(form)).await
     }
@@ -976,6 +1272,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
+    #[cfg(any(feature = "with-actix", feature = "with-hyper"))]
     pub async fn config_replace<R>(&self, data: R) -> Result<response::ConfigReplaceResponse, Error>
     where
         R: 'static + Read + Send + Sync,
@@ -983,6 +1280,21 @@ impl IpfsClient {
         let mut form = multipart::Form::default();
 
         form.add_reader("file", data);
+
+        self.request_empty(request::ConfigReplace, Some(form)).await
+    }
+
+    #[inline]
+    #[cfg(feature = "with-reqwest")]
+    pub async fn config_replace<R>(&self, data: R) -> Result<response::ConfigReplaceResponse, Error>
+    where
+        R: 'static + AsyncRead + Send + Sync,
+    {
+        let stream = ReaderStream::new(data);
+        let body = Body::wrap_stream(stream);
+        let part = multipart::Part::stream(body);
+
+        let form = multipart::Form::new().part("file", part);
 
         self.request_empty(request::ConfigReplace, Some(form)).await
     }
@@ -1036,6 +1348,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
+    #[cfg(any(feature = "with-actix", feature = "with-hyper"))]
     pub async fn dag_put<R>(&self, data: R) -> Result<response::DagPutResponse, Error>
     where
         R: 'static + Read + Send + Sync,
@@ -1043,6 +1356,21 @@ impl IpfsClient {
         let mut form = multipart::Form::default();
 
         form.add_reader("object data", data);
+
+        self.request(request::DagPut, Some(form)).await
+    }
+
+    #[inline]
+    #[cfg(feature = "with-reqwest")]
+    pub async fn dag_put<R>(&self, data: R) -> Result<response::DagPutResponse, Error>
+    where
+        R: 'static + AsyncRead + Send + Sync,
+    {
+        let stream = ReaderStream::new(data);
+        let body = Body::wrap_stream(stream);
+        let part = multipart::Part::stream(body);
+
+        let form = multipart::Form::new().part("object data", part);
 
         self.request(request::DagPut, Some(form)).await
     }
@@ -1610,6 +1938,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
+    #[cfg(any(feature = "with-actix", feature = "with-hyper"))]
     pub async fn files_write<R>(
         &self,
         path: &str,
@@ -1626,6 +1955,28 @@ impl IpfsClient {
             truncate: Some(truncate),
             ..request::FilesWrite::default()
         };
+        self.files_write_with_options(options, data).await
+    }
+
+    #[inline]
+    #[cfg(feature = "with-reqwest")]
+    pub async fn files_write<R>(
+        &self,
+        path: &str,
+        create: bool,
+        truncate: bool,
+        data: R,
+    ) -> Result<response::FilesWriteResponse, Error>
+    where
+        R: 'static + AsyncRead + Send + Sync,
+    {
+        let options = request::FilesWrite {
+            path,
+            create: Some(create),
+            truncate: Some(truncate),
+            ..request::FilesWrite::default()
+        };
+
         self.files_write_with_options(options, data).await
     }
 
@@ -1656,6 +2007,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
+    #[cfg(any(feature = "with-actix", feature = "with-hyper"))]
     pub async fn files_write_with_options<R>(
         &self,
         options: request::FilesWrite<'_>,
@@ -1667,6 +2019,25 @@ impl IpfsClient {
         let mut form = multipart::Form::default();
 
         form.add_reader("data", data);
+
+        self.request_empty(options, Some(form)).await
+    }
+
+    #[inline]
+    #[cfg(feature = "with-reqwest")]
+    pub async fn files_write_with_options<R>(
+        &self,
+        options: request::FilesWrite<'_>,
+        data: R,
+    ) -> Result<response::FilesWriteResponse, Error>
+    where
+        R: 'static + AsyncRead + Send + Sync,
+    {
+        let stream = ReaderStream::new(data);
+        let body = Body::wrap_stream(stream);
+        let part = multipart::Part::stream(body);
+
+        let form = multipart::Form::new().part("data", part);
 
         self.request_empty(options, Some(form)).await
     }
@@ -1940,6 +2311,7 @@ impl IpfsClient {
     /// let res = client.log_tail();
     /// ```
     ///
+    #[inline]
     pub fn log_tail(&self) -> impl Stream<Item = Result<String, Error>> {
         impl_stream_api_response! {
             (self, request::LogTail, None) |req| => {
@@ -2018,6 +2390,7 @@ impl IpfsClient {
     /// );
     /// ```
     ///
+    #[inline]
     pub async fn name_publish(
         &self,
         path: &str,
@@ -2052,6 +2425,7 @@ impl IpfsClient {
     /// );
     /// ```
     ///
+    #[inline]
     pub async fn name_resolve(
         &self,
         name: Option<&str>,
@@ -2404,6 +2778,7 @@ impl IpfsClient {
     /// let res = client.shutdown();
     /// ```
     ///
+    #[inline]
     pub async fn shutdown(&self) -> Result<response::ShutdownResponse, Error> {
         self.request_empty(request::Shutdown, None).await
     }
@@ -2503,6 +2878,7 @@ impl IpfsClient {
     /// ```
     ///
     #[inline]
+    #[cfg(any(feature = "with-actix", feature = "with-hyper"))]
     pub async fn tar_add<R>(&self, data: R) -> Result<response::TarAddResponse, Error>
     where
         R: 'static + Read + Send + Sync,
@@ -2510,6 +2886,21 @@ impl IpfsClient {
         let mut form = multipart::Form::default();
 
         form.add_reader("file", data);
+
+        self.request(request::TarAdd, Some(form)).await
+    }
+
+    #[inline]
+    #[cfg(feature = "with-reqwest")]
+    pub async fn tar_add<R>(&self, data: R) -> Result<response::TarAddResponse, Error>
+    where
+        R: 'static + AsyncRead + Send + Sync,
+    {
+        let stream = ReaderStream::new(data);
+        let body = Body::wrap_stream(stream);
+        let part = multipart::Part::stream(body);
+
+        let form = multipart::Form::new().part("file", part);
 
         self.request(request::TarAdd, Some(form)).await
     }

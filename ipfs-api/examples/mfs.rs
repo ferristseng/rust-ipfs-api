@@ -7,7 +7,12 @@
 //
 
 use ipfs_api::{response, IpfsClient};
+
+#[cfg(any(feature = "with-hyper", feature = "with-actix"))]
 use std::fs::File;
+
+#[cfg(feature = "with-reqwest")]
+use tokio::fs::File;
 
 fn print_stat(stat: response::FilesStatResponse) {
     eprintln!("  type     : {}", stat.typ);
@@ -21,7 +26,7 @@ fn print_stat(stat: response::FilesStatResponse) {
 // Creates an Ipfs client, and makes some calls to the Mfs Api.
 //
 #[cfg_attr(feature = "with-actix", actix_rt::main)]
-#[cfg_attr(feature = "with-hyper", tokio::main)]
+#[cfg_attr(any(feature = "with-hyper", feature = "with-reqwest"), tokio::main)]
 async fn main() {
     tracing_subscriber::fmt::init();
 
@@ -60,11 +65,26 @@ async fn main() {
     eprintln!("writing source file to /test/mfs.rs");
     eprintln!();
 
-    let src = File::open(file!()).expect("could not read source file");
+    #[cfg(any(feature = "with-hyper", feature = "with-actix"))]
+    {
+        let src = File::open(file!()).expect("could not read source file");
 
-    if let Err(e) = client.files_write("/test/mfs.rs", true, true, src).await {
-        eprintln!("error writing source file /test/mfs.rs: {}", e);
-        return;
+        if let Err(e) = client.files_write("/test/mfs.rs", true, true, src).await {
+            eprintln!("error writing source file /test/mfs.rs: {}", e);
+            return;
+        }
+    }
+
+    #[cfg(feature = "with-reqwest")]
+    {
+        let src = File::open(file!())
+            .await
+            .expect("could not read source file");
+
+        if let Err(e) = client.files_write("/test/mfs.rs", true, true, src).await {
+            eprintln!("error writing source file /test/mfs.rs: {}", e);
+            return;
+        }
     }
 
     eprintln!("getting status of /test/mfs.rs...");

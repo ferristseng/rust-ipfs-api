@@ -8,13 +8,15 @@
 
 use futures::TryStreamExt;
 use ipfs_api::IpfsClient;
+
 use std::io::Cursor;
+
 use tar::Builder;
 
 // Creates an Ipfs client, and adds this source file to Ipfs.
 //
 #[cfg_attr(feature = "with-actix", actix_rt::main)]
-#[cfg_attr(feature = "with-hyper", tokio::main)]
+#[cfg_attr(any(feature = "with-hyper", feature = "with-reqwest"), tokio::main)]
 async fn main() {
     tracing_subscriber::fmt::init();
 
@@ -34,6 +36,7 @@ async fn main() {
             .expect("failed to create tar file");
         builder.finish().expect("failed to create tar file");
     }
+
     let cursor = Cursor::new(buf);
 
     // Write in-memory tar file to IPFS.

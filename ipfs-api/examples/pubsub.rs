@@ -15,7 +15,7 @@ use std::time::Duration;
 use tokio::time;
 use tokio_stream::wrappers::IntervalStream;
 
-static TOPIC: &'static str = "test";
+static TOPIC: &str = "test";
 
 fn get_client() -> IpfsClient {
     eprintln!("connecting to localhost:5001...");
@@ -27,7 +27,7 @@ fn get_client() -> IpfsClient {
 // topic.
 //
 #[cfg_attr(feature = "with-actix", actix_rt::main)]
-#[cfg_attr(feature = "with-hyper", tokio::main)]
+#[cfg_attr(any(feature = "with-hyper", feature = "with-reqwest"), tokio::main)]
 async fn main() {
     tracing_subscriber::fmt::init();
 

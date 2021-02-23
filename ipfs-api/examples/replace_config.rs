@@ -12,7 +12,7 @@ use std::io::Cursor;
 // Creates an Ipfs client, and replaces the config file with the default one.
 //
 #[cfg_attr(feature = "with-actix", actix_rt::main)]
-#[cfg_attr(feature = "with-hyper", tokio::main)]
+#[cfg_attr(any(feature = "with-hyper", feature = "with-reqwest"), tokio::main)]
 async fn main() {
     tracing_subscriber::fmt::init();
 
