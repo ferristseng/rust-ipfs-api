@@ -11,9 +11,6 @@ version                   = "0.11.0"
 readme                    = "../README.md"
 license                   = "MIT OR Apache-2.0"
 
-[badges]
-travis-ci                 = { repository = "ferristseng/rust-ipfs-api" }
-
 [features]
 default                   = ["with-hyper-tls", "with-builder"]
 with-hyper-tls            = ["with-hyper", "hyper-tls"]
