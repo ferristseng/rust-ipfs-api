@@ -173,6 +173,9 @@ pub trait Backend: Default {
         }
     }
 
+    /// Generic method for making a request to the Ipfs server, and getting
+    /// back a raw stream of bytes.
+    ///
     fn request_stream_bytes(
         &self,
         req: Self::HttpRequest,
