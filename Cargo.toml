@@ -1,5 +1,8 @@
 [workspace]
 
 members = [
-  "ipfs-api"
+  "ipfs-api",
+  "ipfs-api-prelude",
+  "ipfs-api-backend-actix",
+  "ipfs-api-backend-hyper"
 ]
