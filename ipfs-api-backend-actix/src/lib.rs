@@ -11,4 +11,5 @@ extern crate actix_multipart_rfc7578 as multipart;
 mod backend;
 mod error;
 
-pub use crate::{backend::ActixBackend as IpfsApi, error::Error};
+pub use crate::{backend::ActixBackend as IpfsClient, error::Error};
+pub use ipfs_api_prelude::{request, response, IpfsApi};
