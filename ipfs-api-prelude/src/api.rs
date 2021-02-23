@@ -887,6 +887,59 @@ pub trait IpfsApi: Backend {
     ) -> Result<response::FilesCpResponse, Self::Error> {
         self.request_empty(options, None).await
     }
+
+    /// Add a tar file to Ipfs.
+    ///
+    /// Note: `data` should already be a tar file. If it isn't the Api will return
+    /// an error.
+    ///
+    /// ```no_run
+    /// use ipfs_api::{IpfsApi, IpfsClient};
+    /// use std::fs::File;
+    ///
+    /// let client = IpfsClient::default();
+    /// let tar = File::open("/path/to/file.tar").unwrap();
+    /// let res = client.tar_add(tar);
+    /// ```
+    ///
+    async fn tar_add<R>(&self, data: R) -> Result<response::TarAddResponse, Self::Error>
+    where
+        R: 'static + Read + Send + Sync,
+    {
+        let mut form = multipart::Form::default();
+
+        form.add_reader("file", data);
+
+        self.request(request::TarAdd, Some(form)).await
+    }
+
+    /// Export a tar file from Ipfs.
+    ///
+    /// ```no_run
+    /// use ipfs_api::{IpfsApi, IpfsClient};
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.tar_cat("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
+    /// ```
+    ///
+    fn tar_cat(&self, path: &str) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
+        impl_stream_api_response! {
+            (self, request::TarCat { path }, None) => request_stream_bytes
+        }
+    }
+
+    /// Returns information about the Ipfs server version.
+    ///
+    /// ```no_run
+    /// use ipfs_api::{IpfsApi, IpfsClient};
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.version();
+    /// ```
+    ///
+    async fn version(&self) -> Result<response::VersionResponse, Self::Error> {
+        self.request(request::Version, None).await
+    }
 }
 
 impl<B> IpfsApi for B where B: Backend {}
