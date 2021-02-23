@@ -11,6 +11,9 @@ version                   = "0.1.0"
 readme                    = "../README.md"
 license                   = "MIT OR Apache-2.0"
 
+[features]
+with-builder              = ["typed-builder"]
+
 [dependencies]
 async-trait               = "0.1"
 bytes                     = "1.0"
@@ -26,4 +29,5 @@ thiserror                 = "1.0"
 tokio                     = "1.2"
 tokio-util                = { version = "0.6", features = ["codec"] }
 tracing                   = "0.1"
+typed-builder             = { version = "0.9", optional = true }
 walkdir                   = "2.3"

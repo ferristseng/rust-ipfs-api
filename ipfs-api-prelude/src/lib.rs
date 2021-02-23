@@ -6,6 +6,10 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+#[cfg(feature = "with-builder")]
+#[macro_use]
+extern crate typed_builder;
+
 extern crate serde;
 
 mod api;
