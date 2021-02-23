@@ -6,7 +6,7 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use std::io;
+use std::{io, string::FromUtf8Error};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -15,14 +15,23 @@ pub enum Error {
     Io(#[from] io::Error),
 
     #[error("utf8 decoding error `{0}`")]
+    ParseUtf8(#[from] FromUtf8Error),
+
+    #[error("json decoding error `{0}`")]
     Parse(#[from] serde_json::Error),
 
-    #[error("api returned an error while streaming: `{0}`")]
+    #[error("uri error `{0}`")]
+    Url(#[from] http::uri::InvalidUri),
+
+    #[error("url encoding error `{0}`")]
+    EncodeUrl(#[from] serde_urlencoded::ser::Error),
+
+    #[error("api returned an error while streaming `{0}`")]
     StreamError(String),
 
-    #[error("api got unrecognized trailer header: `{0}`")]
+    #[error("api got unrecognized trailer header `{0}`")]
     UnrecognizedTrailerHeader(String),
 
-    #[error("api returned an unknown error: `{0}`")]
+    #[error("api returned an unknown error `{0}`")]
     UnrecognizedApiError(String),
 }

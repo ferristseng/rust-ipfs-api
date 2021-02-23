@@ -6,7 +6,6 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use std::string::FromUtf8Error;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -22,18 +21,6 @@ pub enum Error {
 
     #[error("http error `{0}`")]
     Http(#[from] http::Error),
-
-    #[error("json parse error `{0}`")]
-    Parse(#[from] serde_json::Error),
-
-    #[error("utf8 decoding error `{0}`")]
-    ParseUtf8(#[from] FromUtf8Error),
-
-    #[error("uri error `{0}`")]
-    Url(#[from] http::uri::InvalidUri),
-
-    #[error("url encoding error `{0}`")]
-    EncodeUrl(#[from] serde_urlencoded::ser::Error),
 
     #[error("ipfs client error `{0}`")]
     IpfsClientError(#[from] ipfs_api_prelude::Error),

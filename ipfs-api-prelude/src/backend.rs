@@ -38,12 +38,7 @@ pub trait Backend: Default {
 
     /// Error type for Result.
     ///
-    type Error: Display
-        + From<ApiError>
-        + From<FromUtf8Error>
-        + From<serde_json::Error>
-        + From<crate::Error>
-        + 'static;
+    type Error: Display + From<ApiError> + From<crate::Error> + 'static;
 
     fn build_base_request<Req>(
         &self,
@@ -82,10 +77,14 @@ pub trait Backend: Default {
     fn process_error_from_body(body: Bytes) -> Self::Error {
         match serde_json::from_slice::<ApiError>(&body) {
             Ok(e) => e.into(),
-            Err(_) => match String::from_utf8(body.to_vec()) {
-                Ok(s) => crate::Error::UnrecognizedApiError(s).into(),
-                Err(e) => e.into(),
-            },
+            Err(_) => {
+                let err = match String::from_utf8(body.to_vec()) {
+                    Ok(s) => crate::Error::UnrecognizedApiError(s),
+                    Err(e) => crate::Error::from(e),
+                };
+
+                err.into()
+            }
         }
     }
 
@@ -97,7 +96,9 @@ pub trait Backend: Default {
         for<'de> Res: 'static + Deserialize<'de>,
     {
         match status {
-            StatusCode::OK => serde_json::from_slice(&body).map_err(From::from),
+            StatusCode::OK => serde_json::from_slice(&body)
+                .map_err(crate::Error::from)
+                .map_err(Self::Error::from),
             _ => Err(Self::process_error_from_body(body)),
         }
     }
@@ -168,7 +169,9 @@ pub trait Backend: Default {
         let (status, chunk) = self.request_raw(req, form).await?;
 
         match status {
-            StatusCode::OK => String::from_utf8(chunk.to_vec()).map_err(Self::Error::from),
+            StatusCode::OK => String::from_utf8(chunk.to_vec())
+                .map_err(crate::Error::from)
+                .map_err(Self::Error::from),
             _ => Err(Self::process_error_from_body(chunk)),
         }
     }

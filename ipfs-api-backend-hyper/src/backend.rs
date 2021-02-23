@@ -55,18 +55,18 @@ impl Backend for HyperBackend {
     where
         Req: ApiRequest,
     {
-        req.absolute_url(&self.base).and_then(move |url| {
-            let builder = http::Request::builder();
-            let builder = builder.method(Req::METHOD.clone()).uri(url);
+        let url = req.absolute_url(&self.base)?;
 
-            let req = if let Some(form) = form {
-                form.set_body_convert::<hyper::Body, multipart::client::multipart::Body>(builder)
-            } else {
-                builder.body(hyper::Body::empty())
-            };
+        let builder = http::Request::builder();
+        let builder = builder.method(Req::METHOD.clone()).uri(url);
 
-            req.map_err(From::from)
-        })
+        let req = if let Some(form) = form {
+            form.set_body_convert::<hyper::Body, multipart::Body>(builder)
+        } else {
+            builder.body(hyper::Body::empty())
+        }?;
+
+        Ok(req)
     }
 
     fn get_header<'a>(res: &'a Self::HttpResponse, key: HeaderName) -> Option<&'a HeaderValue> {

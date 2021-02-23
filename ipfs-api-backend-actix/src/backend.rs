@@ -54,19 +54,16 @@ impl Backend for ActixBackend {
     where
         Req: ApiRequest,
     {
-        req.absolute_url(&self.base).and_then(|url| {
-            let req = if let Some(form) = form {
-                self.client
-                    .post(url)
-                    .timeout(ACTIX_REQUEST_TIMEOUT)
-                    .content_type(form.content_type())
-                    .send_body(multipart::client::multipart::Body::from(form))
-            } else {
-                self.client.post(url).timeout(ACTIX_REQUEST_TIMEOUT).send()
-            };
+        let url = req.absolute_url(&self.base)?;
+        let req = self.client.request(Req::METHOD, url);
+        let req = if let Some(form) = form {
+            req.content_type(form.content_type())
+                .send_body(multipart::Body::from(form))
+        } else {
+            req.timeout(ACTIX_REQUEST_TIMEOUT).send()
+        };
 
-            Ok(req)
-        })
+        Ok(req)
     }
 
     fn get_header<'a>(res: &'a Self::HttpResponse, key: HeaderName) -> Option<&'a HeaderValue> {

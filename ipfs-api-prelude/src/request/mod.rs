@@ -98,7 +98,7 @@ mod swarm;
 mod tar;
 mod version;
 
-use http::uri::{InvalidUri, Uri};
+use http::uri::Uri;
 use serde::Serialize;
 
 /// A request that can be made against the Ipfs API.
@@ -117,10 +117,7 @@ pub trait ApiRequest: Serialize {
     /// Creates the absolute URL for an API resource given the base path
     /// of the service.
     ///
-    fn absolute_url<Error>(&self, base: &Uri) -> Result<Uri, Error>
-    where
-        Error: From<InvalidUri> + From<serde_urlencoded::ser::Error>,
-    {
+    fn absolute_url(&self, base: &Uri) -> Result<Uri, crate::Error> {
         format!(
             "{}{}?{}",
             base,
@@ -128,6 +125,6 @@ pub trait ApiRequest: Serialize {
             serde_urlencoded::to_string(self)?
         )
         .parse()
-        .map_err(Error::from)
+        .map_err(crate::Error::from)
     }
 }
