@@ -7,12 +7,11 @@
 //
 
 use futures::{future, TryStreamExt};
-use ipfs_api::IpfsClient;
+use ipfs_api_examples::ipfs_api::{IpfsApi, IpfsClient};
 
 // Tails the log of IPFS.
 //
-#[cfg_attr(feature = "with-actix", actix_rt::main)]
-#[cfg_attr(feature = "with-hyper", tokio::main)]
+#[ipfs_api_examples::main]
 async fn main() {
     tracing_subscriber::fmt::init();
 

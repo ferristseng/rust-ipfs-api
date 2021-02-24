@@ -7,13 +7,12 @@
 //
 
 use futures::{future, TryStreamExt};
-use ipfs_api::{response::PingResponse, IpfsClient};
+use ipfs_api_examples::ipfs_api::{response::PingResponse, IpfsApi, IpfsClient};
 
 // Creates an Ipfs client, discovers a connected peer, and pings it using the
 // streaming Api, and by collecting it into a collection.
 //
-#[cfg_attr(feature = "with-actix", actix_rt::main)]
-#[cfg_attr(feature = "with-hyper", tokio::main)]
+#[ipfs_api_examples::main]
 async fn main() {
     tracing_subscriber::fmt::init();
 

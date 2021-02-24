@@ -6,12 +6,11 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use ipfs_api::IpfsClient;
+use ipfs_api_examples::ipfs_api::{IpfsApi, IpfsClient};
 
 // Creates an Ipfs client, and gets the version of the Ipfs server.
 //
-#[cfg_attr(feature = "with-actix", actix_rt::main)]
-#[cfg_attr(feature = "with-hyper", tokio::main)]
+#[ipfs_api_examples::main]
 async fn main() {
     tracing_subscriber::fmt::init();
 

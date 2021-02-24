@@ -7,13 +7,12 @@
 //
 
 use futures::TryStreamExt;
-use ipfs_api::IpfsClient;
+use ipfs_api_examples::ipfs_api::{IpfsApi, IpfsClient};
 use std::io::Cursor;
 
 // Creates an Ipfs client, and adds this dag object to Ipfs then fetch it back.
 //
-#[cfg_attr(feature = "with-actix", actix_rt::main)]
-#[cfg_attr(feature = "with-hyper", tokio::main)]
+#[ipfs_api_examples::main]
 async fn main() {
     tracing_subscriber::fmt::init();
 
