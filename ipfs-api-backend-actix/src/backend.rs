@@ -86,15 +86,13 @@ impl Backend for ActixBackend {
         let body = res.body().await?;
 
         // FIXME: Actix compat with bytes 1.0
-        Ok((status, Bytes::copy_from_slice(body.as_ref())))
+        Ok((status, body))
     }
 
     fn response_to_byte_stream(
         res: Self::HttpResponse,
     ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
-        let stream = res
-            .map_ok(|bytes| Bytes::copy_from_slice(bytes.as_ref()))
-            .err_into();
+        let stream = res.err_into();
 
         Box::new(stream)
     }
@@ -120,12 +118,7 @@ impl Backend for ActixBackend {
                     _ => res
                         .body()
                         .map(|maybe_body| match maybe_body {
-                            Ok(body) => {
-                                // FIXME: Actix compat with bytes 1.0
-                                let body = Bytes::copy_from_slice(body.as_ref());
-
-                                Err(Self::process_error_from_body(body))
-                            }
+                            Ok(body) => Err(Self::process_error_from_body(body)),
                             Err(e) => Err(e.into()),
                         })
                         .into_stream()

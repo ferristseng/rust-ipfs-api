@@ -12,9 +12,9 @@ readme                    = "../README.md"
 license                   = "MIT OR Apache-2.0"
 
 [dependencies]
-actix-http                = "2.2"
-actix-multipart-rfc7578   = "0.4"
-awc                       = "2.0"
+actix-http                = "3.0.0-beta.2"
+actix-multipart-rfc7578   = { version = "0.5", git = "https://github.com/ferristseng/rust-multipart-rfc7578", branch = "ftseng/upgrade-actix-rt" }
+awc                       = "3.0.0-beta.2"
 async-trait               = "0.1"
 bytes                     = "1.0"
 futures                   = "0.3"

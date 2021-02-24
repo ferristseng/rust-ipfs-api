@@ -17,7 +17,7 @@ with-hyper                = ["ipfs-api-backend-hyper", "tokio-hyper", "tokio-hyp
 with-actix                = ["ipfs-api-backend-actix", "tokio-actix", "actix-rt"]
 
 [dependencies]
-actix-rt                  = { version = "1.1", optional = true }
+actix-rt                  = { version = "2.0", optional = true }
 futures                   = "0.3"
 ipfs-api-backend-actix    = { version = "0.1", path = "../ipfs-api-backend-actix", optional = true }
 ipfs-api-backend-hyper    = { version = "0.1", path = "../ipfs-api-backend-hyper", optional = true }
