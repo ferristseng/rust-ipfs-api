@@ -1,6 +1,6 @@
 [package]
 name                      = "ipfs-api-prelude"
-description               = "Shared code for IPFS HTTP API client"
+description               = "Shared code for IPFS HTTP API clients"
 authors                   = ["Ferris Tseng <ferristseng@fastmail.fm>"]
 edition                   = "2018"
 documentation             = "https://docs.rs/ipfs-api"
@@ -31,3 +31,9 @@ tokio-util                = { version = "0.6", features = ["codec"] }
 tracing                   = "0.1"
 typed-builder             = { version = "0.9", optional = true }
 walkdir                   = "2.3"
+
+[dev-dependencies]
+ipfs-api                  = { package = "ipfs-api-backend-hyper", version = "0.1.0", path = "../ipfs-api-backend-hyper" }
+tokio                     = { version = "1.2", features = ["rt-multi-thread", "macros", "time"] }
+tokio-stream              = { version = "0.1", features = ["time"] }
+tracing-subscriber        = { version = "0.2", features = ["fmt"] }
