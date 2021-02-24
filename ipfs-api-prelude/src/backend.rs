@@ -37,6 +37,8 @@ pub trait Backend: Default {
     ///
     type Error: Display + From<ApiError> + From<crate::Error> + 'static;
 
+    /// Builds the url for an api call.
+    ///
     fn build_base_request<Req>(
         &self,
         req: &Req,
@@ -45,8 +47,12 @@ pub trait Backend: Default {
     where
         Req: ApiRequest;
 
+    /// Get the value of a header from an HTTP response.
+    ///
     fn get_header<'a>(res: &'a Self::HttpResponse, key: HeaderName) -> Option<&'a HeaderValue>;
 
+    /// Generates a request, and returns the unprocessed response future.
+    ///
     async fn request_raw<Req>(
         &self,
         req: Req,
@@ -59,6 +65,9 @@ pub trait Backend: Default {
         res: Self::HttpResponse,
     ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin>;
 
+    /// Generic method for making a request that expects back a streaming
+    /// response.
+    ///
     fn request_stream<Res, F, OutStream>(
         &self,
         req: Self::HttpRequest,
