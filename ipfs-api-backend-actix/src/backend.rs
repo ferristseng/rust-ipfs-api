@@ -21,6 +21,9 @@ pub struct ActixBackend {
 }
 
 impl Default for ActixBackend {
+    /// Creates an `IpfsClient` connected to the endpoint specified in ~/.ipfs/api.
+    /// If not found, tries to connect to `localhost:5001`.
+    ///
     fn default() -> Self {
         Self::from_ipfs_config()
             .unwrap_or_else(|| Self::from_host_and_port(Scheme::HTTP, "localhost", 5001).unwrap())
