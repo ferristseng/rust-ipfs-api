@@ -92,7 +92,7 @@ where
         let url = req.absolute_url(&self.base)?;
 
         let builder = http::Request::builder();
-        let builder = builder.method(Req::METHOD.clone()).uri(url);
+        let builder = builder.method(Req::METHOD).uri(url);
 
         let req = if let Some(form) = form {
             form.set_body_convert::<hyper::Body, multipart::Body>(builder)
@@ -103,7 +103,7 @@ where
         Ok(req)
     }
 
-    fn get_header<'a>(res: &'a Self::HttpResponse, key: HeaderName) -> Option<&'a HeaderValue> {
+    fn get_header(res: &Self::HttpResponse, key: HeaderName) -> Option<&HeaderValue> {
         res.headers().get(key)
     }
 

@@ -76,7 +76,7 @@ impl Backend for ActixBackend {
         Ok(req)
     }
 
-    fn get_header<'a>(res: &'a Self::HttpResponse, key: HeaderName) -> Option<&'a HeaderValue> {
+    fn get_header(res: &Self::HttpResponse, key: HeaderName) -> Option<&HeaderValue> {
         res.headers().get(key)
     }
 
