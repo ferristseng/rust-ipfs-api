@@ -6,8 +6,6 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-#![recursion_limit = "128"]
-
 //! Rust library for connecting to the IPFS HTTP API using Hyper/Actix.
 //!
 //! ## Usage
@@ -47,7 +45,7 @@
 //! #### With Hyper
 //!
 //! ```no_run
-//! use ipfs_api::IpfsClient;
+//! use ipfs_api::{IpfsApi, IpfsClient};
 //! use std::io::Cursor;
 //!
 //! #[tokio::main]
@@ -65,7 +63,7 @@
 //! #### With Actix
 //!
 //! ```no_run
-//! use ipfs_api::IpfsClient;
+//! use ipfs_api::{IpfsApi, IpfsClient};
 //! use std::io::Cursor;
 //!
 //! #[actix_rt::main]
@@ -86,7 +84,7 @@
 //!
 //! ```no_run
 //! use futures::TryStreamExt;
-//! use ipfs_api::IpfsClient;
+//! use ipfs_api::{IpfsApi, IpfsClient};
 //! use std::io::{self, Write};
 //!
 //! #[tokio::main]
@@ -114,7 +112,7 @@
 //!
 //! ```no_run
 //! use futures::TryStreamExt;
-//! use ipfs_api::IpfsClient;
+//! use ipfs_api::{IpfsApi, IpfsClient};
 //! use std::io::{self, Write};
 //!
 //! #[actix_rt::main]
@@ -156,78 +154,13 @@
 //! ```
 //!
 
-#[cfg(feature = "with-actix")]
-#[macro_use]
-extern crate derive_more;
+pub use ipfs_api_prelude::{self, IpfsApi, TryFromUri, response, request::{self, KeyType, Logger, LoggingLevel, ObjectTemplate}};
 
 #[cfg(feature = "with-hyper")]
-#[macro_use]
-extern crate failure;
-
-#[cfg(feature = "with-builder")]
-#[macro_use]
-extern crate typed_builder;
-
-extern crate serde;
-
-pub use crate::client::{IpfsClient, TryFromUri};
-pub use crate::request::{KeyType, Logger, LoggingLevel, ObjectTemplate};
-
-mod client;
-mod header;
-mod read;
-pub mod request;
-pub mod response;
-
-// --- Hyper Connectors ---
-
-#[cfg(all(feature = "with-hyper-tls", not(feature = "with-hyper-rustls")))]
-type HyperConnector = hyper_tls::HttpsConnector<hyper::client::HttpConnector>;
-#[cfg(all(feature = "with-hyper-rustls", not(feature = "with-hyper-tls")))]
-type HyperConnector = hyper_rustls::HttpsConnector<hyper::client::HttpConnector>;
-#[cfg(all(
-    feature = "with-hyper",
-    any(
-        not(any(feature = "with-hyper-tls", feature = "with-hyper-rustls")),
-        all(feature = "with-hyper-rustls", feature = "with-hyper-tls"),
-    )
-))]
-type HyperConnector = hyper::client::HttpConnector;
-
-// --- Multipart Crates ---
+pub use ipfs_api_backend_hyper::IpfsClient;
 
 #[cfg(feature = "with-actix")]
-pub(crate) use actix_multipart_rfc7578::client::multipart;
-#[cfg(feature = "with-hyper")]
-pub(crate) use hyper_multipart_rfc7578::client::multipart;
-
-// --- Request Types ---
-
-#[cfg(feature = "with-actix")]
-pub(crate) type Request = awc::SendClientRequest;
-#[cfg(feature = "with-hyper")]
-pub(crate) type Request = http::Request<hyper::Body>;
-
-// --- Response Types ---
-
-#[cfg(feature = "with-actix")]
-pub(crate) type Response = awc::ClientResponse<
-    actix_http::encoding::Decoder<actix_http::Payload<actix_http::PayloadStream>>,
->;
-#[cfg(feature = "with-hyper")]
-pub(crate) type Response = http::Response<hyper::Body>;
-
-// --- Client Types ----
-
-#[cfg(feature = "with-actix")]
-pub(crate) type Client = awc::Client;
-#[cfg(feature = "with-hyper")]
-pub(crate) type Client = hyper::client::Client<HyperConnector, hyper::Body>;
-
-// --- Validations ---
-
-#[cfg(all(feature = "with-hyper-rustls", feature = "with-hyper-tls"))]
-compile_error!("Pick only one of the features: hyper-tls, hyper-rustls");
+pub use ipfs_api_backend_actix::IpfsClient;
 
 #[cfg(not(any(feature = "with-actix", feature = "with-hyper")))]
 compile_error!("Pick exactly one of these features: with-hyper, with-actix");
