@@ -12,6 +12,7 @@ readme                    = "../README.md"
 license                   = "MIT OR Apache-2.0"
 
 [features]
+default                   = ["with-hyper"]
 with-hyper                = ["ipfs-api-backend-hyper", "tokio/macros", "tokio/rt-multi-thread"]
 with-actix                = ["ipfs-api-backend-actix", "actix-rt"]
 
