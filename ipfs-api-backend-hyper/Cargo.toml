@@ -17,8 +17,7 @@ bytes                     = "1.0"
 futures                   = "0.3"
 http                      = "0.2"
 hyper                     = { version = "0.14", features = ["http1", "http2", "client"] }
-hyper-multipart-rfc7578   = { version = "0.5", git = "https://github.com/ferristseng/rust-multipart-rfc7578", branch = "ftseng/upgrade-actix-rt" }
-hyper-tls                 = "0.5"
+hyper-multipart-rfc7578   = "0.5"
 ipfs-api-prelude          = { version = "0.1.0", path = "../ipfs-api-prelude" }
 serde                     = "1.0"
 thiserror                 = "1.0"

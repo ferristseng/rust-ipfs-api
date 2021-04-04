@@ -17,7 +17,7 @@ with-builder              = ["typed-builder"]
 [dependencies]
 async-trait               = "0.1"
 bytes                     = "1.0"
-common-multipart-rfc7578  = { version = "0.3", git = "https://github.com/ferristseng/rust-multipart-rfc7578", branch = "ftseng/upgrade-actix-rt" }
+common-multipart-rfc7578  = "0.3"
 dirs                      = "3.0"
 futures                   = "0.3"
 http                      = "0.2"
