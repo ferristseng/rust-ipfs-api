@@ -13,7 +13,6 @@ use futures::{
     Stream,
 };
 use serde::Deserialize;
-use serde_json;
 use std::{cmp, fmt::Display, io, marker::PhantomData, pin::Pin};
 use tokio::io::{AsyncRead, ReadBuf};
 use tokio_util::codec::Decoder;

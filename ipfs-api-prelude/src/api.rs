@@ -145,7 +145,7 @@ pub trait IpfsApi: Backend {
         let mut form = multipart::Form::default();
 
         for (path, file_size) in paths_to_add {
-            let mut file = File::open(&path).map_err(|e| crate::Error::Io(e))?;
+            let mut file = File::open(&path).map_err(crate::Error::Io)?;
             let file_name = match prefix {
                 Some(prefix) => path.strip_prefix(prefix).unwrap(),
                 None => path.as_path(),
@@ -158,9 +158,7 @@ pub trait IpfsApi: Backend {
                 it += 1;
             } else {
                 let mut buf = Vec::with_capacity(file_size as usize);
-                let _ = file
-                    .read_to_end(&mut buf)
-                    .map_err(|e| crate::Error::Io(e))?;
+                let _ = file.read_to_end(&mut buf).map_err(crate::Error::Io)?;
 
                 form.add_reader_file("path", Cursor::new(buf), file_name);
             }

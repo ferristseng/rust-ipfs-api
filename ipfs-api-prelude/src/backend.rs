@@ -49,7 +49,7 @@ pub trait Backend {
 
     /// Get the value of a header from an HTTP response.
     ///
-    fn get_header<'a>(res: &'a Self::HttpResponse, key: HeaderName) -> Option<&'a HeaderValue>;
+    fn get_header(res: &Self::HttpResponse, key: HeaderName) -> Option<&HeaderValue>;
 
     /// Generates a request, and returns the unprocessed response future.
     ///
