@@ -24,7 +24,7 @@ use std::fmt::Display;
 use tokio_util::codec::{Decoder, FramedRead};
 
 #[async_trait(?Send)]
-pub trait Backend: Default {
+pub trait Backend {
     /// HTTP request type.
     ///
     type HttpRequest;
