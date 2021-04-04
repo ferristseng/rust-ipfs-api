@@ -1,9 +1,0 @@
-{
-  "ID": "QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ",
-  "PublicKey": "CAASpgQwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQCh9cDnwNXlVq/A6EVm+MVldzrbVI3cIZypaIYToAlsLf0GmATISWhUW5yd8Z3RMcyECLd4Hffd+vIIpCqCFSPOA5VRZKYtyra9EN0m+FB1F1Z8oSjwCgVthja5VJ3bWcpydih3XJC9kdYlGtvf02v2ignDv+aeGxWH6PMaS1WvyAlee29mgxZfnA7wrRsi2Lc3Se4CqkZWbNX3qf9usQmf42s2Or1OEpMQim1HOjSed6yhXkmyD/5htCIus6Y06Egdcaf9zuqIogRPpc7d4d7jFOJ4gLxxPKV4gUaE6F4NIc/0DiPDQfE+4aBkUvKEZkmZhilz5R1pK1eM2bfeideGrWuuvPjfw0PbjtpDShWSlZGRfFK/FnQTWRSdDnCSvJGZKPHVsly0iw+Qp6BbDrKa3KmT+JPG+xN6U6XEcKijCbV0u0/YCHm959zCN+ryzpoXuRkwMt+ZyL9VGYdWHuJkoJcw+QKWEFcWJeDQ4eKn+QRppqSA7QjPm0w68FZ7/pq/RwB52Mx9fyLvyDWY+GyeBnjK954imamcR8jQV+fzuK9AGFyN1JmhwWfDWNerg69lgZRM4Li2vSz+S/gMjJ5/Yf6UgW33nhKuXoLFiPiUuG/VmdpZEvh1TeKiPy0VKYRaVXCnLY2FNzJbld08adnKMLgYbCAXDRCVW32iFoIscwIDAQAB",
-  "Addresses": [
-    "/ip4/104.131.131.82/tcp/4001"
-  ],
-  "AgentVersion": "go-ipfs/0.4.11-rc1/",
-  "ProtocolVersion": "ipfs/0.1.0"
-}
