@@ -33,7 +33,7 @@ typed-builder             = { version = "0.9", optional = true }
 walkdir                   = "2.3"
 
 [dev-dependencies]
-ipfs-api                  = { package = "ipfs-api-backend-hyper", version = "0.1.0", path = "../ipfs-api-backend-hyper" }
 tokio                     = { version = "1.2", features = ["rt-multi-thread", "macros", "time"] }
+ipfs-api                  = { package = "ipfs-api-backend-hyper", version = "0.1", path = "../ipfs-api-backend-hyper" }
 tokio-stream              = { version = "0.1", features = ["time"] }
 tracing-subscriber        = { version = "0.2", features = ["fmt"] }
