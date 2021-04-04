@@ -7,11 +7,9 @@
 //
 
 use futures::{future, select, FutureExt, StreamExt, TryStreamExt};
-use ipfs_api_examples::{
-    ipfs_api::{IpfsApi, IpfsClient},
-    tokio::time,
-};
+use ipfs_api_examples::ipfs_api::{IpfsApi, IpfsClient};
 use std::time::Duration;
+use tokio::time;
 use tokio_stream::wrappers::IntervalStream;
 
 static TOPIC: &'static str = "test";
