@@ -154,7 +154,11 @@
 //! ```
 //!
 
-pub use ipfs_api_prelude::{self, IpfsApi, TryFromUri, response, request::{self, KeyType, Logger, LoggingLevel, ObjectTemplate}};
+pub use ipfs_api_prelude::{
+    self,
+    request::{self, KeyType, Logger, LoggingLevel, ObjectTemplate},
+    response, IpfsApi, TryFromUri,
+};
 
 #[cfg(feature = "with-hyper")]
 pub use ipfs_api_backend_hyper::IpfsClient;

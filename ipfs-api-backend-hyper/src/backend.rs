@@ -17,13 +17,16 @@ use http::{
 };
 use hyper::{
     body,
-    client::{self, Builder, connect::Connect, HttpConnector},
+    client::{self, connect::Connect, Builder, HttpConnector},
 };
 use ipfs_api_prelude::{ApiRequest, Backend, TryFromUri};
 use multipart::client::multipart;
 use serde::Serialize;
 
-pub struct HyperBackend<C = HttpConnector> where C: Connect + Clone + Send + Sync + 'static {
+pub struct HyperBackend<C = HttpConnector>
+where
+    C: Connect + Clone + Send + Sync + 'static,
+{
     base: Uri,
     client: client::Client<C, hyper::Body>,
 }
@@ -38,8 +41,9 @@ macro_rules! impl_default {
             /// If not found, tries to connect to `localhost:5001`.
             ///
             fn default() -> Self {
-                Self::from_ipfs_config()
-                    .unwrap_or_else(|| Self::from_host_and_port(Scheme::HTTP, "localhost", 5001).unwrap())
+                Self::from_ipfs_config().unwrap_or_else(|| {
+                    Self::from_host_and_port(Scheme::HTTP, "localhost", 5001).unwrap()
+                })
             }
         }
 
@@ -61,10 +65,16 @@ impl_default!(HttpConnector);
 impl_default!(hyper_tls::HttpsConnector<HttpConnector>);
 
 #[cfg(feature = "with-hyper-rustls")]
-impl_default!(hyper_rustls::HttpsConnector<HttpConnector>, hyper_rustls::HttpsConnector::with_native_roots());
+impl_default!(
+    hyper_rustls::HttpsConnector<HttpConnector>,
+    hyper_rustls::HttpsConnector::with_native_roots()
+);
 
 #[async_trait(?Send)]
-impl<C> Backend for HyperBackend<C> where C: Connect + Clone + Send + Sync + 'static {
+impl<C> Backend for HyperBackend<C>
+where
+    C: Connect + Clone + Send + Sync + 'static,
+{
     type HttpRequest = http::Request<hyper::Body>;
 
     type HttpResponse = http::Response<hyper::Body>;
