@@ -154,17 +154,11 @@
 //! ```
 //!
 
-pub use ipfs_api_prelude::{
-    self,
-    request::{self, KeyType, Logger, LoggingLevel, ObjectTemplate},
-    response, IpfsApi, TryFromUri,
-};
-
 #[cfg(feature = "with-hyper")]
-pub use ipfs_api_backend_hyper::IpfsClient;
+pub use ipfs_api_backend_hyper::*;
 
 #[cfg(feature = "with-actix")]
-pub use ipfs_api_backend_actix::IpfsClient;
+pub use ipfs_api_backend_actix::*;
 
 #[cfg(not(any(feature = "with-actix", feature = "with-hyper")))]
 compile_error!("Pick exactly one of these features: with-hyper, with-actix");
