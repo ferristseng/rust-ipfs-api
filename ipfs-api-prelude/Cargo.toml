@@ -1,0 +1,39 @@
+[package]
+name                      = "ipfs-api-prelude"
+description               = "Shared code for IPFS HTTP API clients"
+authors                   = ["Ferris Tseng <ferristseng@fastmail.fm>"]
+edition                   = "2018"
+documentation             = "https://docs.rs/ipfs-api"
+repository                = "https://github.com/ferristseng/rust-ipfs-api"
+keywords                  = ["ipfs"]
+categories                = ["filesystem", "web-programming"]
+version                   = "0.1.0"
+readme                    = "../README.md"
+license                   = "MIT OR Apache-2.0"
+
+[features]
+with-builder              = ["typed-builder"]
+
+[dependencies]
+async-trait               = "0.1"
+bytes                     = "1.0"
+common-multipart-rfc7578  = "0.3"
+dirs                      = "3.0"
+futures                   = "0.3"
+http                      = "0.2"
+parity-multiaddr          = "0.11"
+serde                     = { version = "1.0", features = ["derive"] }
+serde_json                = "1.0"
+serde_urlencoded          = "0.7"
+thiserror                 = "1.0"
+tokio                     = "1"
+tokio-util                = { version = "0.6", features = ["codec"] }
+tracing                   = "0.1"
+typed-builder             = { version = "0.9", optional = true }
+walkdir                   = "2.3"
+
+[dev-dependencies]
+ipfs-api                  = { package = "ipfs-api-backend-hyper", version = "0.1", path = "../ipfs-api-backend-hyper" }
+tokio                     = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
+tokio-stream              = { version = "0.1", features = ["time"] }
+tracing-subscriber        = { version = "0.2", features = ["fmt"] }

@@ -1,0 +1,24 @@
+[package]
+name                      = "ipfs-api-backend-actix"
+description               = "Actix implementation of IPFS HTTP API"
+authors                   = ["Ferris Tseng <ferristseng@fastmail.fm>"]
+edition                   = "2018"
+documentation             = "https://docs.rs/ipfs-api"
+repository                = "https://github.com/ferristseng/rust-ipfs-api"
+keywords                  = ["ipfs"]
+categories                = ["filesystem", "web-programming"]
+version                   = "0.1.0"
+readme                    = "../README.md"
+license                   = "MIT OR Apache-2.0"
+
+[dependencies]
+actix-http                = "3.0.0-beta.5"
+actix-multipart-rfc7578   = "0.5"
+awc                       = "3.0.0-beta.4"
+async-trait               = "0.1"
+bytes                     = "1.0"
+futures                   = "0.3"
+http                      = "0.2"
+ipfs-api-prelude          = { version = "0.1.0", path = "../ipfs-api-prelude" }
+serde                     = "1.0"
+thiserror                 = "1.0"

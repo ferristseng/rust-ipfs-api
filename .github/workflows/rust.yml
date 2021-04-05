@@ -24,7 +24,7 @@ jobs:
       run: cd ipfs-api; cargo build --verbose --features with-actix --no-default-features
     - name: Run tests (Actix)
       run: cd ipfs-api; cargo test --verbose --features with-actix --no-default-features
+    - name: Build (Hyper with tls)
+      run: cd ipfs-api; cargo build --verbose --features with-hyper-tls --no-default-features
     - name: Build (Hyper with rustls)
       run: cd ipfs-api; cargo build --verbose --features with-hyper-rustls --no-default-features
-    - name: Run tests (Hyper with rustls)
-      run: cd ipfs-api; cargo test --verbose --features with-hyper-rustls --no-default-features
