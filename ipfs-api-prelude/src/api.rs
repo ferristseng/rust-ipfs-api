@@ -103,7 +103,7 @@ pub trait IpfsApi: Backend {
         self.request(add, Some(form)).await
     }
 
-    /// Add files Ipfs using Form.
+    /// Add files using multipart::Form
     ///
     /// # Examples
     ///
