@@ -59,8 +59,7 @@ pub trait IpfsApi: Backend {
     where
         R: 'static + Read + Send + Sync,
     {
-        self.add_with_options(data, request::Add::default(), None)
-            .await
+        self.add_with_options(data, request::Add::default()).await
     }
 
     /// Add a file to IPFS with options.
@@ -85,7 +84,7 @@ pub trait IpfsApi: Backend {
     ///     chunker: Some("rabin-512-1024-2048"),
     ///     ..Default::default()
     /// };
-    /// let req = client.add_with_options(data, add, None);
+    /// let req = client.add_with_options(data, add);
     /// # }
     /// ```
     ///
@@ -93,18 +92,45 @@ pub trait IpfsApi: Backend {
         &self,
         data: R,
         add: request::Add<'_>,
-        mut form_option: Option<multipart::Form<'static>>,
     ) -> Result<response::AddResponse, Self::Error>
     where
         R: 'static + Read + Send + Sync,
     {
-        if form_option.is_none() {
-            let mut form_unwrapped = multipart::Form::default();
-            form_unwrapped.add_reader("path", data);
-            form_option = Some(form_unwrapped);
-        }
+        let mut form = multipart::Form::default();
 
-        self.request(add, form_option).await
+        form.add_reader("path", data);
+
+        self.request(add, Some(form)).await
+    }
+
+    /// Add files Ipfs using Form.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use ipfs_api;
+    /// use common_multipart_rfc7578::client::multipart;
+    ///
+    /// let add = ipfs_api::request::Add::builder()
+    /// .wrap_with_directory(true)
+    /// .build();
+    /// let mut form = multipart::Form::default();
+    /// form.add_reader_file("path", Cursor::new(file1), "file1.txt");
+    /// form.add_reader_file("path", Cursor::new(file2), "file2.txt");
+    /// let client = ipfs_api::IpfsClient::default();
+    /// let res = client.add_with_form(add, form);
+    /// ```
+    ///
+    async fn add_with_form<F>(
+        &self,
+        add: request::Add<'_>,
+        form: F,
+    ) -> Result<Vec<response::AddResponse>, Self::Error>
+    where
+        F: Into<multipart::Form<'static>>,
+    {
+        let req = self.build_base_request(&add, Some(form.into()))?;
+        self.request_stream_json(req).try_collect().await
     }
 
     /// Add a path to Ipfs. Can be a file or directory.

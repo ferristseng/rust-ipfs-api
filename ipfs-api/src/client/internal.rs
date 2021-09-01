@@ -472,6 +472,37 @@ impl IpfsClient {
         self.request(add, Some(form)).await
     }
 
+    /// Add files Ipfs using Form.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use ipfs_api;
+    /// use common_multipart_rfc7578::client::multipart;
+    ///
+    /// let add = ipfs_api::request::Add::builder()
+    /// .wrap_with_directory(true)
+    /// .build();
+    /// let mut form = multipart::Form::default();
+    /// form.add_reader_file("path", Cursor::new(file1), "file1.txt");
+    /// form.add_reader_file("path", Cursor::new(file2), "file2.txt");
+    /// let client = ipfs_api::IpfsClient::default();
+    /// let res = client.add_with_form(add, form);
+    /// ```
+    ///
+    #[inline]
+    pub async fn add_with_form<F>(
+        &self,
+        add: request::Add<'_>,
+        form: F,
+    ) -> Result<Vec<response::AddResponse>, Error>
+    where
+        F: Into<multipart::Form<'static>>,
+    {
+        let req = self.build_base_request(add, Some(form.into()))?;
+        self.request_stream_json(req).try_collect().await
+    }
+
     /// Add a path to Ipfs. Can be a file or directory.
     /// A hard limit of 128 open file descriptors is set such
     /// that any small additional files are stored in-memory.
