@@ -1,3 +1,11 @@
+// Copyright 2021 rust-ipfs-api Developers
+//
+// Licensed under the Apache License, Version 2.0, <LICENSE-APACHE or
+// http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
+// http://opensource.org/licenses/MIT>, at your option. This file may not be
+// copied, modified, or distributed except according to those terms.
+//
+
 use crate::error::Error;
 use async_trait::async_trait;
 use awc::Client;
@@ -68,7 +76,7 @@ impl Backend for ActixBackend {
         Ok(req)
     }
 
-    fn get_header<'a>(res: &'a Self::HttpResponse, key: HeaderName) -> Option<&'a HeaderValue> {
+    fn get_header(res: &Self::HttpResponse, key: HeaderName) -> Option<&HeaderValue> {
         res.headers().get(key)
     }
 
@@ -86,15 +94,13 @@ impl Backend for ActixBackend {
         let body = res.body().await?;
 
         // FIXME: Actix compat with bytes 1.0
-        Ok((status, Bytes::copy_from_slice(body.as_ref())))
+        Ok((status, body))
     }
 
     fn response_to_byte_stream(
         res: Self::HttpResponse,
     ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
-        let stream = res
-            .map_ok(|bytes| Bytes::copy_from_slice(bytes.as_ref()))
-            .err_into();
+        let stream = res.err_into();
 
         Box::new(stream)
     }
@@ -120,12 +126,7 @@ impl Backend for ActixBackend {
                     _ => res
                         .body()
                         .map(|maybe_body| match maybe_body {
-                            Ok(body) => {
-                                // FIXME: Actix compat with bytes 1.0
-                                let body = Bytes::copy_from_slice(body.as_ref());
-
-                                Err(Self::process_error_from_body(body))
-                            }
+                            Ok(body) => Err(Self::process_error_from_body(body)),
                             Err(e) => Err(e.into()),
                         })
                         .into_stream()

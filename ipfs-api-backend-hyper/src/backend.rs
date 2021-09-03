@@ -1,6 +1,14 @@
 use crate::error::Error;
 use async_trait::async_trait;
 use bytes::Bytes;
+// Copyright 2021 rust-ipfs-api Developers
+//
+// Licensed under the Apache License, Version 2.0, <LICENSE-APACHE or
+// http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
+// http://opensource.org/licenses/MIT>, at your option. This file may not be
+// copied, modified, or distributed except according to those terms.
+//
+
 use futures::{FutureExt, Stream, StreamExt, TryFutureExt, TryStreamExt};
 use http::{
     header::{HeaderName, HeaderValue},
@@ -9,40 +17,64 @@ use http::{
 };
 use hyper::{
     body,
-    client::{self, Builder, HttpConnector},
+    client::{self, connect::Connect, Builder, HttpConnector},
 };
-use hyper_tls::HttpsConnector;
 use ipfs_api_prelude::{ApiRequest, Backend, TryFromUri};
 use multipart::client::multipart;
 use serde::Serialize;
 
-pub struct HyperBackend {
+pub struct HyperBackend<C = HttpConnector>
+where
+    C: Connect + Clone + Send + Sync + 'static,
+{
     base: Uri,
-    client: client::Client<HttpsConnector<HttpConnector>, hyper::Body>,
+    client: client::Client<C, hyper::Body>,
 }
 
-impl Default for HyperBackend {
-    /// Creates an `IpfsClient` connected to the endpoint specified in ~/.ipfs/api.
-    /// If not found, tries to connect to `localhost:5001`.
-    ///
-    fn default() -> Self {
-        Self::from_ipfs_config()
-            .unwrap_or_else(|| Self::from_host_and_port(Scheme::HTTP, "localhost", 5001).unwrap())
-    }
+macro_rules! impl_default {
+    ($http_connector:path) => {
+        impl_default!($http_connector, <$http_connector>::new());
+    };
+    ($http_connector:path, $constructor:expr) => {
+        impl Default for HyperBackend<$http_connector> {
+            /// Creates an `IpfsClient` connected to the endpoint specified in ~/.ipfs/api.
+            /// If not found, tries to connect to `localhost:5001`.
+            ///
+            fn default() -> Self {
+                Self::from_ipfs_config().unwrap_or_else(|| {
+                    Self::from_host_and_port(Scheme::HTTP, "localhost", 5001).unwrap()
+                })
+            }
+        }
+
+        impl TryFromUri for HyperBackend<$http_connector> {
+            fn build_with_base_uri(base: Uri) -> Self {
+                let client = Builder::default()
+                    .pool_max_idle_per_host(0)
+                    .build($constructor);
+
+                HyperBackend { base, client }
+            }
+        }
+    };
 }
 
-impl TryFromUri for HyperBackend {
-    fn build_with_base_uri(base: Uri) -> Self {
-        let client = Builder::default()
-            .pool_max_idle_per_host(0)
-            .build(HttpsConnector::new());
+impl_default!(HttpConnector);
 
-        HyperBackend { base, client }
-    }
-}
+#[cfg(feature = "with-hyper-tls")]
+impl_default!(hyper_tls::HttpsConnector<HttpConnector>);
+
+#[cfg(feature = "with-hyper-rustls")]
+impl_default!(
+    hyper_rustls::HttpsConnector<HttpConnector>,
+    hyper_rustls::HttpsConnector::with_native_roots()
+);
 
 #[async_trait(?Send)]
-impl Backend for HyperBackend {
+impl<C> Backend for HyperBackend<C>
+where
+    C: Connect + Clone + Send + Sync + 'static,
+{
     type HttpRequest = http::Request<hyper::Body>;
 
     type HttpResponse = http::Response<hyper::Body>;
@@ -60,7 +92,7 @@ impl Backend for HyperBackend {
         let url = req.absolute_url(&self.base)?;
 
         let builder = http::Request::builder();
-        let builder = builder.method(Req::METHOD.clone()).uri(url);
+        let builder = builder.method(Req::METHOD).uri(url);
 
         let req = if let Some(form) = form {
             form.set_body_convert::<hyper::Body, multipart::Body>(builder)
@@ -71,7 +103,7 @@ impl Backend for HyperBackend {
         Ok(req)
     }
 
-    fn get_header<'a>(res: &'a Self::HttpResponse, key: HeaderName) -> Option<&'a HeaderValue> {
+    fn get_header(res: &Self::HttpResponse, key: HeaderName) -> Option<&HeaderValue> {
         res.headers().get(key)
     }
 

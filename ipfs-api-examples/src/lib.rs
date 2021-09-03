@@ -12,14 +12,8 @@ pub use actix_rt::main;
 #[cfg(feature = "with-actix")]
 pub use ipfs_api_backend_actix as ipfs_api;
 
-#[cfg(feature = "with-actix")]
-pub use tokio_actix as tokio; // Compatibilty for actix-rt 1.0
-
 #[cfg(feature = "with-hyper")]
 pub use tokio::main;
 
 #[cfg(feature = "with-hyper")]
 pub use ipfs_api_backend_hyper as ipfs_api;
-
-#[cfg(feature = "with-hyper")]
-pub use tokio_hyper as tokio;
