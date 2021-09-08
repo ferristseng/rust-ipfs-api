@@ -115,16 +115,15 @@ pub trait IpfsApi: Backend {
     /// .wrap_with_directory(true)
     /// .build();
     /// let mut form = multipart::Form::default();
-    /// form.add_reader_file("path", Cursor::new(file1), "file1.txt");
-    /// form.add_reader_file("path", Cursor::new(file2), "file2.txt");
+    /// form.add_reader_file("path", Cursor::new(Vec::new()), "file.txt");
     /// let client = ipfs_api::IpfsClient::default();
-    /// let res = client.add_with_form(add, form);
+    /// let res = client.add_with_form(form, add);
     /// ```
     ///
     async fn add_with_form<F>(
         &self,
-        add: request::Add<'_>,
         form: F,
+        add: request::Add<'_>,
     ) -> Result<Vec<response::AddResponse>, Self::Error>
     where
         F: Into<multipart::Form<'static>>,
