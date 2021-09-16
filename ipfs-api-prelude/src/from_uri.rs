@@ -167,14 +167,14 @@ mod tests {
 
                     assert!(
                         result.is_ok(),
-                        format!("should be ok but failed with error: {:?}", result.unwrap_err())
+                        "should be ok but failed with error: {:?}", result.unwrap_err()
                     );
 
                     let StringWrapper(result) = result.unwrap();
 
                     assert!(
                         result == $output,
-                        format!("got: ({}) expected: ({})", result, $output)
+                        "got: ({}) expected: ({})", result, $output
                     );
                 }
             )+

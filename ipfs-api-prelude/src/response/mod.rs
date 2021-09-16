@@ -54,7 +54,7 @@ macro_rules! deserialize_test {
 
             match ::serde_json::from_str::<super::$ty>(raw) {
                 Ok(_) => assert!(true),
-                Err(e) => assert!(false, format!("failed with error: {}", e)),
+                Err(e) => assert!(false, "failed with error: {}", e),
             };
         }
     };

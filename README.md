@@ -43,7 +43,7 @@ ipfs-api = { version = "0.11.0", features = ["with-hyper-rustls", "with-builder"
 ##### With Hyper
 
 ```rust
-use ipfs_api::IpfsClient;
+use ipfs_api::{IpfsApi, IpfsClient};
 use std::io::Cursor;
 
 #[tokio::main]
@@ -61,7 +61,7 @@ async fn main() {
 ##### With Actix
 
 ```rust
-use ipfs_api::IpfsClient;
+use ipfs_api::{IpfsApi, IpfsClient};
 use std::io::Cursor;
 
 #[actix_rt::main]
@@ -82,7 +82,7 @@ async fn main() {
 
 ```rust
 use futures::TryStreamExt;
-use ipfs_api::IpfsClient;
+use ipfs_api::{IpfsApi, IpfsClient};
 use std::io::{self, Write};
 
 #[tokio::main]
@@ -110,7 +110,7 @@ async fn main() {
 
 ```rust
 use futures::TryStreamExt;
-use ipfs_api::IpfsClient;
+use ipfs_api::{IpfsApi, IpfsClient};
 use std::io::{self, Write};
 
 #[actix_rt::main]
