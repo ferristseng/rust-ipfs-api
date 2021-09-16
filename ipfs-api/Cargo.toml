@@ -11,6 +11,10 @@ version                   = "0.12.0"
 readme                    = "../README.md"
 license                   = "MIT OR Apache-2.0"
 
+[badges]
+github                    = { repository = "ferristseng/rust-ipfs-api", workflow = "Rust" }
+maintenance               = { status = "passively-maintained" }
+
 [features]
 default                   = ["with-hyper", "with-builder"]
 with-hyper-tls            = ["with-hyper", "ipfs-api-backend-hyper/with-hyper-tls"]
