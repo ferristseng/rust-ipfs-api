@@ -24,10 +24,10 @@ builder                   = ["with-builder"]
 
 [dependencies]
 ipfs-api-prelude          = { version = "0.1", path = "../ipfs-api-prelude" }
-ipfs-api-backend-actix    = { version = "0.1", path = "../ipfs-api-backend-actix", optional = true }
+ipfs-api-backend-actix    = { version = "0.2", path = "../ipfs-api-backend-actix", optional = true }
 ipfs-api-backend-hyper    = { version = "0.1", path = "../ipfs-api-backend-hyper", optional = true }
 
 [dev-dependencies]
-actix-rt                  = "2.0"
+actix-rt                  = "2.2"
 futures                   = "0.3"
 tokio                     = { version = "1", features = ["rt-multi-thread", "macros"] }
