@@ -1,6 +1,6 @@
 # ipfs-api
 
-[![Status](https://github.com/ferristseng/rust-ipfs-api/workflows/Rust/badge.svg?branch=master)](https://github.com/ferristseng/rust-ipfs-api/actions?query=workflow%3ARust)
+[![Travis](https://img.shields.io/travis/ferristseng/rust-ipfs-api.svg)](https://travis-ci.org/ferristseng/rust-ipfs-api)
 [![Crates.io](https://img.shields.io/crates/v/ipfs-api.svg)](https://crates.io/crates/ipfs-api)
 [![Docs.rs](https://docs.rs/ipfs-api/badge.svg)](https://docs.rs/ipfs-api/)
 
