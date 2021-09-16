@@ -10,17 +10,44 @@
 //!
 //! ## Usage
 //!
+//! ### Using Hyper
+//!
+//! To use the Hyper backend, declare:
+//!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = "0.11.0"
+//! ipfs-api-backend-hyper = "0.1"
 //! ```
-//! ### Feature Flags
+//!
+//! You can specify either `with-hyper-rustls` or `with-hyper-tls` (mutually exclusive) feature for TLS support.
+//!
+//! ### Using Actix
+//!
+//! To use the Actix backend, declare:
+//!
+//! ```toml
+//! [dependencies]
+//! ipfs-api-backend-actix = "0.2"
+//! ```
+//!
+//! ### Builder Pattern
+//!
+//! With either the Hyper or Actix backend, you can specify the `with-builder` feature to enable a builder pattern to use when building requests.
+//!
+//! ## Usage (DEPRECATED)
+//!
+//! ```toml
+//! [dependencies]
+//! ipfs-api = "0.12.0"
+//! ```
+//!
+//! ### Feature Flags (DEPRECATED)
 //!
 //! You can use `actix-web` as a backend instead of `hyper`.
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = { version = "0.11.0", features = ["with-actix"], default-features = false }
+//! ipfs-api = { version = "0.12.0", features = ["with-actix"], default-features = false }
 //! ```
 //!
 //! You also have the option of using [`rustls`](https://crates.io/crates/rustls)
@@ -28,14 +55,14 @@
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = { version = "0.11.0", features = ["with-hyper-rustls"], default-features = false }
+//! ipfs-api = { version = "0.12.0", features = ["with-hyper-rustls"], default-features = false }
 //! ```
 //!
 //! To enable the builder pattern (default) use the `with-builder` feature:
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = { version = "0.11.0", features = ["with-hyper-rustls", "with-builder"], default-features = false }
+//! ipfs-api = { version = "0.12.0", features = ["with-hyper-rustls", "with-builder"], default-features = false }
 //! ```
 //!
 //! ## Examples
