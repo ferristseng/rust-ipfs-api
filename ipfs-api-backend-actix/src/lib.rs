@@ -14,5 +14,5 @@ mod error;
 pub use crate::{backend::ActixBackend as IpfsClient, error::Error};
 pub use ipfs_api_prelude::{
     request::{self, KeyType, Logger, LoggingLevel, ObjectTemplate},
-    response, IpfsApi, TryFromUri,
+    response, ApiError, BackendWithGlobalOptions, GlobalOptions, IpfsApi, TryFromUri,
 };
