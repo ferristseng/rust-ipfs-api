@@ -108,18 +108,26 @@ pub trait IpfsApi: Backend {
     /// # Examples
     ///
     /// ```no_run
-    /// use ipfs_api;
+    /// use ipfs_api::{IpfsApi, IpfsClient, Form};
     /// use common_multipart_rfc7578::client::multipart;
+    /// use std::io::Cursor;
     ///
+    /// #[cfg(feature = "with-builder")]
     /// let add = ipfs_api::request::Add::builder()
-    /// .wrap_with_directory(true)
-    /// .build();
-    /// let mut form = multipart::Form::default();
+    ///     .wrap_with_directory(true)
+    ///     .build();
+    /// #[cfg(not(feature = "with-builder"))]
+    /// let add = ipfs_api::request::Add {
+    ///     wrap_with_directory: Some(true),
+    ///     ..Default::default()
+    /// };
+    ///
+    /// let mut form = Form::default();
     /// form.add_reader_file("path", Cursor::new(Vec::new()), "file.txt");
-    /// let client = ipfs_api::IpfsClient::default();
+    ///
+    /// let client = IpfsClient::default();
     /// let res = client.add_with_form(form, add);
     /// ```
-    ///
     async fn add_with_form<F>(
         &self,
         form: F,
