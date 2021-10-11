@@ -103,6 +103,43 @@ pub trait IpfsApi: Backend {
         self.request(add, Some(form)).await
     }
 
+    /// Add files using multipart::Form
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use ipfs_api::{IpfsApi, IpfsClient, Form};
+    /// use common_multipart_rfc7578::client::multipart;
+    /// use std::io::Cursor;
+    ///
+    /// #[cfg(feature = "with-builder")]
+    /// let add = ipfs_api::request::Add::builder()
+    ///     .wrap_with_directory(true)
+    ///     .build();
+    /// #[cfg(not(feature = "with-builder"))]
+    /// let add = ipfs_api::request::Add {
+    ///     wrap_with_directory: Some(true),
+    ///     ..Default::default()
+    /// };
+    ///
+    /// let mut form = Form::default();
+    /// form.add_reader_file("path", Cursor::new(Vec::new()), "file.txt");
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.add_with_form(form, add);
+    /// ```
+    async fn add_with_form<F>(
+        &self,
+        form: F,
+        add: request::Add<'_>,
+    ) -> Result<Vec<response::AddResponse>, Self::Error>
+    where
+        F: Into<multipart::Form<'static>>,
+    {
+        let req = self.build_base_request(&add, Some(form.into()))?;
+        self.request_stream_json(req).try_collect().await
+    }
+
     /// Add a path to Ipfs. Can be a file or directory.
     /// A hard limit of 128 open file descriptors is set such
     /// that any small additional files are stored in-memory.
