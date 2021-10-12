@@ -14,6 +14,6 @@ mod error;
 pub use crate::{backend::HyperBackend as IpfsClient, error::Error};
 pub use ipfs_api_prelude::{
     request::{self, KeyType, Logger, LoggingLevel, ObjectTemplate},
-    response, IpfsApi, TryFromUri,
+    response, ApiError, BackendWithGlobalOptions, GlobalOptions, IpfsApi, TryFromUri,
 };
 pub use multipart::client::multipart::Form;

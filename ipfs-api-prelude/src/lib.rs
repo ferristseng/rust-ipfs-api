@@ -16,12 +16,18 @@ mod api;
 mod backend;
 mod error;
 mod from_uri;
+mod global_opts;
 mod header;
 mod read;
 pub mod request;
 pub mod response;
 
 pub use {
-    api::IpfsApi, backend::Backend, error::Error, from_uri::TryFromUri, request::ApiRequest,
+    api::IpfsApi,
+    backend::Backend,
+    error::Error,
+    from_uri::TryFromUri,
+    global_opts::{BackendWithGlobalOptions, GlobalOptions},
+    request::ApiRequest,
     response::ApiError,
 };
