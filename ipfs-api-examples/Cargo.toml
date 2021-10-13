@@ -7,7 +7,7 @@ documentation             = "https://docs.rs/ipfs-api"
 repository                = "https://github.com/ferristseng/rust-ipfs-api"
 keywords                  = ["ipfs"]
 categories                = ["filesystem", "web-programming"]
-version                   = "0.1.1"
+version                   = "0.2.0"
 readme                    = "../README.md"
 license                   = "MIT OR Apache-2.0"
 
@@ -23,9 +23,9 @@ with-actix                = ["ipfs-api-backend-actix", "actix-rt"]
 [dependencies]
 actix-rt                  = { version = "2.2", optional = true }
 futures                   = "0.3"
-ipfs-api-backend-actix    = { version = "0.2", path = "../ipfs-api-backend-actix", optional = true }
-ipfs-api-backend-hyper    = { version = "0.1", path = "../ipfs-api-backend-hyper", optional = true }
-ipfs-api-prelude          = { version = "0.1", path = "../ipfs-api-prelude", features = ["with-builder"] }
+ipfs-api-backend-actix    = { version = "0.3", path = "../ipfs-api-backend-actix", optional = true }
+ipfs-api-backend-hyper    = { version = "0.2", path = "../ipfs-api-backend-hyper", optional = true }
+ipfs-api-prelude          = { version = "0.2", path = "../ipfs-api-prelude", features = ["with-builder"] }
 tar                       = "0.4"
 tokio                     = { version = "1", features = ["time"] }
 tokio-stream              = { version = "0.1", features = ["time"] }
