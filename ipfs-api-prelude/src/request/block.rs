@@ -19,11 +19,21 @@ impl<'a> ApiRequest for BlockGet<'a> {
     const PATH: &'static str = "/block/get";
 }
 
-pub struct BlockPut;
+#[cfg_attr(feature = "with-builder", derive(TypedBuilder))]
+#[derive(Serialize, Default)]
+#[serde(rename_all = "kebab-case")]
+pub struct BlockPut<'a> {
+    #[builder(default, setter(strip_option))]
+    pub format: Option<&'a str>,
+    #[builder(default, setter(strip_option))]
+    pub mhtype: Option<&'a str>,
+    #[builder(default, setter(strip_option))]
+    pub mhlen: Option<u32>,
+    #[builder(default, setter(strip_option))]
+    pub pin: Option<bool>,
+}
 
-impl_skip_serialize!(BlockPut);
-
-impl ApiRequest for BlockPut {
+impl<'a> ApiRequest for BlockPut<'a> {
     const PATH: &'static str = "/block/put";
 }
 
@@ -46,3 +56,6 @@ pub struct BlockStat<'a> {
 impl<'a> ApiRequest for BlockStat<'a> {
     const PATH: &'static str = "/block/stat";
 }
+
+
+
