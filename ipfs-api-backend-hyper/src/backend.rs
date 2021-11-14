@@ -23,6 +23,7 @@ use ipfs_api_prelude::{ApiRequest, Backend, TryFromUri};
 use multipart::client::multipart;
 use serde::Serialize;
 
+#[derive(Clone)]
 pub struct HyperBackend<C = HttpConnector>
 where
     C: Connect + Clone + Send + Sync + 'static,
