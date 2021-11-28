@@ -17,7 +17,7 @@ maintenance               = { status = "passively-maintained" }
 
 [dependencies]
 actix-http                = "3.0.0-beta"
-actix-multipart-rfc7578   = "0.6"
+actix-multipart-rfc7578   = "0.7"
 awc                       = "3.0.0-beta"
 async-trait               = "0.1"
 bytes                     = "1"
