@@ -58,7 +58,7 @@ impl Backend for ActixBackend {
 
     fn build_base_request<Req>(
         &self,
-        req: &Req,
+        req: Req,
         form: Option<multipart::Form<'static>>,
     ) -> Result<Self::HttpRequest, Error>
     where
@@ -86,9 +86,9 @@ impl Backend for ActixBackend {
         form: Option<multipart::Form<'static>>,
     ) -> Result<(StatusCode, Bytes), Self::Error>
     where
-        Req: ApiRequest + Serialize,
+        Req: ApiRequest + Serialize + Send,
     {
-        let req = self.build_base_request(&req, form)?;
+        let req = self.build_base_request(req, form)?;
         let mut res = req.await?;
         let status = res.status();
         let body = res.body().await?;
@@ -99,7 +99,7 @@ impl Backend for ActixBackend {
 
     fn response_to_byte_stream(
         res: Self::HttpResponse,
-    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
+    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Send + Unpin> {
         let stream = res.err_into();
 
         Box::new(stream)
@@ -109,10 +109,10 @@ impl Backend for ActixBackend {
         &self,
         req: Self::HttpRequest,
         process: F,
-    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Unpin>
+    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Send + Unpin>
     where
-        OutStream: Stream<Item = Result<Res, Self::Error>> + Unpin,
-        F: 'static + Fn(Self::HttpResponse) -> OutStream,
+        OutStream: Stream<Item = Result<Res, Self::Error>> + Send + Unpin,
+        F: 'static + Send + Fn(Self::HttpResponse) -> OutStream,
     {
         let stream = req
             .err_into()

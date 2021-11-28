@@ -33,14 +33,14 @@ macro_rules! impl_stream_api_response {
         }
     };
     (($self:ident, $req:expr, $form:expr) |$var:ident| => $impl:block) => {
-        match $self.build_base_request(&$req, $form) {
+        match $self.build_base_request($req, $form) {
             Ok($var) => $impl,
             Err(e) => Box::new(future::err(e).into_stream()),
         }
     };
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 pub trait IpfsApi: Backend {
     /// Add file to Ipfs.
     ///
@@ -134,9 +134,9 @@ pub trait IpfsApi: Backend {
         add: request::Add<'_>,
     ) -> Result<Vec<response::AddResponse>, Self::Error>
     where
-        F: Into<multipart::Form<'static>>,
+        F: Into<multipart::Form<'static>> + Send,
     {
-        let req = self.build_base_request(&add, Some(form.into()))?;
+        let req = self.build_base_request(add, Some(form.into()))?;
         self.request_stream_json(req).try_collect().await
     }
 
@@ -156,7 +156,7 @@ pub trait IpfsApi: Backend {
     ///
     async fn add_path<P>(&self, path: P) -> Result<Vec<response::AddResponse>, Self::Error>
     where
-        P: AsRef<Path>,
+        P: AsRef<Path> + Send,
     {
         let prefix = path.as_ref().parent();
         let mut paths_to_add: Vec<(PathBuf, u64)> = vec![];
@@ -201,7 +201,7 @@ pub trait IpfsApi: Backend {
             }
         }
 
-        let req = self.build_base_request(&request::Add::default(), Some(form))?;
+        let req = self.build_base_request(request::Add::default(), Some(form))?;
 
         self.request_stream_json(req).try_collect().await
     }
@@ -1549,7 +1549,7 @@ pub trait IpfsApi: Backend {
     /// let res = client.log_tail();
     /// ```
     ///
-    fn log_tail(&self) -> Box<dyn Stream<Item = Result<String, Self::Error>> + Unpin> {
+    fn log_tail(&self) -> Box<dyn Stream<Item = Result<String, Self::Error>> + Send + Unpin> {
         impl_stream_api_response! {
             (self, request::LogTail, None) |req| => {
                 self.request_stream(req, |res| {

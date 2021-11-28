@@ -1,4 +1,5 @@
 use crate::{request::ApiRequest, Backend};
+use async_trait::async_trait;
 use serde::{Serialize, Serializer};
 use std::time::Duration;
 
@@ -12,6 +13,7 @@ use std::time::Duration;
 pub struct GlobalOptions {
     #[cfg_attr(feature = "with-builder", builder(default, setter(strip_option)))]
     pub offline: Option<bool>,
+
     #[cfg_attr(feature = "with-builder", builder(default, setter(strip_option)))]
     #[serde(serialize_with = "duration_as_secs_ns")]
     pub timeout: Option<Duration>,
@@ -33,16 +35,17 @@ where
 
 /// A wrapper for [Backend] / [IpfsApi](crate::api::IpfsApi) that adds global options
 pub struct BackendWithGlobalOptions<Back: Backend> {
-    pub(crate) backend: Back,
-    pub(crate) options: GlobalOptions,
+    backend: Back,
+    options: GlobalOptions,
 }
 
 #[derive(Serialize)]
 struct OptCombiner<'a, Req> {
     #[serde(flatten)]
     global: &'a GlobalOptions,
+
     #[serde(flatten)]
-    request: &'a Req,
+    request: Req,
 }
 
 impl<Back: Backend> BackendWithGlobalOptions<Back> {
@@ -58,10 +61,13 @@ impl<Back: Backend> BackendWithGlobalOptions<Back> {
         Self { backend, options }
     }
 
-    fn combine<'a, Req: ApiRequest>(&'a self, req: &'a Req) -> OptCombiner<'a, Req> {
+    fn combine<'a, Req>(&'a self, req: Req) -> OptCombiner<'a, Req>
+    where
+        Req: ApiRequest + Send,
+    {
         OptCombiner {
             global: &self.options,
-            request: &req,
+            request: req,
         }
     }
 }
@@ -72,8 +78,8 @@ impl<'a, Req: ApiRequest> ApiRequest for OptCombiner<'a, Req> {
     const METHOD: http::Method = http::Method::POST;
 }
 
-#[async_trait::async_trait(?Send)]
-impl<Back: Backend> Backend for BackendWithGlobalOptions<Back> {
+#[async_trait]
+impl<Back: Backend + Sync> Backend for BackendWithGlobalOptions<Back> {
     type HttpRequest = Back::HttpRequest;
 
     type HttpResponse = Back::HttpResponse;
@@ -82,13 +88,13 @@ impl<Back: Backend> Backend for BackendWithGlobalOptions<Back> {
 
     fn build_base_request<Req>(
         &self,
-        req: &Req,
+        req: Req,
         form: Option<common_multipart_rfc7578::client::multipart::Form<'static>>,
     ) -> Result<Self::HttpRequest, Self::Error>
     where
-        Req: ApiRequest,
+        Req: ApiRequest + Send,
     {
-        self.backend.build_base_request(&self.combine(req), form)
+        self.backend.build_base_request(self.combine(req), form)
     }
 
     fn get_header(
@@ -104,14 +110,16 @@ impl<Back: Backend> Backend for BackendWithGlobalOptions<Back> {
         form: Option<common_multipart_rfc7578::client::multipart::Form<'static>>,
     ) -> Result<(http::StatusCode, bytes::Bytes), Self::Error>
     where
-        Req: ApiRequest + Serialize,
+        Req: ApiRequest + Serialize + Send,
     {
-        self.backend.request_raw(self.combine(&req), form).await
+        let request = self.backend.request_raw(self.combine(req), form);
+
+        request.await
     }
 
     fn response_to_byte_stream(
         res: Self::HttpResponse,
-    ) -> Box<dyn futures::Stream<Item = Result<bytes::Bytes, Self::Error>> + Unpin> {
+    ) -> Box<dyn futures::Stream<Item = Result<bytes::Bytes, Self::Error>> + Send + Unpin> {
         Back::response_to_byte_stream(res)
     }
 
@@ -119,10 +127,10 @@ impl<Back: Backend> Backend for BackendWithGlobalOptions<Back> {
         &self,
         req: Self::HttpRequest,
         process: F,
-    ) -> Box<dyn futures::Stream<Item = Result<Res, Self::Error>> + Unpin>
+    ) -> Box<dyn futures::Stream<Item = Result<Res, Self::Error>> + Send + Unpin>
     where
-        OutStream: futures::Stream<Item = Result<Res, Self::Error>> + Unpin,
-        F: 'static + Fn(Self::HttpResponse) -> OutStream,
+        OutStream: futures::Stream<Item = Result<Res, Self::Error>> + Send + Unpin,
+        F: 'static + Send + Fn(Self::HttpResponse) -> OutStream,
     {
         self.backend.request_stream(req, process)
     }

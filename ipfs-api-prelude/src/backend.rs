@@ -23,11 +23,11 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 use tokio_util::codec::{Decoder, FramedRead};
 
-#[async_trait(?Send)]
+#[async_trait]
 pub trait Backend {
     /// HTTP request type.
     ///
-    type HttpRequest;
+    type HttpRequest: Send;
 
     /// HTTP response type.
     ///
@@ -35,17 +35,17 @@ pub trait Backend {
 
     /// Error type for Result.
     ///
-    type Error: Display + From<ApiError> + From<crate::Error> + 'static;
+    type Error: Display + From<ApiError> + From<crate::Error> + 'static + Send;
 
     /// Builds the url for an api call.
     ///
     fn build_base_request<Req>(
         &self,
-        req: &Req,
+        req: Req,
         form: Option<multipart::Form<'static>>,
     ) -> Result<Self::HttpRequest, Self::Error>
     where
-        Req: ApiRequest;
+        Req: ApiRequest + Send;
 
     /// Get the value of a header from an HTTP response.
     ///
@@ -59,11 +59,11 @@ pub trait Backend {
         form: Option<multipart::Form<'static>>,
     ) -> Result<(StatusCode, Bytes), Self::Error>
     where
-        Req: ApiRequest + Serialize;
+        Req: ApiRequest + Serialize + Send;
 
     fn response_to_byte_stream(
         res: Self::HttpResponse,
-    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin>;
+    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Send + Unpin>;
 
     /// Generic method for making a request that expects back a streaming
     /// response.
@@ -72,10 +72,10 @@ pub trait Backend {
         &self,
         req: Self::HttpRequest,
         process: F,
-    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Unpin>
+    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Send + Unpin>
     where
-        OutStream: Stream<Item = Result<Res, Self::Error>> + Unpin,
-        F: 'static + Fn(Self::HttpResponse) -> OutStream;
+        OutStream: Stream<Item = Result<Res, Self::Error>> + Send + Unpin,
+        F: 'static + Send + Fn(Self::HttpResponse) -> OutStream;
 
     /// Builds an Api error from a response body.
     ///
@@ -115,7 +115,10 @@ pub trait Backend {
     fn process_stream_response<D, Res>(
         res: Self::HttpResponse,
         decoder: D,
-    ) -> FramedRead<StreamReader<Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin>>, D>
+    ) -> FramedRead<
+        StreamReader<Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Send + Unpin>>,
+        D,
+    >
     where
         D: Decoder<Item = Res, Error = crate::Error>,
     {
@@ -134,7 +137,7 @@ pub trait Backend {
         form: Option<multipart::Form<'static>>,
     ) -> Result<Res, Self::Error>
     where
-        Req: ApiRequest + Serialize,
+        Req: ApiRequest + Serialize + Send,
         for<'de> Res: 'static + Deserialize<'de>,
     {
         let (status, chunk) = self.request_raw(req, form).await?;
@@ -151,7 +154,7 @@ pub trait Backend {
         form: Option<multipart::Form<'static>>,
     ) -> Result<(), Self::Error>
     where
-        Req: ApiRequest + Serialize,
+        Req: ApiRequest + Serialize + Send,
     {
         let (status, chunk) = self.request_raw(req, form).await?;
 
@@ -170,7 +173,7 @@ pub trait Backend {
         form: Option<multipart::Form<'static>>,
     ) -> Result<String, Self::Error>
     where
-        Req: ApiRequest + Serialize,
+        Req: ApiRequest + Serialize + Send,
     {
         let (status, chunk) = self.request_raw(req, form).await?;
 
@@ -188,7 +191,7 @@ pub trait Backend {
     fn request_stream_bytes(
         &self,
         req: Self::HttpRequest,
-    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
+    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Send + Unpin> {
         self.request_stream(req, |res| Self::response_to_byte_stream(res))
     }
 
@@ -198,9 +201,9 @@ pub trait Backend {
     fn request_stream_json<Res>(
         &self,
         req: Self::HttpRequest,
-    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Unpin>
+    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Send + Unpin>
     where
-        for<'de> Res: 'static + Deserialize<'de>,
+        for<'de> Res: 'static + Deserialize<'de> + Send,
     {
         self.request_stream(req, |res| {
             let parse_stream_error = if let Some(trailer) = Self::get_header(&res, TRAILER) {

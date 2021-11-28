@@ -71,7 +71,7 @@ impl_default!(
     hyper_rustls::HttpsConnector::with_native_roots()
 );
 
-#[async_trait(?Send)]
+#[async_trait]
 impl<C> Backend for HyperBackend<C>
 where
     C: Connect + Clone + Send + Sync + 'static,
@@ -84,11 +84,11 @@ where
 
     fn build_base_request<Req>(
         &self,
-        req: &Req,
+        req: Req,
         form: Option<multipart::Form<'static>>,
     ) -> Result<Self::HttpRequest, Error>
     where
-        Req: ApiRequest,
+        Req: ApiRequest + Send,
     {
         let url = req.absolute_url(&self.base)?;
 
@@ -114,9 +114,9 @@ where
         form: Option<multipart::Form<'static>>,
     ) -> Result<(StatusCode, Bytes), Self::Error>
     where
-        Req: ApiRequest + Serialize,
+        Req: ApiRequest + Serialize + Send,
     {
-        let req = self.build_base_request(&req, form)?;
+        let req = self.build_base_request(req, form)?;
         let res = self.client.request(req).await?;
         let status = res.status();
         let body = body::to_bytes(res.into_body()).await?;
@@ -126,7 +126,7 @@ where
 
     fn response_to_byte_stream(
         res: Self::HttpResponse,
-    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
+    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Send + Unpin> {
         Box::new(res.into_body().err_into())
     }
 
@@ -134,10 +134,10 @@ where
         &self,
         req: Self::HttpRequest,
         process: F,
-    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Unpin>
+    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Send + Unpin>
     where
-        OutStream: Stream<Item = Result<Res, Self::Error>> + Unpin,
-        F: 'static + Fn(Self::HttpResponse) -> OutStream,
+        OutStream: Stream<Item = Result<Res, Self::Error>> + Send + Unpin,
+        F: 'static + Send + Fn(Self::HttpResponse) -> OutStream,
     {
         let stream = self
             .client
