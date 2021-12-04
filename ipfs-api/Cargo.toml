@@ -7,7 +7,7 @@ documentation             = "https://docs.rs/ipfs-api"
 repository                = "https://github.com/ferristseng/rust-ipfs-api"
 keywords                  = ["ipfs"]
 categories                = ["filesystem", "web-programming"]
-version                   = "0.13.0"
+version                   = "0.14.0"
 readme                    = "../README.md"
 license                   = "MIT OR Apache-2.0"
 
@@ -27,9 +27,9 @@ actix                     = ["with-actix"]
 builder                   = ["with-builder"]
 
 [dependencies]
-ipfs-api-prelude          = { version = "0.2", path = "../ipfs-api-prelude" }
-ipfs-api-backend-actix    = { version = "0.3", path = "../ipfs-api-backend-actix", optional = true }
-ipfs-api-backend-hyper    = { version = "0.2", path = "../ipfs-api-backend-hyper", optional = true }
+ipfs-api-prelude          = { version = "0.3", path = "../ipfs-api-prelude" }
+ipfs-api-backend-actix    = { version = "0.4", path = "../ipfs-api-backend-actix", optional = true }
+ipfs-api-backend-hyper    = { version = "0.3", path = "../ipfs-api-backend-hyper", optional = true }
 
 [dev-dependencies]
 actix-rt                  = "2.5"
