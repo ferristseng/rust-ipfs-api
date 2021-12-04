@@ -21,7 +21,7 @@ with-hyper                = ["ipfs-api-backend-hyper", "tokio/macros", "tokio/rt
 with-actix                = ["ipfs-api-backend-actix", "actix-rt"]
 
 [dependencies]
-actix-rt                  = { version = "2.2", optional = true }
+actix-rt                  = { version = "2.5", optional = true }
 futures                   = "0.3"
 ipfs-api-backend-actix    = { version = "0.3", path = "../ipfs-api-backend-actix", optional = true }
 ipfs-api-backend-hyper    = { version = "0.2", path = "../ipfs-api-backend-hyper", optional = true }
