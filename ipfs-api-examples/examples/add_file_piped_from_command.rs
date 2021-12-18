@@ -26,7 +26,7 @@ async fn main() {
         .spawn()
         .expect("expected to run `cat`");
 
-    match client.add(output.stdout.take().expect("")).await {
+    match client.add(output.stdout.take().unwrap()).await {
         Ok(file) => eprintln!("added file: {:?}", file),
         Err(e) => eprintln!("error adding file: {}", e),
     }
