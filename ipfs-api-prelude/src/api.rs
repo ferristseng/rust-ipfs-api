@@ -343,7 +343,7 @@ pub trait IpfsApi: Backend {
     /// ```no_run
     /// use ipfs_api::{IpfsApi, IpfsClient};
     /// use std::io::Cursor;
-    /// 
+    ///
     /// #[cfg(feature = "with-builder")]
     /// let options = ipfs_api::request::BlockPut::builder()
     ///     .mhtype("sha3_384")

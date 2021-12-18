@@ -11,7 +11,7 @@ use serde::Serialize;
 
 #[derive(Debug, Serialize)]
 pub enum DagCodec {
-    #[serde(rename = "dag-json")] 
+    #[serde(rename = "dag-json")]
     Json,
     #[serde(rename = "dag-cbor")]
     Cbor,
@@ -96,4 +96,3 @@ mod tests {
         "store-codec=dag-json&input-codec=dag-cbor&pin=false&hash=sha3_384"
     );
 }
-

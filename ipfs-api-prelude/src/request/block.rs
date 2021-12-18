@@ -56,6 +56,3 @@ pub struct BlockStat<'a> {
 impl<'a> ApiRequest for BlockStat<'a> {
     const PATH: &'static str = "/block/stat";
 }
-
-
-
