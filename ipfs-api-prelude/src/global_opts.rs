@@ -1,5 +1,6 @@
 use crate::{request::ApiRequest, Backend};
 use async_trait::async_trait;
+use common_multipart_rfc7578::client::multipart;
 use serde::{Serialize, Serializer};
 use std::time::Duration;
 
@@ -40,7 +41,10 @@ pub struct BackendWithGlobalOptions<Back: Backend> {
 }
 
 #[derive(Serialize)]
-struct OptCombiner<'a, Req> {
+struct OptCombiner<'a, Req>
+where
+    Req: ApiRequest,
+{
     #[serde(flatten)]
     global: &'a GlobalOptions,
 
@@ -63,7 +67,7 @@ impl<Back: Backend> BackendWithGlobalOptions<Back> {
 
     fn combine<'a, Req>(&'a self, req: Req) -> OptCombiner<'a, Req>
     where
-        Req: ApiRequest + Send,
+        Req: ApiRequest,
     {
         OptCombiner {
             global: &self.options,
@@ -72,7 +76,10 @@ impl<Back: Backend> BackendWithGlobalOptions<Back> {
     }
 }
 
-impl<'a, Req: ApiRequest> ApiRequest for OptCombiner<'a, Req> {
+impl<'a, Req> ApiRequest for OptCombiner<'a, Req>
+where
+    Req: ApiRequest,
+{
     const PATH: &'static str = <Req as ApiRequest>::PATH;
 
     const METHOD: http::Method = http::Method::POST;
@@ -93,10 +100,10 @@ impl<Back: Backend> Backend for BackendWithGlobalOptions<Back> {
     fn build_base_request<Req>(
         &self,
         req: Req,
-        form: Option<common_multipart_rfc7578::client::multipart::Form<'static>>,
+        form: Option<multipart::Form<'static>>,
     ) -> Result<Self::HttpRequest, Self::Error>
     where
-        Req: ApiRequest + Send,
+        Req: ApiRequest,
     {
         self.backend.build_base_request(self.combine(req), form)
     }
@@ -111,14 +118,12 @@ impl<Back: Backend> Backend for BackendWithGlobalOptions<Back> {
     async fn request_raw<Req>(
         &self,
         req: Req,
-        form: Option<common_multipart_rfc7578::client::multipart::Form<'static>>,
+        form: Option<multipart::Form<'static>>,
     ) -> Result<(http::StatusCode, bytes::Bytes), Self::Error>
     where
-        Req: ApiRequest + Serialize + Send,
+        Req: ApiRequest,
     {
-        let request = self.backend.request_raw(self.combine(req), form);
-
-        request.await
+        self.backend.request_raw(self.combine(req), form).await
     }
 
     fn response_to_byte_stream(

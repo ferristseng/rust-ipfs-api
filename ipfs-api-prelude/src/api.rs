@@ -332,11 +332,47 @@ pub trait IpfsApi: Backend {
     where
         R: 'static + Read + Send + Sync,
     {
+        self.block_put_with_options(data, request::BlockPut::default())
+            .await
+    }
+
+    /// Store input as an IPFS block with options.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use ipfs_api::{IpfsApi, IpfsClient};
+    /// use std::io::Cursor;
+    ///
+    /// #[cfg(feature = "with-builder")]
+    /// let options = ipfs_api::request::BlockPut::builder()
+    ///     .mhtype("sha3_384")
+    ///     .mhlen(48)
+    ///     .build();
+    /// #[cfg(not(feature = "with-builder"))]
+    /// let options = ipts_api::request::BlockPut {
+    ///     mhtype: "sha3_384",
+    ///     mhlen: 48,
+    ///     ..Default::default()
+    /// };
+    /// let client = IpfsClient::default();
+    /// let data = Cursor::new("Hello World!");
+    /// let res = client.block_put_with_options(data, options);
+    /// ```
+    ///
+    async fn block_put_with_options<R>(
+        &self,
+        data: R,
+        options: request::BlockPut<'async_trait>,
+    ) -> Result<response::BlockPutResponse, Self::Error>
+    where
+        R: 'static + Read + Send + Sync,
+    {
         let mut form = multipart::Form::default();
 
         form.add_reader("data", data);
 
-        self.request(request::BlockPut, Some(form)).await
+        self.request(options, Some(form)).await
     }
 
     /// Removes an IPFS block.
@@ -663,8 +699,38 @@ pub trait IpfsApi: Backend {
     /// ```
     ///
     fn dag_get(&self, path: &str) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
+        self.dag_get_with_options(request::DagGet {
+            path,
+            ..Default::default()
+        })
+    }
+
+    /// Returns information about a dag node in Ipfs with options.
+    ///
+    /// ```no_run
+    /// use futures::TryStreamExt;
+    /// use ipfs_api::{request::{DagCodec, DagGet}, IpfsApi, IpfsClient};
+    ///
+    /// let client = IpfsClient::default();
+    /// let hash = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
+    /// #[cfg(feature = "with-builder")]
+    /// let options = DagGet::builder().path(hash).codec(DagCodec::Cbor).build();
+    /// #[cfg(not(feature = "with-builder"))]
+    /// let options = DagGet {
+    ///     path: hash,
+    ///     codec: DagCodec::Cbor,
+    /// };
+    /// client.dag_get_with_options(options)
+    ///     .map_ok(|chunk| chunk.to_vec())
+    ///     .try_concat();
+    /// ```
+    ///
+    fn dag_get_with_options(
+        &self,
+        options: request::DagGet,
+    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
         impl_stream_api_response! {
-            (self, request::DagGet { path }, None) => request_stream_bytes
+            (self, options, None) => request_stream_bytes
         }
     }
 
@@ -683,11 +749,39 @@ pub trait IpfsApi: Backend {
     where
         R: 'static + Read + Send + Sync,
     {
+        self.dag_put_with_options(data, request::DagPut::default())
+            .await
+    }
+
+    /// Add a DAG node to Ipfs with options.
+    ///
+    /// ```no_run
+    /// use ipfs_api::{IpfsApi, IpfsClient};
+    /// use std::io::Cursor;
+    /// use ipfs_api::request::{DagCodec, DagPut};
+    ///
+    /// let client = IpfsClient::default();
+    /// let data = Cursor::new(r#"{ "hello" : "world" }"#);
+    /// let dag_put = DagPut::builder()
+    ///     .input_codec(DagCodec::Json)
+    ///     .pin(false)
+    ///     .build();
+    /// let res = client.dag_put_with_options(data, dag_put);
+    /// ```
+    ///
+    async fn dag_put_with_options<'a, R>(
+        &self,
+        data: R,
+        options: request::DagPut<'a>,
+    ) -> Result<response::DagPutResponse, Self::Error>
+    where
+        R: 'static + Read + Send + Sync,
+    {
         let mut form = multipart::Form::default();
 
         form.add_reader("object data", data);
 
-        self.request(request::DagPut, Some(form)).await
+        self.request(options, Some(form)).await
     }
 
     // TODO /dag/resolve
@@ -1590,6 +1684,7 @@ pub trait IpfsApi: Backend {
     ///     .path("/ipfs/QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n")
     ///     .build()
     /// );
+    /// #[cfg(not(feature = "with-builder"))]
     /// let _ = client.ls_with_options(ipfs_api::request::Ls {
     ///     path: "/ipfs/QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n",
     ///     // Example options for fast listing

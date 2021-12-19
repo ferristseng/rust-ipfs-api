@@ -18,7 +18,6 @@ use http::{
 };
 use ipfs_api_prelude::{ApiRequest, Backend, TryFromUri};
 use multipart::client::multipart;
-use serde::Serialize;
 use std::time::Duration;
 
 const ACTIX_REQUEST_TIMEOUT: Duration = Duration::from_secs(90);
@@ -86,7 +85,7 @@ impl Backend for ActixBackend {
         form: Option<multipart::Form<'static>>,
     ) -> Result<(StatusCode, Bytes), Self::Error>
     where
-        Req: ApiRequest + Serialize + Send,
+        Req: ApiRequest,
     {
         let req = self.build_base_request(req, form)?;
         let mut res = req.await?;
