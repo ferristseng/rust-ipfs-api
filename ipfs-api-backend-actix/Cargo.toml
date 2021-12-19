@@ -25,5 +25,4 @@ bytes                     = "1"
 futures                   = "0.3"
 http                      = "0.2"
 ipfs-api-prelude          = { version = "0.3", path = "../ipfs-api-prelude" }
-serde                     = "1"
 thiserror                 = "1"

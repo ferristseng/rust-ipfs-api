@@ -21,7 +21,6 @@ use hyper::{
 };
 use ipfs_api_prelude::{ApiRequest, Backend, TryFromUri};
 use multipart::client::multipart;
-use serde::Serialize;
 
 #[derive(Clone)]
 pub struct HyperBackend<C = HttpConnector>
@@ -114,7 +113,7 @@ where
         form: Option<multipart::Form<'static>>,
     ) -> Result<(StatusCode, Bytes), Self::Error>
     where
-        Req: ApiRequest + Serialize,
+        Req: ApiRequest,
     {
         let req = self.build_base_request(&req, form)?;
         let res = self.client.request(req).await?;

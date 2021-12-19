@@ -86,7 +86,7 @@ impl Backend for ActixBackend {
         form: Option<multipart::Form<'static>>,
     ) -> Result<(StatusCode, Bytes), Self::Error>
     where
-        Req: ApiRequest + Serialize,
+        Req: ApiRequest,
     {
         let req = self.build_base_request(&req, form)?;
         let mut res = req.await?;

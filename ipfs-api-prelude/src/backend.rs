@@ -19,7 +19,7 @@ use http::{
     header::{HeaderName, HeaderValue},
     StatusCode,
 };
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use std::fmt::Display;
 use tokio_util::codec::{Decoder, FramedRead};
 
@@ -59,7 +59,7 @@ pub trait Backend {
         form: Option<multipart::Form<'static>>,
     ) -> Result<(StatusCode, Bytes), Self::Error>
     where
-        Req: ApiRequest + Serialize;
+        Req: ApiRequest;
 
     fn response_to_byte_stream(
         res: Self::HttpResponse,
@@ -134,7 +134,7 @@ pub trait Backend {
         form: Option<multipart::Form<'static>>,
     ) -> Result<Res, Self::Error>
     where
-        Req: ApiRequest + Serialize,
+        Req: ApiRequest,
         for<'de> Res: 'static + Deserialize<'de>,
     {
         let (status, chunk) = self.request_raw(req, form).await?;
@@ -151,7 +151,7 @@ pub trait Backend {
         form: Option<multipart::Form<'static>>,
     ) -> Result<(), Self::Error>
     where
-        Req: ApiRequest + Serialize,
+        Req: ApiRequest,
     {
         let (status, chunk) = self.request_raw(req, form).await?;
 
@@ -170,7 +170,7 @@ pub trait Backend {
         form: Option<multipart::Form<'static>>,
     ) -> Result<String, Self::Error>
     where
-        Req: ApiRequest + Serialize,
+        Req: ApiRequest,
     {
         let (status, chunk) = self.request_raw(req, form).await?;
 

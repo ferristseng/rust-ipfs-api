@@ -104,7 +104,7 @@ impl<Back: Backend> Backend for BackendWithGlobalOptions<Back> {
         form: Option<common_multipart_rfc7578::client::multipart::Form<'static>>,
     ) -> Result<(http::StatusCode, bytes::Bytes), Self::Error>
     where
-        Req: ApiRequest + Serialize,
+        Req: ApiRequest,
     {
         self.backend.request_raw(self.combine(&req), form).await
     }
