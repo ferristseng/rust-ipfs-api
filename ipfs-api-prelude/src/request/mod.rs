@@ -103,7 +103,7 @@ use serde::Serialize;
 
 /// A request that can be made against the Ipfs API.
 ///
-pub trait ApiRequest: Serialize {
+pub trait ApiRequest: Serialize + Send {
     /// Returns the API path that this request can be called on.
     ///
     /// All paths should begin with '/'.

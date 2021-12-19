@@ -16,6 +16,7 @@ github                    = { repository = "ferristseng/rust-ipfs-api", workflow
 maintenance               = { status = "passively-maintained" }
 
 [features]
+with-builder              = ["ipfs-api-prelude/with-builder"]
 with-hyper-tls            = ["hyper-tls"]
 with-hyper-rustls         = ["hyper-rustls"]
 
@@ -29,5 +30,4 @@ hyper-multipart-rfc7578   = "0.5"
 hyper-rustls              = { version = "0.22", optional = true }
 hyper-tls                 = { version = "0.5", optional = true }
 ipfs-api-prelude          = { version = "0.3", path = "../ipfs-api-prelude" }
-serde                     = "1"
 thiserror                 = "1"

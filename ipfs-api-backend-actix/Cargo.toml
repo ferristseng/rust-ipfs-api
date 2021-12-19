@@ -15,6 +15,9 @@ license                   = "MIT OR Apache-2.0"
 github                    = { repository = "ferristseng/rust-ipfs-api", workflow = "Rust" }
 maintenance               = { status = "passively-maintained" }
 
+[features]
+with-builder              = ["ipfs-api-prelude/with-builder"]
+
 [dependencies]
 actix-http                = "=3.0.0-beta.13"
 actix-multipart-rfc7578   = "0.7"
@@ -25,5 +28,4 @@ bytes                     = "1"
 futures                   = "0.3"
 http                      = "0.2"
 ipfs-api-prelude          = { version = "0.3", path = "../ipfs-api-prelude" }
-serde                     = "1"
 thiserror                 = "1"
