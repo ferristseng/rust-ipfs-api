@@ -40,7 +40,7 @@ macro_rules! impl_stream_api_response {
     };
 }
 
-#[async_trait]
+#[async_trait(?Send)]
 pub trait IpfsApi: Backend {
     /// Add file to Ipfs.
     ///
@@ -134,7 +134,7 @@ pub trait IpfsApi: Backend {
         add: request::Add<'_>,
     ) -> Result<Vec<response::AddResponse>, Self::Error>
     where
-        F: Into<multipart::Form<'static>> + Send,
+        F: Into<multipart::Form<'static>>,
     {
         let req = self.build_base_request(add, Some(form.into()))?;
         self.request_stream_json(req).try_collect().await
@@ -156,7 +156,7 @@ pub trait IpfsApi: Backend {
     ///
     async fn add_path<P>(&self, path: P) -> Result<Vec<response::AddResponse>, Self::Error>
     where
-        P: AsRef<Path> + Send,
+        P: AsRef<Path>,
     {
         let prefix = path.as_ref().parent();
         let mut paths_to_add: Vec<(PathBuf, u64)> = vec![];
@@ -1549,7 +1549,7 @@ pub trait IpfsApi: Backend {
     /// let res = client.log_tail();
     /// ```
     ///
-    fn log_tail(&self) -> Box<dyn Stream<Item = Result<String, Self::Error>> + Send + Unpin> {
+    fn log_tail(&self) -> Box<dyn Stream<Item = Result<String, Self::Error>> + Unpin> {
         impl_stream_api_response! {
             (self, request::LogTail, None) |req| => {
                 self.request_stream(req, |res| {

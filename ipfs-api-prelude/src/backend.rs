@@ -23,19 +23,26 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 use tokio_util::codec::{Decoder, FramedRead};
 
-#[async_trait]
-pub trait Backend {
-    /// HTTP request type.
-    ///
-    type HttpRequest: Send;
 
-    /// HTTP response type.
-    ///
+#[async_trait(?Send)]
+pub trait Backend {
+    cfg_if::cfg_if! {
+        if #[cfg(feature = "with-send-sync")] {
+            type HttpRequest: Send;
+        } else {
+            type HttpRequest;
+        }
+    }
+
     type HttpResponse;
 
-    /// Error type for Result.
-    ///
-    type Error: Display + From<ApiError> + From<crate::Error> + 'static + Send;
+    cfg_if::cfg_if! {
+        if #[cfg(feature = "with-send-sync")] {
+            type Error: Display + From<ApiError> + From<crate::Error> + Send + 'static;
+        } else {
+            type Error: Display + From<ApiError> + From<crate::Error> + 'static;
+        }
+    }
 
     /// Builds the url for an api call.
     ///
@@ -63,7 +70,7 @@ pub trait Backend {
 
     fn response_to_byte_stream(
         res: Self::HttpResponse,
-    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Send + Unpin>;
+    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin>;
 
     /// Generic method for making a request that expects back a streaming
     /// response.
@@ -72,10 +79,10 @@ pub trait Backend {
         &self,
         req: Self::HttpRequest,
         process: F,
-    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Send + Unpin>
+    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Unpin>
     where
-        OutStream: Stream<Item = Result<Res, Self::Error>> + Send + Unpin,
-        F: 'static + Send + Fn(Self::HttpResponse) -> OutStream;
+        OutStream: Stream<Item = Result<Res, Self::Error>> + Unpin,
+        F: 'static + Fn(Self::HttpResponse) -> OutStream;
 
     /// Builds an Api error from a response body.
     ///
@@ -116,7 +123,7 @@ pub trait Backend {
         res: Self::HttpResponse,
         decoder: D,
     ) -> FramedRead<
-        StreamReader<Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Send + Unpin>>,
+        StreamReader<Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin>>,
         D,
     >
     where
@@ -191,7 +198,7 @@ pub trait Backend {
     fn request_stream_bytes(
         &self,
         req: Self::HttpRequest,
-    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Send + Unpin> {
+    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
         self.request_stream(req, |res| Self::response_to_byte_stream(res))
     }
 
@@ -201,9 +208,9 @@ pub trait Backend {
     fn request_stream_json<Res>(
         &self,
         req: Self::HttpRequest,
-    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Send + Unpin>
+    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Unpin>
     where
-        for<'de> Res: 'static + Deserialize<'de> + Send,
+        for<'de> Res: 'static + Deserialize<'de>,
     {
         self.request_stream(req, |res| {
             let parse_stream_error = if let Some(trailer) = Self::get_header(&res, TRAILER) {

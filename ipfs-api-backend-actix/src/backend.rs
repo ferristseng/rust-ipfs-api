@@ -99,7 +99,7 @@ impl Backend for ActixBackend {
 
     fn response_to_byte_stream(
         res: Self::HttpResponse,
-    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Send + Unpin> {
+    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
         let stream = res.err_into();
 
         Box::new(stream)
@@ -109,10 +109,10 @@ impl Backend for ActixBackend {
         &self,
         req: Self::HttpRequest,
         process: F,
-    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Send + Unpin>
+    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Unpin>
     where
-        OutStream: Stream<Item = Result<Res, Self::Error>> + Send + Unpin,
-        F: 'static + Send + Fn(Self::HttpResponse) -> OutStream,
+        OutStream: Stream<Item = Result<Res, Self::Error>> + Unpin,
+        F: 'static + Fn(Self::HttpResponse) -> OutStream,
     {
         let stream = req
             .err_into()

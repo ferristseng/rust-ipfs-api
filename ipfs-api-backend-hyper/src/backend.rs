@@ -71,7 +71,7 @@ impl_default!(
     hyper_rustls::HttpsConnector::with_native_roots()
 );
 
-#[async_trait]
+#[async_trait(?Send)]
 impl<C> Backend for HyperBackend<C>
 where
     C: Connect + Clone + Send + Sync + 'static,
@@ -126,7 +126,7 @@ where
 
     fn response_to_byte_stream(
         res: Self::HttpResponse,
-    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Send + Unpin> {
+    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
         Box::new(res.into_body().err_into())
     }
 
@@ -134,10 +134,10 @@ where
         &self,
         req: Self::HttpRequest,
         process: F,
-    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Send + Unpin>
+    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Unpin>
     where
-        OutStream: Stream<Item = Result<Res, Self::Error>> + Send + Unpin,
-        F: 'static + Send + Fn(Self::HttpResponse) -> OutStream,
+        OutStream: Stream<Item = Result<Res, Self::Error>> + Unpin,
+        F: 'static + Fn(Self::HttpResponse) -> OutStream,
     {
         let stream = self
             .client

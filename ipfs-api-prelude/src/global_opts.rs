@@ -78,8 +78,12 @@ impl<'a, Req: ApiRequest> ApiRequest for OptCombiner<'a, Req> {
     const METHOD: http::Method = http::Method::POST;
 }
 
-#[async_trait]
-impl<Back: Backend + Sync> Backend for BackendWithGlobalOptions<Back> {
+/*
+#[cfg_attr(feature = "with-send-sync", async_trait)]
+#[cfg_attr(not(feature = "with-send-sync"), async_trait(?Send))]
+*/
+#[async_trait(?Send)]
+impl<Back: Backend> Backend for BackendWithGlobalOptions<Back> {
     type HttpRequest = Back::HttpRequest;
 
     type HttpResponse = Back::HttpResponse;
@@ -119,7 +123,7 @@ impl<Back: Backend + Sync> Backend for BackendWithGlobalOptions<Back> {
 
     fn response_to_byte_stream(
         res: Self::HttpResponse,
-    ) -> Box<dyn futures::Stream<Item = Result<bytes::Bytes, Self::Error>> + Send + Unpin> {
+    ) -> Box<dyn futures::Stream<Item = Result<bytes::Bytes, Self::Error>> + Unpin> {
         Back::response_to_byte_stream(res)
     }
 
@@ -127,10 +131,10 @@ impl<Back: Backend + Sync> Backend for BackendWithGlobalOptions<Back> {
         &self,
         req: Self::HttpRequest,
         process: F,
-    ) -> Box<dyn futures::Stream<Item = Result<Res, Self::Error>> + Send + Unpin>
+    ) -> Box<dyn futures::Stream<Item = Result<Res, Self::Error>> + Unpin>
     where
-        OutStream: futures::Stream<Item = Result<Res, Self::Error>> + Send + Unpin,
-        F: 'static + Send + Fn(Self::HttpResponse) -> OutStream,
+        OutStream: futures::Stream<Item = Result<Res, Self::Error>> + Unpin,
+        F: 'static + Fn(Self::HttpResponse) -> OutStream,
     {
         self.backend.request_stream(req, process)
     }
