@@ -16,6 +16,7 @@ github                    = { repository = "ferristseng/rust-ipfs-api", workflow
 maintenance               = { status = "passively-maintained" }
 
 [features]
+with-builder              = ["ipfs-api-prelude/with-builder"]
 with-hyper-tls            = ["hyper-tls"]
 with-hyper-rustls         = ["hyper-rustls"]
 
