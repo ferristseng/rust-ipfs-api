@@ -1,4 +1,6 @@
 use crate::{request::ApiRequest, Backend};
+use async_trait::async_trait;
+use common_multipart_rfc7578::client::multipart;
 use serde::{Serialize, Serializer};
 use std::time::Duration;
 
@@ -12,6 +14,7 @@ use std::time::Duration;
 pub struct GlobalOptions {
     #[cfg_attr(feature = "with-builder", builder(default, setter(strip_option)))]
     pub offline: Option<bool>,
+
     #[cfg_attr(feature = "with-builder", builder(default, setter(strip_option)))]
     #[serde(serialize_with = "duration_as_secs_ns")]
     pub timeout: Option<Duration>,
@@ -38,11 +41,15 @@ pub struct BackendWithGlobalOptions<Back: Backend> {
 }
 
 #[derive(Serialize)]
-struct OptCombiner<'a, Req> {
+struct OptCombiner<'a, Req>
+where
+    Req: ApiRequest,
+{
     #[serde(flatten)]
     global: &'a GlobalOptions,
+
     #[serde(flatten)]
-    request: &'a Req,
+    request: Req,
 }
 
 impl<Back: Backend> BackendWithGlobalOptions<Back> {
@@ -58,21 +65,27 @@ impl<Back: Backend> BackendWithGlobalOptions<Back> {
         Self { backend, options }
     }
 
-    fn combine<'a, Req: ApiRequest>(&'a self, req: &'a Req) -> OptCombiner<'a, Req> {
+    fn combine<'a, Req>(&'a self, req: Req) -> OptCombiner<'a, Req>
+    where
+        Req: ApiRequest,
+    {
         OptCombiner {
             global: &self.options,
-            request: &req,
+            request: req,
         }
     }
 }
 
-impl<'a, Req: ApiRequest> ApiRequest for OptCombiner<'a, Req> {
+impl<'a, Req> ApiRequest for OptCombiner<'a, Req>
+where
+    Req: ApiRequest,
+{
     const PATH: &'static str = <Req as ApiRequest>::PATH;
 
     const METHOD: http::Method = http::Method::POST;
 }
 
-#[async_trait::async_trait(?Send)]
+#[async_trait(?Send)]
 impl<Back: Backend> Backend for BackendWithGlobalOptions<Back> {
     type HttpRequest = Back::HttpRequest;
 
@@ -82,13 +95,13 @@ impl<Back: Backend> Backend for BackendWithGlobalOptions<Back> {
 
     fn build_base_request<Req>(
         &self,
-        req: &Req,
-        form: Option<common_multipart_rfc7578::client::multipart::Form<'static>>,
+        req: Req,
+        form: Option<multipart::Form<'static>>,
     ) -> Result<Self::HttpRequest, Self::Error>
     where
         Req: ApiRequest,
     {
-        self.backend.build_base_request(&self.combine(req), form)
+        self.backend.build_base_request(self.combine(req), form)
     }
 
     fn get_header(
@@ -101,12 +114,12 @@ impl<Back: Backend> Backend for BackendWithGlobalOptions<Back> {
     async fn request_raw<Req>(
         &self,
         req: Req,
-        form: Option<common_multipart_rfc7578::client::multipart::Form<'static>>,
+        form: Option<multipart::Form<'static>>,
     ) -> Result<(http::StatusCode, bytes::Bytes), Self::Error>
     where
         Req: ApiRequest,
     {
-        self.backend.request_raw(self.combine(&req), form).await
+        self.backend.request_raw(self.combine(req), form).await
     }
 
     fn response_to_byte_stream(

@@ -33,7 +33,7 @@ macro_rules! impl_stream_api_response {
         }
     };
     (($self:ident, $req:expr, $form:expr) |$var:ident| => $impl:block) => {
-        match $self.build_base_request(&$req, $form) {
+        match $self.build_base_request($req, $form) {
             Ok($var) => $impl,
             Err(e) => Box::new(future::err(e).into_stream()),
         }
@@ -136,7 +136,7 @@ pub trait IpfsApi: Backend {
     where
         F: Into<multipart::Form<'static>>,
     {
-        let req = self.build_base_request(&add, Some(form.into()))?;
+        let req = self.build_base_request(add, Some(form.into()))?;
         self.request_stream_json(req).try_collect().await
     }
 
@@ -201,7 +201,7 @@ pub trait IpfsApi: Backend {
             }
         }
 
-        let req = self.build_base_request(&request::Add::default(), Some(form))?;
+        let req = self.build_base_request(request::Add::default(), Some(form))?;
 
         self.request_stream_json(req).try_collect().await
     }

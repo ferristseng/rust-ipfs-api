@@ -41,7 +41,7 @@ pub trait Backend {
     ///
     fn build_base_request<Req>(
         &self,
-        req: &Req,
+        req: Req,
         form: Option<multipart::Form<'static>>,
     ) -> Result<Self::HttpRequest, Self::Error>
     where
