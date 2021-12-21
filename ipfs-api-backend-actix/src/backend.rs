@@ -16,7 +16,7 @@ use http::{
     uri::Scheme,
     StatusCode, Uri,
 };
-use ipfs_api_prelude::{ApiRequest, Backend, TryFromUri};
+use ipfs_api_prelude::{ApiRequest, Backend, BoxStream, TryFromUri};
 use multipart::client::multipart;
 use std::time::Duration;
 
@@ -104,14 +104,13 @@ impl Backend for ActixBackend {
         Box::new(stream)
     }
 
-    fn request_stream<Res, F, OutStream>(
+    fn request_stream<Res, F>(
         &self,
         req: Self::HttpRequest,
         process: F,
-    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Unpin>
+    ) -> BoxStream<Res, Self::Error>
     where
-        OutStream: Stream<Item = Result<Res, Self::Error>> + Unpin,
-        F: 'static + Fn(Self::HttpResponse) -> OutStream,
+        F: 'static + Send + Fn(Self::HttpResponse) -> BoxStream<Res, Self::Error>,
     {
         let stream = req
             .err_into()
