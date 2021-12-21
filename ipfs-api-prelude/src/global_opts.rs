@@ -1,5 +1,14 @@
-use crate::{request::ApiRequest, Backend};
+// Copyright 2021 rust-ipfs-api Developers
+//
+// Licensed under the Apache License, Version 2.0, <LICENSE-APACHE or
+// http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
+// http://opensource.org/licenses/MIT>, at your option. This file may not be
+// copied, modified, or distributed except according to those terms.
+//
+
+use crate::{request::ApiRequest, Backend, BoxStream};
 use async_trait::async_trait;
+use bytes::Bytes;
 use common_multipart_rfc7578::client::multipart;
 use serde::{Serialize, Serializer};
 use std::time::Duration;
@@ -85,10 +94,61 @@ where
     const METHOD: http::Method = http::Method::POST;
 }
 
-/*
-#[cfg_attr(feature = "with-send-sync", async_trait)]
-#[cfg_attr(not(feature = "with-send-sync"), async_trait(?Send))]
-*/
+#[cfg(feature = "with-send-sync")]
+#[async_trait]
+impl<Back: Backend + Send + Sync> Backend for BackendWithGlobalOptions<Back> {
+    type HttpRequest = Back::HttpRequest;
+
+    type HttpResponse = Back::HttpResponse;
+
+    type Error = Back::Error;
+
+    fn build_base_request<Req>(
+        &self,
+        req: Req,
+        form: Option<multipart::Form<'static>>,
+    ) -> Result<Self::HttpRequest, Self::Error>
+    where
+        Req: ApiRequest,
+    {
+        self.backend.build_base_request(self.combine(req), form)
+    }
+
+    fn get_header(
+        res: &Self::HttpResponse,
+        key: http::header::HeaderName,
+    ) -> Option<&http::HeaderValue> {
+        Back::get_header(res, key)
+    }
+
+    async fn request_raw<Req>(
+        &self,
+        req: Req,
+        form: Option<multipart::Form<'static>>,
+    ) -> Result<(http::StatusCode, bytes::Bytes), Self::Error>
+    where
+        Req: ApiRequest,
+    {
+        self.backend.request_raw(self.combine(req), form).await
+    }
+
+    fn response_to_byte_stream(res: Self::HttpResponse) -> BoxStream<Bytes, Self::Error> {
+        Back::response_to_byte_stream(res)
+    }
+
+    fn request_stream<Res, F>(
+        &self,
+        req: Self::HttpRequest,
+        process: F,
+    ) -> BoxStream<Res, Self::Error>
+    where
+        F: 'static + Send + Fn(Self::HttpResponse) -> BoxStream<Res, Self::Error>,
+    {
+        self.backend.request_stream(req, process)
+    }
+}
+
+#[cfg(not(feature = "with-send-sync"))]
 #[async_trait(?Send)]
 impl<Back: Backend> Backend for BackendWithGlobalOptions<Back> {
     type HttpRequest = Back::HttpRequest;
@@ -126,20 +186,17 @@ impl<Back: Backend> Backend for BackendWithGlobalOptions<Back> {
         self.backend.request_raw(self.combine(req), form).await
     }
 
-    fn response_to_byte_stream(
-        res: Self::HttpResponse,
-    ) -> Box<dyn futures::Stream<Item = Result<bytes::Bytes, Self::Error>> + Unpin> {
+    fn response_to_byte_stream(res: Self::HttpResponse) -> BoxStream<Bytes, Self::Error> {
         Back::response_to_byte_stream(res)
     }
 
-    fn request_stream<Res, F, OutStream>(
+    fn request_stream<Res, F>(
         &self,
         req: Self::HttpRequest,
         process: F,
-    ) -> Box<dyn futures::Stream<Item = Result<Res, Self::Error>> + Unpin>
+    ) -> BoxStream<Res, Self::Error>
     where
-        OutStream: futures::Stream<Item = Result<Res, Self::Error>> + Unpin,
-        F: 'static + Fn(Self::HttpResponse) -> OutStream,
+        F: 'static + Send + Fn(Self::HttpResponse) -> BoxStream<Res, Self::Error>,
     {
         self.backend.request_stream(req, process)
     }

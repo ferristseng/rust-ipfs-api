@@ -14,7 +14,7 @@ use crate::{
 use async_trait::async_trait;
 use bytes::Bytes;
 use common_multipart_rfc7578::client::multipart;
-use futures::{future, FutureExt, Stream, StreamExt, TryStreamExt};
+use futures::{future, FutureExt, Stream, TryStreamExt};
 use http::{
     header::{HeaderName, HeaderValue},
     StatusCode,
@@ -23,8 +23,16 @@ use serde::Deserialize;
 use std::fmt::Display;
 use tokio_util::codec::{Decoder, FramedRead};
 
+cfg_if::cfg_if! {
+    if #[cfg(feature = "with-send-sync")] {
+        pub type BoxStream<T, E> = Box<dyn Stream<Item = Result<T, E>> + Send + Unpin>;
+    } else {
+        pub type BoxStream<T, E> = Box<dyn Stream<Item = Result<T, E>> + Unpin>;
+    }
+}
 
-#[async_trait(?Send)]
+#[cfg_attr(feature = "with-send-sync", async_trait)]
+#[cfg_attr(not(feature = "with-send-sync"), async_trait(?Send))]
 pub trait Backend {
     cfg_if::cfg_if! {
         if #[cfg(feature = "with-send-sync")] {
@@ -68,21 +76,18 @@ pub trait Backend {
     where
         Req: ApiRequest;
 
-    fn response_to_byte_stream(
-        res: Self::HttpResponse,
-    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin>;
+    fn response_to_byte_stream(res: Self::HttpResponse) -> BoxStream<Bytes, Self::Error>;
 
     /// Generic method for making a request that expects back a streaming
     /// response.
     ///
-    fn request_stream<Res, F, OutStream>(
+    fn request_stream<Res, F>(
         &self,
         req: Self::HttpRequest,
         process: F,
-    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Unpin>
+    ) -> BoxStream<Res, Self::Error>
     where
-        OutStream: Stream<Item = Result<Res, Self::Error>> + Unpin,
-        F: 'static + Fn(Self::HttpResponse) -> OutStream;
+        F: 'static + Send + Fn(Self::HttpResponse) -> BoxStream<Res, Self::Error>;
 
     /// Builds an Api error from a response body.
     ///
@@ -106,7 +111,7 @@ pub trait Backend {
     ///
     fn process_json_response<Res>(status: StatusCode, body: Bytes) -> Result<Res, Self::Error>
     where
-        for<'de> Res: 'static + Deserialize<'de>,
+        for<'de> Res: 'static + Deserialize<'de> + Send,
     {
         match status {
             StatusCode::OK => serde_json::from_slice(&body)
@@ -122,10 +127,7 @@ pub trait Backend {
     fn process_stream_response<D, Res>(
         res: Self::HttpResponse,
         decoder: D,
-    ) -> FramedRead<
-        StreamReader<Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin>>,
-        D,
-    >
+    ) -> FramedRead<StreamReader<BoxStream<Bytes, Self::Error>>, D>
     where
         D: Decoder<Item = Res, Error = crate::Error>,
     {
@@ -145,7 +147,7 @@ pub trait Backend {
     ) -> Result<Res, Self::Error>
     where
         Req: ApiRequest,
-        for<'de> Res: 'static + Deserialize<'de>,
+        for<'de> Res: 'static + Deserialize<'de> + Send,
     {
         let (status, chunk) = self.request_raw(req, form).await?;
 
@@ -195,22 +197,16 @@ pub trait Backend {
     /// Generic method for making a request to the Ipfs server, and getting
     /// back a raw stream of bytes.
     ///
-    fn request_stream_bytes(
-        &self,
-        req: Self::HttpRequest,
-    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
+    fn request_stream_bytes(&self, req: Self::HttpRequest) -> BoxStream<Bytes, Self::Error> {
         self.request_stream(req, |res| Self::response_to_byte_stream(res))
     }
 
     /// Generic method to return a streaming response of deserialized json
     /// objects delineated by new line separators.
     ///
-    fn request_stream_json<Res>(
-        &self,
-        req: Self::HttpRequest,
-    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Unpin>
+    fn request_stream_json<Res>(&self, req: Self::HttpRequest) -> BoxStream<Res, Self::Error>
     where
-        for<'de> Res: 'static + Deserialize<'de>,
+        for<'de> Res: 'static + Deserialize<'de> + Send,
     {
         self.request_stream(req, |res| {
             let parse_stream_error = if let Some(trailer) = Self::get_header(&res, TRAILER) {
@@ -228,15 +224,16 @@ pub trait Backend {
                     // There was an unrecognized trailer value. If that is the case,
                     // create a stream that immediately errors.
                     //
-                    return future::err(err).into_stream().err_into().left_stream();
+                    return Box::new(future::err(err).into_stream().err_into());
                 }
             } else {
                 false
             };
 
-            Self::process_stream_response(res, JsonLineDecoder::new(parse_stream_error))
-                .err_into()
-                .right_stream()
+            Box::new(
+                Self::process_stream_response(res, JsonLineDecoder::new(parse_stream_error))
+                    .err_into(),
+            )
         })
     }
 }

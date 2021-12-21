@@ -40,7 +40,8 @@ macro_rules! impl_stream_api_response {
     };
 }
 
-#[async_trait(?Send)]
+#[cfg_attr(feature = "with-send-sync", async_trait)]
+#[cfg_attr(not(feature = "with-send-sync"), async_trait(?Send))]
 pub trait IpfsApi: Backend {
     /// Add file to Ipfs.
     ///
@@ -134,7 +135,7 @@ pub trait IpfsApi: Backend {
         add: request::Add<'_>,
     ) -> Result<Vec<response::AddResponse>, Self::Error>
     where
-        F: Into<multipart::Form<'static>>,
+        F: Into<multipart::Form<'static>> + Send,
     {
         let req = self.build_base_request(add, Some(form.into()))?;
         self.request_stream_json(req).try_collect().await
@@ -156,7 +157,7 @@ pub trait IpfsApi: Backend {
     ///
     async fn add_path<P>(&self, path: P) -> Result<Vec<response::AddResponse>, Self::Error>
     where
-        P: AsRef<Path>,
+        P: AsRef<Path> + Send,
     {
         let prefix = path.as_ref().parent();
         let mut paths_to_add: Vec<(PathBuf, u64)> = vec![];
@@ -1647,7 +1648,7 @@ pub trait IpfsApi: Backend {
         impl_stream_api_response! {
             (self, request::LogTail, None) |req| => {
                 self.request_stream(req, |res| {
-                    Self::process_stream_response(res, LineDecoder).map_err(Self::Error::from)
+                    Box::new(Self::process_stream_response(res, LineDecoder).map_err(Self::Error::from))
                 })
             }
         }
