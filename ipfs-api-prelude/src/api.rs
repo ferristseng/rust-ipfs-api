@@ -2024,7 +2024,7 @@ pub trait IpfsApi: Backend {
     /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.pubsub_pub("feed", "Hello World!");
+    /// let res = client.pubsub_pub("feed", std::io::Cursor::new("Hello World!"));
     /// ```
     ///
     async fn pubsub_pub<T, R>(
@@ -2054,8 +2054,8 @@ pub trait IpfsApi: Backend {
     /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.pubsub_sub("feed", false);
-    /// let res = client.pubsub_sub("feed", true);
+    /// let res = client.pubsub_sub("feed");
+    /// let res = client.pubsub_sub("feed");
     /// ```
     ///
     fn pubsub_sub<T>(
