@@ -2027,12 +2027,24 @@ pub trait IpfsApi: Backend {
     /// let res = client.pubsub_pub("feed", "Hello World!");
     /// ```
     ///
-    async fn pubsub_pub(
+    async fn pubsub_pub<T, R>(
         &self,
-        topic: &str,
-        payload: &str,
-    ) -> Result<response::PubsubPubResponse, Self::Error> {
-        self.request_empty(request::PubsubPub { topic, payload }, None)
+        topic: T,
+        data: R,
+    ) -> Result<response::PubsubPubResponse, Self::Error>
+    where
+        T: AsRef<[u8]>,
+        R: 'static + Read + Send + Sync,
+    {
+        use multibase::{encode, Base};
+
+        let topic = encode(Base::Base64Url, topic);
+
+        let mut form = multipart::Form::default();
+
+        form.add_reader("data", data);
+
+        self.request(request::PubsubPub { topic: &topic }, Some(form))
             .await
     }
 
@@ -2046,13 +2058,19 @@ pub trait IpfsApi: Backend {
     /// let res = client.pubsub_sub("feed", true);
     /// ```
     ///
-    fn pubsub_sub(
+    fn pubsub_sub<T>(
         &self,
-        topic: &str,
-        discover: bool,
-    ) -> Box<dyn Stream<Item = Result<response::PubsubSubResponse, Self::Error>> + Unpin> {
+        topic: T,
+    ) -> Box<dyn Stream<Item = Result<response::PubsubSubResponse, Self::Error>> + Unpin>
+    where
+        T: AsRef<[u8]>,
+    {
+        use multibase::{encode, Base};
+
+        let topic = encode(Base::Base64Url, topic);
+
         impl_stream_api_response! {
-            (self, request::PubsubSub { topic, discover }, None) => request_stream_json
+            (self, request::PubsubSub { topic: &topic }, None) => request_stream_json
         }
     }
 

@@ -33,9 +33,6 @@ pub struct PubsubSubResponse {
 
     #[serde(rename = "topicIDs")]
     pub topic_ids: Option<Vec<String>>,
-
-    #[serde(rename = "XXX_unrecognized")]
-    pub unrecognized: Option<Vec<u8>>,
 }
 
 #[cfg(test)]

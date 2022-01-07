@@ -31,9 +31,6 @@ impl<'a> ApiRequest for PubsubPeers<'a> {
 pub struct PubsubPub<'a> {
     #[serde(rename = "arg")]
     pub topic: &'a str,
-
-    #[serde(rename = "arg")]
-    pub payload: &'a str,
 }
 
 impl<'a> ApiRequest for PubsubPub<'a> {
@@ -44,8 +41,6 @@ impl<'a> ApiRequest for PubsubPub<'a> {
 pub struct PubsubSub<'a> {
     #[serde(rename = "arg")]
     pub topic: &'a str,
-
-    pub discover: bool,
 }
 
 impl<'a> ApiRequest for PubsubSub<'a> {
