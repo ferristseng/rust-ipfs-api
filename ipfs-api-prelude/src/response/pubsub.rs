@@ -7,7 +7,10 @@
 //
 
 use crate::response::serde;
-use crate::serde::Deserialize;
+use crate::serde::{Deserialize, Deserializer};
+
+use multibase::decode;
+use std::convert::TryInto;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
@@ -27,12 +30,60 @@ pub type PubsubPubResponse = ();
 
 #[derive(Debug, Deserialize)]
 pub struct PubsubSubResponse {
-    pub from: Option<String>,
-    pub data: Option<String>,
-    pub seqno: Option<String>,
+    pub from: String,
 
-    #[serde(rename = "topicIDs")]
-    pub topic_ids: Option<Vec<String>>,
+    #[serde(deserialize_with = "deserialize_data_field")]
+    pub data: Vec<u8>,
+
+    #[serde(deserialize_with = "deserialize_seqno_field")]
+    pub seqno: u64,
+
+    #[serde(rename = "topicIDs", deserialize_with = "deserialize_topic_field")]
+    pub topic_ids: Vec<String>,
+}
+
+fn deserialize_data_field<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let data: &str = Deserialize::deserialize(deserializer)?;
+
+    let (_, data) = decode(data).expect("Multibase Decoding");
+
+    Ok(data)
+}
+
+fn deserialize_seqno_field<'de, D>(deserializer: D) -> Result<u64, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let seqno: &str = Deserialize::deserialize(deserializer)?;
+
+    let (_, seqno) = decode(seqno).expect("Multibase Decoding");
+
+    let seqno = seqno.try_into().expect("64 bits Type");
+
+    let seqno = u64::from_be_bytes(seqno);
+
+    Ok(seqno)
+}
+
+fn deserialize_topic_field<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let topic_ids: Vec<&str> = Deserialize::deserialize(deserializer)?;
+
+    let topic_ids = topic_ids
+        .into_iter()
+        .map(|topic_id| {
+            let (_, topic_id) = decode(topic_id).expect("Multibase Decoding");
+
+            String::from_utf8(topic_id).expect("UTF-8 Text")
+        })
+        .collect();
+
+    Ok(topic_ids)
 }
 
 #[cfg(test)]
