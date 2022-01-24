@@ -6,11 +6,11 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use crate::{read::LineDecoder, request, response, Backend};
+use crate::{read::LineDecoder, request, response, Backend, BoxStream};
 use async_trait::async_trait;
 use bytes::Bytes;
 use common_multipart_rfc7578::client::multipart;
-use futures::{future, FutureExt, Stream, TryStreamExt};
+use futures::{future, FutureExt, TryStreamExt};
 use std::{
     fs::File,
     io::{Cursor, Read},
@@ -310,7 +310,7 @@ pub trait IpfsApi: Backend {
     ///     .try_concat();
     /// ```
     ///
-    fn block_get(&self, hash: &str) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
+    fn block_get(&self, hash: &str) -> BoxStream<Bytes, Self::Error> {
         impl_stream_api_response! {
             (self, request::BlockGet { hash }, None) => request_stream_bytes
         }
@@ -469,7 +469,7 @@ pub trait IpfsApi: Backend {
     ///     .try_concat();
     /// ```
     ///
-    fn cat(&self, path: &str) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
+    fn cat(&self, path: &str) -> BoxStream<Bytes, Self::Error> {
         impl_stream_api_response! {
             (self, request::Cat { path }, None) => request_stream_bytes
         }
@@ -699,7 +699,7 @@ pub trait IpfsApi: Backend {
     ///     .try_concat();
     /// ```
     ///
-    fn dag_get(&self, path: &str) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
+    fn dag_get(&self, path: &str) -> BoxStream<Bytes, Self::Error> {
         self.dag_get_with_options(request::DagGet {
             path,
             ..Default::default()
@@ -726,10 +726,7 @@ pub trait IpfsApi: Backend {
     ///     .try_concat();
     /// ```
     ///
-    fn dag_get_with_options(
-        &self,
-        options: request::DagGet,
-    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
+    fn dag_get_with_options(&self, options: request::DagGet) -> BoxStream<Bytes, Self::Error> {
         impl_stream_api_response! {
             (self, options, None) => request_stream_bytes
         }
@@ -798,10 +795,7 @@ pub trait IpfsApi: Backend {
     /// let res = client.dht_findpeer(peer).try_collect::<Vec<_>>();
     /// ```
     ///
-    fn dht_findpeer(
-        &self,
-        peer: &str,
-    ) -> Box<dyn Stream<Item = Result<response::DhtFindPeerResponse, Self::Error>> + Unpin> {
+    fn dht_findpeer(&self, peer: &str) -> BoxStream<response::DhtFindPeerResponse, Self::Error> {
         impl_stream_api_response! {
             (self, request::DhtFindPeer { peer }, None) => request_stream_json
         }
@@ -818,10 +812,7 @@ pub trait IpfsApi: Backend {
     /// let res = client.dht_findprovs(key).try_collect::<Vec<_>>();
     /// ```
     ///
-    fn dht_findprovs(
-        &self,
-        key: &str,
-    ) -> Box<dyn Stream<Item = Result<response::DhtFindProvsResponse, Self::Error>> + Unpin> {
+    fn dht_findprovs(&self, key: &str) -> BoxStream<response::DhtFindProvsResponse, Self::Error> {
         impl_stream_api_response! {
             (self, request::DhtFindProvs { key }, None) => request_stream_json
         }
@@ -838,10 +829,7 @@ pub trait IpfsApi: Backend {
     /// let res = client.dht_get(key).try_collect::<Vec<_>>();
     /// ```
     ///
-    fn dht_get(
-        &self,
-        key: &str,
-    ) -> Box<dyn Stream<Item = Result<response::DhtGetResponse, Self::Error>> + Unpin> {
+    fn dht_get(&self, key: &str) -> BoxStream<response::DhtGetResponse, Self::Error> {
         impl_stream_api_response! {
             (self, request::DhtGet { key }, None) => request_stream_json
         }
@@ -858,10 +846,7 @@ pub trait IpfsApi: Backend {
     /// let res = client.dht_provide(key).try_collect::<Vec<_>>();
     /// ```
     ///
-    fn dht_provide(
-        &self,
-        key: &str,
-    ) -> Box<dyn Stream<Item = Result<response::DhtProvideResponse, Self::Error>> + Unpin> {
+    fn dht_provide(&self, key: &str) -> BoxStream<response::DhtProvideResponse, Self::Error> {
         impl_stream_api_response! {
             (self, request::DhtProvide { key }, None) => request_stream_json
         }
@@ -877,11 +862,7 @@ pub trait IpfsApi: Backend {
     /// let res = client.dht_put("test", "Hello World!").try_collect::<Vec<_>>();
     /// ```
     ///
-    fn dht_put(
-        &self,
-        key: &str,
-        value: &str,
-    ) -> Box<dyn Stream<Item = Result<response::DhtPutResponse, Self::Error>> + Unpin> {
+    fn dht_put(&self, key: &str, value: &str) -> BoxStream<response::DhtPutResponse, Self::Error> {
         impl_stream_api_response! {
             (self, request::DhtPut { key, value }, None) => request_stream_json
         }
@@ -898,10 +879,7 @@ pub trait IpfsApi: Backend {
     /// let res = client.dht_query(peer).try_collect::<Vec<_>>();
     /// ```
     ///
-    fn dht_query(
-        &self,
-        peer: &str,
-    ) -> Box<dyn Stream<Item = Result<response::DhtQueryResponse, Self::Error>> + Unpin> {
+    fn dht_query(&self, peer: &str) -> BoxStream<response::DhtQueryResponse, Self::Error> {
         impl_stream_api_response! {
             (self, request::DhtQuery { peer }, None) => request_stream_json
         }
@@ -1188,7 +1166,7 @@ pub trait IpfsApi: Backend {
     /// let res = client.files_read("/test/file.json");
     /// ```
     ///
-    fn files_read(&self, path: &str) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
+    fn files_read(&self, path: &str) -> BoxStream<Bytes, Self::Error> {
         self.files_read_with_options(request::FilesRead {
             path,
             ..request::FilesRead::default()
@@ -1219,7 +1197,7 @@ pub trait IpfsApi: Backend {
     fn files_read_with_options(
         &self,
         options: request::FilesRead,
-    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
+    ) -> BoxStream<Bytes, Self::Error> {
         impl_stream_api_response! { (self, options, None) => request_stream_bytes }
     }
 
@@ -1457,9 +1435,7 @@ pub trait IpfsApi: Backend {
     /// let res = client.filestore_dups();
     /// ```
     ///
-    fn filestore_dups(
-        &self,
-    ) -> Box<dyn Stream<Item = Result<response::FilestoreDupsResponse, Self::Error>> + Unpin> {
+    fn filestore_dups(&self) -> BoxStream<response::FilestoreDupsResponse, Self::Error> {
         impl_stream_api_response! {
             (self, request::FilestoreDups, None) => request_stream_json
         }
@@ -1479,7 +1455,7 @@ pub trait IpfsApi: Backend {
     fn filestore_ls(
         &self,
         cid: Option<&str>,
-    ) -> Box<dyn Stream<Item = Result<response::FilestoreLsResponse, Self::Error>> + Unpin> {
+    ) -> BoxStream<response::FilestoreLsResponse, Self::Error> {
         impl_stream_api_response! {
             (self, request::FilestoreLs { cid }, None) => request_stream_json
         }
@@ -1497,8 +1473,7 @@ pub trait IpfsApi: Backend {
     fn filestore_verify(
         &self,
         cid: Option<&str>,
-    ) -> Box<dyn Stream<Item = Result<response::FilestoreVerifyResponse, Self::Error>> + Unpin>
-    {
+    ) -> BoxStream<response::FilestoreVerifyResponse, Self::Error> {
         impl_stream_api_response! {
             (self, request::FilestoreVerify{ cid }, None) => request_stream_json
         }
@@ -1513,7 +1488,7 @@ pub trait IpfsApi: Backend {
     /// let res = client.get("/test/file.json");
     /// ```
     ///
-    fn get(&self, path: &str) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
+    fn get(&self, path: &str) -> BoxStream<Bytes, Self::Error> {
         impl_stream_api_response! {
             (self, request::Get { path }, None) => request_stream_bytes
         }
@@ -1644,7 +1619,7 @@ pub trait IpfsApi: Backend {
     /// let res = client.log_tail();
     /// ```
     ///
-    fn log_tail(&self) -> Box<dyn Stream<Item = Result<String, Self::Error>> + Unpin> {
+    fn log_tail(&self) -> BoxStream<String, Self::Error> {
         impl_stream_api_response! {
             (self, request::LogTail, None) |req| => {
                 self.request_stream(req, |res| {
@@ -1698,7 +1673,7 @@ pub trait IpfsApi: Backend {
     fn ls_with_options(
         &self,
         options: request::Ls<'_>,
-    ) -> Box<dyn Stream<Item = Result<response::LsResponse, Self::Error>> + Unpin> {
+    ) -> BoxStream<response::LsResponse, Self::Error> {
         impl_stream_api_response! {
             (self, options, None) => request_stream_json
         }
@@ -1781,7 +1756,7 @@ pub trait IpfsApi: Backend {
     /// let res = client.object_data("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
     /// ```
     ///
-    fn object_data(&self, key: &str) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
+    fn object_data(&self, key: &str) -> BoxStream<Bytes, Self::Error> {
         impl_stream_api_response! {
             (self, request::ObjectData { key }, None) => request_stream_bytes
         }
@@ -1983,7 +1958,7 @@ pub trait IpfsApi: Backend {
         &self,
         peer: &str,
         count: Option<i32>,
-    ) -> Box<dyn Stream<Item = Result<response::PingResponse, Self::Error>> + Unpin> {
+    ) -> BoxStream<response::PingResponse, Self::Error> {
         impl_stream_api_response! {
             (self, request::Ping { peer, count }, None) => request_stream_json
         }
@@ -2051,7 +2026,7 @@ pub trait IpfsApi: Backend {
         &self,
         topic: &str,
         discover: bool,
-    ) -> Box<dyn Stream<Item = Result<response::PubsubSubResponse, Self::Error>> + Unpin> {
+    ) -> BoxStream<response::PubsubSubResponse, Self::Error> {
         impl_stream_api_response! {
             (self, request::PubsubSub { topic, discover }, None) => request_stream_json
         }
@@ -2066,9 +2041,7 @@ pub trait IpfsApi: Backend {
     /// let res = client.refs_local();
     /// ```
     ///
-    fn refs_local(
-        &self,
-    ) -> Box<dyn Stream<Item = Result<response::RefsLocalResponse, Self::Error>> + Unpin> {
+    fn refs_local(&self) -> BoxStream<response::RefsLocalResponse, Self::Error> {
         impl_stream_api_response! {
             (self, request::RefsLocal, None) => request_stream_json
         }
@@ -2208,7 +2181,7 @@ pub trait IpfsApi: Backend {
     /// let res = client.tar_cat("/ipfs/QmVrLsEDn27sScp3k23sgZNefVTjSAL3wpgW1iWPi4MgoY");
     /// ```
     ///
-    fn tar_cat(&self, path: &str) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
+    fn tar_cat(&self, path: &str) -> BoxStream<Bytes, Self::Error> {
         impl_stream_api_response! {
             (self, request::TarCat { path }, None) => request_stream_bytes
         }

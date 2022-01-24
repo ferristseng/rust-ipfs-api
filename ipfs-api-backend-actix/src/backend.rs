@@ -10,7 +10,7 @@ use crate::error::Error;
 use async_trait::async_trait;
 use awc::Client;
 use bytes::Bytes;
-use futures::{FutureExt, Stream, StreamExt, TryFutureExt, TryStreamExt};
+use futures::{FutureExt, StreamExt, TryFutureExt, TryStreamExt};
 use http::{
     header::{HeaderName, HeaderValue},
     uri::Scheme,
@@ -98,7 +98,7 @@ impl Backend for ActixBackend {
 
     fn response_to_byte_stream(
         res: Self::HttpResponse,
-    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
+    ) -> BoxStream<Bytes, Self::Error> {
         let stream = res.err_into();
 
         Box::new(stream)
