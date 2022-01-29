@@ -2044,7 +2044,7 @@ pub trait IpfsApi: Backend {
 
         form.add_reader("data", data);
 
-        self.request(request::PubsubPub { topic: &topic }, Some(form))
+        self.request_empty(request::PubsubPub { topic: &topic }, Some(form))
             .await
     }
 
