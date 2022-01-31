@@ -11,6 +11,7 @@ use async_trait::async_trait;
 use bytes::Bytes;
 use common_multipart_rfc7578::client::multipart;
 use futures::{future, FutureExt, Stream, TryStreamExt};
+use multibase::{encode, Base};
 use std::{
     fs::File,
     io::{Cursor, Read},
@@ -2022,9 +2023,10 @@ pub trait IpfsApi: Backend {
     ///
     /// ```no_run
     /// use ipfs_api::{IpfsApi, IpfsClient};
+    /// use std::io::Cursor;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.pubsub_pub("feed", std::io::Cursor::new("Hello World!"));
+    /// let res = client.pubsub_pub("feed", Cursor::new("Hello World!"));
     /// ```
     ///
     async fn pubsub_pub<T, R>(
@@ -2036,15 +2038,13 @@ pub trait IpfsApi: Backend {
         T: AsRef<[u8]>,
         R: 'static + Read + Send + Sync,
     {
-        use multibase::{encode, Base};
-
         let topic = encode(Base::Base64Url, topic);
 
         let mut form = multipart::Form::default();
 
         form.add_reader("data", data);
 
-        self.request(request::PubsubPub { topic: &topic }, Some(form))
+        self.request_empty(request::PubsubPub { topic: &topic }, Some(form))
             .await
     }
 
@@ -2065,8 +2065,6 @@ pub trait IpfsApi: Backend {
     where
         T: AsRef<[u8]>,
     {
-        use multibase::{encode, Base};
-
         let topic = encode(Base::Base64Url, topic);
 
         impl_stream_api_response! {
