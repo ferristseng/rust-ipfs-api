@@ -2007,7 +2007,7 @@ pub trait IpfsApi: Backend {
     /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.pubsub_peers(None);
+    /// let res = client.pubsub_peers(Option::<String>::None);
     /// let res = client.pubsub_peers(Some("feed"));
     /// ```
     ///
