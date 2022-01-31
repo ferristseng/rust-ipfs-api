@@ -11,7 +11,6 @@ use async_trait::async_trait;
 use bytes::Bytes;
 use common_multipart_rfc7578::client::multipart;
 use futures::{future, FutureExt, Stream, TryStreamExt};
-use multibase::{encode, Base};
 use std::{
     fs::File,
     io::{Cursor, Read},
@@ -2012,11 +2011,28 @@ pub trait IpfsApi: Backend {
     /// let res = client.pubsub_peers(Some("feed"));
     /// ```
     ///
-    async fn pubsub_peers(
+    async fn pubsub_peers<T>(
         &self,
-        topic: Option<&str>,
-    ) -> Result<response::PubsubPeersResponse, Self::Error> {
-        self.request(request::PubsubPeers { topic }, None).await
+        topic: Option<T>,
+    ) -> Result<response::PubsubPeersResponse, Self::Error>
+    where
+        T: AsRef<[u8]>,
+    {
+        match topic {
+            Some(topic) => {
+                self.request(
+                    request::PubsubPeers {
+                        topic: Some(topic.as_ref()),
+                    },
+                    None,
+                )
+                .await
+            }
+            None => {
+                self.request(request::PubsubPeers { topic: None }, None)
+                    .await
+            }
+        }
     }
 
     /// Publish a message to a topic.
@@ -2038,14 +2054,17 @@ pub trait IpfsApi: Backend {
         T: AsRef<[u8]>,
         R: 'static + Read + Send + Sync,
     {
-        let topic = encode(Base::Base64Url, topic);
-
         let mut form = multipart::Form::default();
 
         form.add_reader("data", data);
 
-        self.request_empty(request::PubsubPub { topic: &topic }, Some(form))
-            .await
+        self.request_empty(
+            request::PubsubPub {
+                topic: topic.as_ref(),
+            },
+            Some(form),
+        )
+        .await
     }
 
     /// Subscribes to a pubsub topic.
@@ -2065,10 +2084,8 @@ pub trait IpfsApi: Backend {
     where
         T: AsRef<[u8]>,
     {
-        let topic = encode(Base::Base64Url, topic);
-
         impl_stream_api_response! {
-            (self, request::PubsubSub { topic: &topic }, None) => request_stream_json
+            (self, request::PubsubSub { topic: topic.as_ref() }, None) => request_stream_json
         }
     }
 
