@@ -27,15 +27,19 @@ pub type PubsubPubResponse = ();
 
 #[derive(Debug, Deserialize)]
 pub struct PubsubSubResponse {
-    pub from: Option<String>,
-    pub data: Option<String>,
-    pub seqno: Option<String>,
+    pub from: String,
 
-    #[serde(rename = "topicIDs")]
-    pub topic_ids: Option<Vec<String>>,
+    #[serde(deserialize_with = "serde::deserialize_data_field")]
+    pub data: Vec<u8>,
 
-    #[serde(rename = "XXX_unrecognized")]
-    pub unrecognized: Option<Vec<u8>>,
+    #[serde(deserialize_with = "serde::deserialize_seqno_field")]
+    pub seqno: u64,
+
+    #[serde(
+        rename = "topicIDs",
+        deserialize_with = "serde::deserialize_topic_field"
+    )]
+    pub topic_ids: Vec<String>,
 }
 
 #[cfg(test)]
