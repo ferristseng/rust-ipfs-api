@@ -124,9 +124,7 @@ where
         Ok((status, body))
     }
 
-    fn response_to_byte_stream(
-        res: Self::HttpResponse,
-    ) -> BoxStream<Bytes, Self::Error> {
+    fn response_to_byte_stream(res: Self::HttpResponse) -> BoxStream<Bytes, Self::Error> {
         Box::new(res.into_body().err_into())
     }
 

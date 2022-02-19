@@ -96,9 +96,7 @@ impl Backend for ActixBackend {
         Ok((status, body))
     }
 
-    fn response_to_byte_stream(
-        res: Self::HttpResponse,
-    ) -> BoxStream<Bytes, Self::Error> {
+    fn response_to_byte_stream(res: Self::HttpResponse) -> BoxStream<Bytes, Self::Error> {
         let stream = res.err_into();
 
         Box::new(stream)

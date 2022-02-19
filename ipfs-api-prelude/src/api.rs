@@ -1992,7 +1992,7 @@ pub trait IpfsApi: Backend {
         topic: Option<T>,
     ) -> Result<response::PubsubPeersResponse, Self::Error>
     where
-        T: AsRef<[u8]>,
+        T: AsRef<[u8]> + Send + Sync,
     {
         match topic {
             Some(topic) => {
@@ -2027,7 +2027,7 @@ pub trait IpfsApi: Backend {
         data: R,
     ) -> Result<response::PubsubPubResponse, Self::Error>
     where
-        T: AsRef<[u8]>,
+        T: AsRef<[u8]> + Send + Sync,
         R: 'static + Read + Send + Sync,
     {
         let mut form = multipart::Form::default();
@@ -2053,10 +2053,7 @@ pub trait IpfsApi: Backend {
     /// let res = client.pubsub_sub("feed");
     /// ```
     ///
-    fn pubsub_sub<T>(
-        &self,
-        topic: T,
-    ) -> BoxStream<response::PubsubSubResponse, Self::Error>
+    fn pubsub_sub<T>(&self, topic: T) -> BoxStream<response::PubsubSubResponse, Self::Error>
     where
         T: AsRef<[u8]>,
     {
