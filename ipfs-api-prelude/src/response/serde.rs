@@ -6,9 +6,10 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-use crate::serde::de::{Deserialize, Deserializer, MapAccess, SeqAccess, Visitor};
+use crate::serde::de::{Deserialize, Deserializer, Error, MapAccess, SeqAccess, Visitor};
+use multibase::decode;
 use std::collections::HashMap;
-use std::error::Error;
+use std::convert::TryInto;
 use std::fmt;
 use std::marker::PhantomData;
 
@@ -168,4 +169,50 @@ where
     }
 
     deserializer.deserialize_option(MapVisitor(PhantomData))
+}
+
+pub fn deserialize_data_field<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let data: &str = Deserialize::deserialize(deserializer)?;
+
+    let (_, data) = decode(data).map_err(Error::custom)?;
+
+    Ok(data)
+}
+
+pub fn deserialize_seqno_field<'de, D>(deserializer: D) -> Result<u64, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let seqno: &str = Deserialize::deserialize(deserializer)?;
+
+    let (_, seqno) = decode(seqno).map_err(Error::custom)?;
+    let seqno = read_be_u64(&mut seqno.as_ref());
+
+    Ok(seqno)
+}
+
+fn read_be_u64(input: &mut &[u8]) -> u64 {
+    let (int_bytes, rest) = input.split_at(std::mem::size_of::<u64>());
+    *input = rest;
+    u64::from_be_bytes(int_bytes.try_into().unwrap())
+}
+
+pub fn deserialize_topic_field<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let mut topics: Vec<String> = Deserialize::deserialize(deserializer)?;
+
+    for topic in topics.iter_mut() {
+        let (_, decoded) = decode(&topic).map_err(Error::custom)?;
+
+        let new_topic = String::from_utf8(decoded).map_err(Error::custom)?;
+
+        *topic = new_topic;
+    }
+
+    Ok(topics)
 }

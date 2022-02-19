@@ -2007,33 +2007,64 @@ pub trait IpfsApi: Backend {
     /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.pubsub_peers(None);
+    /// let res = client.pubsub_peers(Option::<String>::None);
     /// let res = client.pubsub_peers(Some("feed"));
     /// ```
     ///
-    async fn pubsub_peers(
+    async fn pubsub_peers<T>(
         &self,
-        topic: Option<&str>,
-    ) -> Result<response::PubsubPeersResponse, Self::Error> {
-        self.request(request::PubsubPeers { topic }, None).await
+        topic: Option<T>,
+    ) -> Result<response::PubsubPeersResponse, Self::Error>
+    where
+        T: AsRef<[u8]>,
+    {
+        match topic {
+            Some(topic) => {
+                self.request(
+                    request::PubsubPeers {
+                        topic: Some(topic.as_ref()),
+                    },
+                    None,
+                )
+                .await
+            }
+            None => {
+                self.request(request::PubsubPeers { topic: None }, None)
+                    .await
+            }
+        }
     }
 
     /// Publish a message to a topic.
     ///
     /// ```no_run
     /// use ipfs_api::{IpfsApi, IpfsClient};
+    /// use std::io::Cursor;
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.pubsub_pub("feed", "Hello World!");
+    /// let res = client.pubsub_pub("feed", Cursor::new("Hello World!"));
     /// ```
     ///
-    async fn pubsub_pub(
+    async fn pubsub_pub<T, R>(
         &self,
-        topic: &str,
-        payload: &str,
-    ) -> Result<response::PubsubPubResponse, Self::Error> {
-        self.request_empty(request::PubsubPub { topic, payload }, None)
-            .await
+        topic: T,
+        data: R,
+    ) -> Result<response::PubsubPubResponse, Self::Error>
+    where
+        T: AsRef<[u8]>,
+        R: 'static + Read + Send + Sync,
+    {
+        let mut form = multipart::Form::default();
+
+        form.add_reader("data", data);
+
+        self.request_empty(
+            request::PubsubPub {
+                topic: topic.as_ref(),
+            },
+            Some(form),
+        )
+        .await
     }
 
     /// Subscribes to a pubsub topic.
@@ -2042,17 +2073,19 @@ pub trait IpfsApi: Backend {
     /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.pubsub_sub("feed", false);
-    /// let res = client.pubsub_sub("feed", true);
+    /// let res = client.pubsub_sub("feed");
+    /// let res = client.pubsub_sub("feed");
     /// ```
     ///
-    fn pubsub_sub(
+    fn pubsub_sub<T>(
         &self,
-        topic: &str,
-        discover: bool,
-    ) -> Box<dyn Stream<Item = Result<response::PubsubSubResponse, Self::Error>> + Unpin> {
+        topic: T,
+    ) -> Box<dyn Stream<Item = Result<response::PubsubSubResponse, Self::Error>> + Unpin>
+    where
+        T: AsRef<[u8]>,
+    {
         impl_stream_api_response! {
-            (self, request::PubsubSub { topic, discover }, None) => request_stream_json
+            (self, request::PubsubSub { topic: topic.as_ref() }, None) => request_stream_json
         }
     }
 

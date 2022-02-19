@@ -8,7 +8,7 @@
 
 use futures::{future, select, FutureExt, StreamExt, TryStreamExt};
 use ipfs_api_examples::ipfs_api::{IpfsApi, IpfsClient};
-use std::time::Duration;
+use std::{io::Cursor, time::Duration};
 use tokio::time;
 use tokio_stream::wrappers::IntervalStream;
 
@@ -27,7 +27,7 @@ fn get_client() -> IpfsClient {
 async fn main() {
     tracing_subscriber::fmt::init();
 
-    eprintln!("note: ipfs must be run with the --enable-pubsub-experiment flag");
+    eprintln!("note: ipfs must be run with pubsub enable in config");
 
     let publish_client = get_client();
 
@@ -42,7 +42,7 @@ async fn main() {
             eprintln!("publishing message...");
 
             publish_client
-                .pubsub_pub(TOPIC, "Hello World!")
+                .pubsub_pub(TOPIC, Cursor::new("Hello World!"))
                 .boxed_local()
         })
         .boxed_local()
@@ -55,7 +55,7 @@ async fn main() {
         let client = get_client();
 
         client
-            .pubsub_sub(TOPIC, false)
+            .pubsub_sub(TOPIC)
             .take(5)
             .try_for_each(|msg| {
                 eprintln!();
@@ -71,12 +71,12 @@ async fn main() {
     eprintln!("waiting for messages from ({})...", TOPIC);
 
     select! {
-        res = publish => if let Err(e) = res {
-            eprintln!("error publishing messages: {}", e);
-        },
         res = subscribe => match res {
             Ok(_) => eprintln!("done reading messages..."),
             Err(e) => eprintln!("error reading messages: {}", e)
+        },
+        res = publish => if let Err(e) = res {
+            eprintln!("error publishing messages: {}", e);
         },
     }
 }
