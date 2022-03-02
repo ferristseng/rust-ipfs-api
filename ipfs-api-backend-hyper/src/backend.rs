@@ -67,7 +67,11 @@ impl_default!(hyper_tls::HttpsConnector<HttpConnector>);
 #[cfg(feature = "with-hyper-rustls")]
 impl_default!(
     hyper_rustls::HttpsConnector<HttpConnector>,
-    hyper_rustls::HttpsConnector::with_native_roots()
+    hyper_rustls::HttpsConnectorBuilder::new()
+        .with_native_roots()
+        .https_or_http()
+        .enable_http1()
+        .build()
 );
 
 #[cfg_attr(feature = "with-send-sync", async_trait)]
