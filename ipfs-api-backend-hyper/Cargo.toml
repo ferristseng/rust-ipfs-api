@@ -19,6 +19,7 @@ maintenance               = { status = "passively-maintained" }
 with-builder              = ["ipfs-api-prelude/with-builder"]
 with-hyper-tls            = ["hyper-tls"]
 with-hyper-rustls         = ["hyper-rustls"]
+with-send-sync            = ["ipfs-api-prelude/with-send-sync"]
 
 [dependencies]
 async-trait               = "0.1"

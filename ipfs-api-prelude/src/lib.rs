@@ -24,7 +24,7 @@ pub mod response;
 
 pub use {
     api::IpfsApi,
-    backend::Backend,
+    backend::{Backend, BoxStream},
     error::Error,
     from_uri::TryFromUri,
     global_opts::{BackendWithGlobalOptions, GlobalOptions},

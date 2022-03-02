@@ -1,6 +1,3 @@
-use crate::error::Error;
-use async_trait::async_trait;
-use bytes::Bytes;
 // Copyright 2021 rust-ipfs-api Developers
 //
 // Licensed under the Apache License, Version 2.0, <LICENSE-APACHE or
@@ -9,7 +6,10 @@ use bytes::Bytes;
 // copied, modified, or distributed except according to those terms.
 //
 
-use futures::{FutureExt, Stream, StreamExt, TryFutureExt, TryStreamExt};
+use crate::error::Error;
+use async_trait::async_trait;
+use bytes::Bytes;
+use futures::{FutureExt, StreamExt, TryFutureExt, TryStreamExt};
 use http::{
     header::{HeaderName, HeaderValue},
     uri::Scheme,
@@ -19,7 +19,7 @@ use hyper::{
     body,
     client::{self, connect::Connect, Builder, HttpConnector},
 };
-use ipfs_api_prelude::{ApiRequest, Backend, TryFromUri};
+use ipfs_api_prelude::{ApiRequest, Backend, BoxStream, TryFromUri};
 use multipart::client::multipart;
 
 #[derive(Clone)]
@@ -70,7 +70,8 @@ impl_default!(
     hyper_rustls::HttpsConnector::with_native_roots()
 );
 
-#[async_trait(?Send)]
+#[cfg_attr(feature = "with-send-sync", async_trait)]
+#[cfg_attr(not(feature = "with-send-sync"), async_trait(?Send))]
 impl<C> Backend for HyperBackend<C>
 where
     C: Connect + Clone + Send + Sync + 'static,
@@ -123,20 +124,17 @@ where
         Ok((status, body))
     }
 
-    fn response_to_byte_stream(
-        res: Self::HttpResponse,
-    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
+    fn response_to_byte_stream(res: Self::HttpResponse) -> BoxStream<Bytes, Self::Error> {
         Box::new(res.into_body().err_into())
     }
 
-    fn request_stream<Res, F, OutStream>(
+    fn request_stream<Res, F>(
         &self,
         req: Self::HttpRequest,
         process: F,
-    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Unpin>
+    ) -> BoxStream<Res, Self::Error>
     where
-        OutStream: Stream<Item = Result<Res, Self::Error>> + Unpin,
-        F: 'static + Fn(Self::HttpResponse) -> OutStream,
+        F: 'static + Send + Fn(Self::HttpResponse) -> BoxStream<Res, Self::Error>,
     {
         let stream = self
             .client

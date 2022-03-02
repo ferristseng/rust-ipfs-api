@@ -10,13 +10,13 @@ use crate::error::Error;
 use async_trait::async_trait;
 use awc::Client;
 use bytes::Bytes;
-use futures::{FutureExt, Stream, StreamExt, TryFutureExt, TryStreamExt};
+use futures::{FutureExt, StreamExt, TryFutureExt, TryStreamExt};
 use http::{
     header::{HeaderName, HeaderValue},
     uri::Scheme,
     StatusCode, Uri,
 };
-use ipfs_api_prelude::{ApiRequest, Backend, TryFromUri};
+use ipfs_api_prelude::{ApiRequest, Backend, BoxStream, TryFromUri};
 use multipart::client::multipart;
 use std::time::Duration;
 
@@ -96,22 +96,19 @@ impl Backend for ActixBackend {
         Ok((status, body))
     }
 
-    fn response_to_byte_stream(
-        res: Self::HttpResponse,
-    ) -> Box<dyn Stream<Item = Result<Bytes, Self::Error>> + Unpin> {
+    fn response_to_byte_stream(res: Self::HttpResponse) -> BoxStream<Bytes, Self::Error> {
         let stream = res.err_into();
 
         Box::new(stream)
     }
 
-    fn request_stream<Res, F, OutStream>(
+    fn request_stream<Res, F>(
         &self,
         req: Self::HttpRequest,
         process: F,
-    ) -> Box<dyn Stream<Item = Result<Res, Self::Error>> + Unpin>
+    ) -> BoxStream<Res, Self::Error>
     where
-        OutStream: Stream<Item = Result<Res, Self::Error>> + Unpin,
-        F: 'static + Fn(Self::HttpResponse) -> OutStream,
+        F: 'static + Send + Fn(Self::HttpResponse) -> BoxStream<Res, Self::Error>,
     {
         let stream = req
             .err_into()
