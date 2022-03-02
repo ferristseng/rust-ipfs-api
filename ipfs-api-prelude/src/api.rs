@@ -58,7 +58,7 @@ pub trait IpfsApi: Backend {
     ///
     async fn add<R>(&self, data: R) -> Result<response::AddResponse, Self::Error>
     where
-        R: 'static + Read + Send + Sync,
+        R: 'static + Read + Send + Sync + Unpin,
     {
         self.add_with_options(data, request::Add::default()).await
     }
@@ -95,7 +95,7 @@ pub trait IpfsApi: Backend {
         add: request::Add<'_>,
     ) -> Result<response::AddResponse, Self::Error>
     where
-        R: 'static + Read + Send + Sync,
+        R: 'static + Read + Send + Sync + Unpin,
     {
         let mut form = multipart::Form::default();
 
@@ -331,7 +331,7 @@ pub trait IpfsApi: Backend {
     ///
     async fn block_put<R>(&self, data: R) -> Result<response::BlockPutResponse, Self::Error>
     where
-        R: 'static + Read + Send + Sync,
+        R: 'static + Read + Send + Sync + Unpin,
     {
         self.block_put_with_options(data, request::BlockPut::default())
             .await
@@ -367,7 +367,7 @@ pub trait IpfsApi: Backend {
         options: request::BlockPut<'async_trait>,
     ) -> Result<response::BlockPutResponse, Self::Error>
     where
-        R: 'static + Read + Send + Sync,
+        R: 'static + Read + Send + Sync + Unpin,
     {
         let mut form = multipart::Form::default();
 
@@ -661,7 +661,7 @@ pub trait IpfsApi: Backend {
         data: R,
     ) -> Result<response::ConfigReplaceResponse, Self::Error>
     where
-        R: 'static + Read + Send + Sync,
+        R: 'static + Read + Send + Sync + Unpin,
     {
         let mut form = multipart::Form::default();
 
@@ -745,7 +745,7 @@ pub trait IpfsApi: Backend {
     ///
     async fn dag_put<R>(&self, data: R) -> Result<response::DagPutResponse, Self::Error>
     where
-        R: 'static + Read + Send + Sync,
+        R: 'static + Read + Send + Sync + Unpin,
     {
         self.dag_put_with_options(data, request::DagPut::default())
             .await
@@ -773,7 +773,7 @@ pub trait IpfsApi: Backend {
         options: request::DagPut<'a>,
     ) -> Result<response::DagPutResponse, Self::Error>
     where
-        R: 'static + Read + Send + Sync,
+        R: 'static + Read + Send + Sync + Unpin,
     {
         let mut form = multipart::Form::default();
 
@@ -1309,7 +1309,7 @@ pub trait IpfsApi: Backend {
         data: R,
     ) -> Result<response::FilesWriteResponse, Self::Error>
     where
-        R: 'static + Read + Send + Sync,
+        R: 'static + Read + Send + Sync + Unpin,
     {
         let options = request::FilesWrite {
             path,
@@ -1356,7 +1356,7 @@ pub trait IpfsApi: Backend {
         data: R,
     ) -> Result<response::FilesWriteResponse, Self::Error>
     where
-        R: 'static + Read + Send + Sync,
+        R: 'static + Read + Send + Sync + Unpin,
     {
         let mut form = multipart::Form::default();
 
@@ -2028,7 +2028,7 @@ pub trait IpfsApi: Backend {
     ) -> Result<response::PubsubPubResponse, Self::Error>
     where
         T: AsRef<[u8]> + Send + Sync,
-        R: 'static + Read + Send + Sync,
+        R: 'static + Read + Send + Sync + Unpin,
     {
         let mut form = multipart::Form::default();
 
@@ -2193,7 +2193,7 @@ pub trait IpfsApi: Backend {
     ///
     async fn tar_add<R>(&self, data: R) -> Result<response::TarAddResponse, Self::Error>
     where
-        R: 'static + Read + Send + Sync,
+        R: 'static + Read + Send + Sync + Unpin,
     {
         let mut form = multipart::Form::default();
 
