@@ -2,12 +2,12 @@
 name                      = "ipfs-api-examples"
 description               = "Examples for IPFS HTTP API clients"
 authors                   = ["Ferris Tseng <ferristseng@fastmail.fm>"]
-edition                   = "2018"
+edition                   = "2021"
 documentation             = "https://docs.rs/ipfs-api"
 repository                = "https://github.com/ferristseng/rust-ipfs-api"
 keywords                  = ["ipfs"]
 categories                = ["filesystem", "web-programming"]
-version                   = "0.3.0"
+version                   = "0.4.0"
 readme                    = "../README.md"
 license                   = "MIT OR Apache-2.0"
 
@@ -21,11 +21,11 @@ with-hyper                = ["ipfs-api-backend-hyper", "tokio/macros", "tokio/rt
 with-actix                = ["ipfs-api-backend-actix", "actix-rt"]
 
 [dependencies]
-actix-rt                  = { version = "2.5", optional = true }
+actix-rt                  = { version = "2.6", optional = true }
 futures                   = "0.3"
-ipfs-api-backend-actix    = { version = "0.4", path = "../ipfs-api-backend-actix", optional = true }
-ipfs-api-backend-hyper    = { version = "0.3", path = "../ipfs-api-backend-hyper", optional = true }
+ipfs-api-backend-actix    = { version = "0.5", path = "../ipfs-api-backend-actix", optional = true }
+ipfs-api-backend-hyper    = { version = "0.4", path = "../ipfs-api-backend-hyper", optional = true }
 tar                       = "0.4"
 tokio                     = { version = "1", features = ["time"] }
 tokio-stream              = { version = "0.1", features = ["time"] }
-tracing-subscriber        = { version = "0.2", features = ["fmt"] }
+tracing-subscriber        = { version = "0.3", features = ["fmt"] }
