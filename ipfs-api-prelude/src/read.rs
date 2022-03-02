@@ -207,10 +207,7 @@ where
                         Poll::Ready(Ok(()))
                     }
                     Some(Err(e)) => {
-                        Poll::Ready(Err(io::Error::new(
-                            io::ErrorKind::Other,
-                            e.to_string(),
-                        )))
+                        Poll::Ready(Err(io::Error::new(io::ErrorKind::Other, e.to_string())))
                     }
                     // Polling stream yielded EOF.
                     //
