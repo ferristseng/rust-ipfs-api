@@ -9,6 +9,7 @@
 use crate::header::X_STREAM_ERROR;
 use bytes::{Bytes, BytesMut};
 use futures::{
+    ready,
     task::{Context, Poll},
     Stream,
 };
@@ -186,15 +187,15 @@ where
                     *pos += bytes_read;
                 }
 
-                return Poll::Ready(Ok(()));
+                Poll::Ready(Ok(()))
             }
             // Stream is not ready, and a Chunk needs to be read.
             //
             ReadState::NotReady => {
-                match Stream::poll_next(Pin::new(&mut self.stream), cx) {
+                match ready!(Stream::poll_next(Pin::new(&mut self.stream), cx)) {
                     // Polling stream yielded a Chunk that can be read from.
                     //
-                    Poll::Ready(Some(Ok(mut chunk))) => {
+                    Some(Ok(mut chunk)) => {
                         let bytes_read = copy_from_chunk_to(buf, &mut chunk, 0);
 
                         if bytes_read >= chunk.len() {
@@ -203,24 +204,19 @@ where
                             self.state = ReadState::Ready(chunk, bytes_read);
                         }
 
-                        return Poll::Ready(Ok(()));
+                        Poll::Ready(Ok(()))
                     }
-                    Poll::Ready(Some(Err(e))) => {
-                        return Poll::Ready(Err(io::Error::new(
+                    Some(Err(e)) => {
+                        Poll::Ready(Err(io::Error::new(
                             io::ErrorKind::Other,
                             e.to_string(),
-                        )));
+                        )))
                     }
                     // Polling stream yielded EOF.
                     //
-                    Poll::Ready(None) => return Poll::Ready(Ok(())),
-                    // Stream could not be read from.
-                    //
-                    Poll::Pending => (),
+                    None => Poll::Ready(Ok(())),
                 }
             }
         }
-
-        Poll::Pending
     }
 }
