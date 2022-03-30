@@ -2,12 +2,12 @@
 name                      = "ipfs-api-backend-hyper"
 description               = "Hyper implementation of IPFS HTTP API"
 authors                   = ["Ferris Tseng <ferristseng@fastmail.fm>"]
-edition                   = "2018"
+edition                   = "2021"
 documentation             = "https://docs.rs/ipfs-api"
 repository                = "https://github.com/ferristseng/rust-ipfs-api"
 keywords                  = ["ipfs"]
 categories                = ["filesystem", "web-programming"]
-version                   = "0.3.0"
+version                   = "0.4.0"
 readme                    = "../README.md"
 license                   = "MIT OR Apache-2.0"
 
@@ -27,8 +27,8 @@ bytes                     = "1"
 futures                   = "0.3"
 http                      = "0.2"
 hyper                     = { version = "0.14", features = ["http1", "http2", "client", "tcp"] }
-hyper-multipart-rfc7578   = "0.5"
-hyper-rustls              = { version = "0.22", optional = true }
+hyper-multipart-rfc7578   = "0.7"
+hyper-rustls              = { version = "0.23", features = ["rustls-native-certs"], optional = true }
 hyper-tls                 = { version = "0.5", optional = true }
-ipfs-api-prelude          = { version = "0.3", path = "../ipfs-api-prelude" }
+ipfs-api-prelude          = { version = "0.4", path = "../ipfs-api-prelude" }
 thiserror                 = "1"

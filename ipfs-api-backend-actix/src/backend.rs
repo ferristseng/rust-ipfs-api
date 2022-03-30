@@ -49,9 +49,7 @@ impl TryFromUri for ActixBackend {
 impl Backend for ActixBackend {
     type HttpRequest = awc::SendClientRequest;
 
-    type HttpResponse = awc::ClientResponse<
-        actix_http::encoding::Decoder<actix_http::Payload<actix_http::PayloadStream>>,
-    >;
+    type HttpResponse = awc::ClientResponse<actix_http::encoding::Decoder<actix_http::Payload>>;
 
     type Error = Error;
 
