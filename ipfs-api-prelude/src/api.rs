@@ -10,7 +10,7 @@ use crate::{read::LineDecoder, request, response, Backend, BoxStream};
 use async_trait::async_trait;
 use bytes::Bytes;
 use common_multipart_rfc7578::client::multipart;
-use futures::{future, FutureExt, TryStreamExt};
+use futures::{future, FutureExt, TryStreamExt, AsyncRead};
 use std::{
     fs::File,
     io::{Cursor, Read},
@@ -63,6 +63,26 @@ pub trait IpfsApi: Backend {
         self.add_with_options(data, request::Add::default()).await
     }
 
+    /// Add file to Ipfs.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use ipfs_api::{IpfsApi, IpfsClient};
+    /// use std::io::Cursor;
+    ///
+    /// let client = IpfsClient::default();
+    /// let data = Cursor::new("Hello World!");
+    /// let res = client.add(data);
+    /// ```
+    ///
+    async fn add_async<R>(&self, data: R) -> Result<response::AddResponse, Self::Error>
+    where
+        R: 'static + AsyncRead + Send + Sync + Unpin,
+    {
+        self.add_async_with_options(data, request::Add::default()).await
+    }
+
     /// Add a file to IPFS with options.
     ///
     /// # Examples
@@ -100,6 +120,47 @@ pub trait IpfsApi: Backend {
         let mut form = multipart::Form::default();
 
         form.add_reader("path", data);
+
+        self.request(add, Some(form)).await
+    }
+
+    /// Add a file to IPFS with options.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # extern crate ipfs_api;
+    /// #
+    /// use ipfs_api::{IpfsApi, IpfsClient};
+    /// use std::io::Cursor;
+    ///
+    /// # fn main() {
+    /// let client = IpfsClient::default();
+    /// let data = Cursor::new("Hello World!");
+    /// #[cfg(feature = "with-builder")]
+    /// let add = ipfs_api::request::Add::builder()
+    ///     .chunker("rabin-512-1024-2048")
+    ///     .build();
+    /// #[cfg(not(feature = "with-builder"))]
+    /// let add = ipfs_api::request::Add {
+    ///     chunker: Some("rabin-512-1024-2048"),
+    ///     ..Default::default()
+    /// };
+    /// let req = client.add_with_options(data, add);
+    /// # }
+    /// ```
+    ///
+    async fn add_async_with_options<R>(
+        &self,
+        data: R,
+        add: request::Add<'_>,
+    ) -> Result<response::AddResponse, Self::Error>
+    where
+        R: 'static + AsyncRead + Send + Sync + Unpin,
+    {
+        let mut form = multipart::Form::default();
+
+        form.add_async_reader("path", data);
 
         self.request(add, Some(form)).await
     }
