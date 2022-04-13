@@ -23,6 +23,7 @@ with-send-sync            = ["ipfs-api-prelude/with-send-sync"]
 
 [dependencies]
 async-trait               = "0.1"
+base64                    = "0.13"
 bytes                     = "1"
 futures                   = "0.3"
 http                      = "0.2"

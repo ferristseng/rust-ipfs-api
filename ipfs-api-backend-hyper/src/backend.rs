@@ -11,7 +11,7 @@ use async_trait::async_trait;
 use bytes::Bytes;
 use futures::{FutureExt, StreamExt, TryFutureExt, TryStreamExt};
 use http::{
-    header::{HeaderName, HeaderValue},
+    header::{HeaderName, HeaderValue, AUTHORIZATION},
     uri::Scheme,
     StatusCode, Uri,
 };
@@ -29,6 +29,7 @@ where
 {
     base: Uri,
     client: client::Client<C, hyper::Body>,
+    basic_auth: Option<(String, String)>,
 }
 
 macro_rules! impl_default {
@@ -36,6 +37,12 @@ macro_rules! impl_default {
         impl_default!($http_connector, <$http_connector>::new());
     };
     ($http_connector:path, $constructor:expr) => {
+        impl HyperBackend<$http_connector> {
+            pub fn set_basic_auth(&mut self, username: &str, password: &str) {
+                self.basic_auth = Some((username.to_owned(), password.to_owned()));
+            }
+        }
+
         impl Default for HyperBackend<$http_connector> {
             /// Creates an `IpfsClient` connected to the endpoint specified in ~/.ipfs/api.
             /// If not found, tries to connect to `localhost:5001`.
@@ -53,7 +60,7 @@ macro_rules! impl_default {
                     .pool_max_idle_per_host(0)
                     .build($constructor);
 
-                HyperBackend { base, client }
+                HyperBackend { base, client, basic_auth: None }
             }
         }
     };
@@ -98,6 +105,14 @@ where
 
         let builder = http::Request::builder();
         let builder = builder.method(Req::METHOD).uri(url);
+
+        let builder = if let Some((user, pass)) = self.basic_auth.as_ref() {
+            let encoded = base64::encode(format!("{}:{}", user, pass));
+            let auth_header = format!("Basic {}", encoded);
+            builder.header(AUTHORIZATION, auth_header)
+        } else {
+            builder
+        };
 
         let req = if let Some(form) = form {
             form.set_body_convert::<hyper::Body, multipart::Body>(builder)
