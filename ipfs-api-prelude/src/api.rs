@@ -63,7 +63,7 @@ pub trait IpfsApi: Backend {
         self.add_with_options(data, request::Add::default()).await
     }
 
-    /// Add file to Ipfs.
+    /// Add AsyncRead stream to Ipfs.
     ///
     /// # Examples
     ///
@@ -72,8 +72,8 @@ pub trait IpfsApi: Backend {
     /// use std::io::Cursor;
     ///
     /// let client = IpfsClient::default();
-    /// let data = Cursor::new("Hello World!");
-    /// let res = client.add(data);
+    /// let data = b"Hello World!";
+    /// let res = client.add_async(&data[..]);
     /// ```
     ///
     async fn add_async<R>(&self, data: R) -> Result<response::AddResponse, Self::Error>
@@ -124,7 +124,7 @@ pub trait IpfsApi: Backend {
         self.request(add, Some(form)).await
     }
 
-    /// Add a file to IPFS with options.
+    /// Add AsyncRead stream to IPFS with options.
     ///
     /// # Examples
     ///
@@ -132,11 +132,10 @@ pub trait IpfsApi: Backend {
     /// # extern crate ipfs_api;
     /// #
     /// use ipfs_api::{IpfsApi, IpfsClient};
-    /// use std::io::Cursor;
     ///
     /// # fn main() {
     /// let client = IpfsClient::default();
-    /// let data = Cursor::new("Hello World!");
+    /// let data = b"Hello World!";
     /// #[cfg(feature = "with-builder")]
     /// let add = ipfs_api::request::Add::builder()
     ///     .chunker("rabin-512-1024-2048")
@@ -146,7 +145,7 @@ pub trait IpfsApi: Backend {
     ///     chunker: Some("rabin-512-1024-2048"),
     ///     ..Default::default()
     /// };
-    /// let req = client.add_with_options(data, add);
+    /// let req = client.add_async_with_options(&data[..], add);
     /// # }
     /// ```
     ///
