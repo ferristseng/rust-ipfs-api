@@ -142,7 +142,25 @@ async fn main() {
 ```
 
 ##### With Actix
+When you use `ipfs-api-backend-actix` crates
+```rust
+use ipfs_api_backend_actix::{IpfsApi, IpfsClient, TryFromUri};
+use std::io::Cursor;
 
+#[actix_rt::main]
+async fn main() {
+    let client = IpfsClient::from_str("http://101.43.52.162:5001").unwrap();
+    let data = Cursor::new("test ipfs server!");
+
+    match client.add(data).await {
+        Ok(res) => println!("{}", res.hash),
+        Err(e) => eprintln!("error adding file: {}", e)
+    }
+}
+```
+
+
+When you use `ipfs_api` crates
 ```rust
 use futures::TryStreamExt;
 use ipfs_api::{IpfsApi, IpfsClient};
