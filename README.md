@@ -149,7 +149,7 @@ use std::io::Cursor;
 
 #[actix_rt::main]
 async fn main() {
-    let client = IpfsClient::from_str("http://101.43.52.162:5001").unwrap();
+    let client = IpfsClient::from_str("http://127.0.0.1:5001").unwrap();
     let data = Cursor::new("test ipfs server!");
 
     match client.add(data).await {
