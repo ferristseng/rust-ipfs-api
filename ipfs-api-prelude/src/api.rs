@@ -2007,10 +2007,12 @@ pub trait IpfsApi: Backend {
 
     /// Pin object to remote pinning service.
     ///
-    /// "service": the Name of the remote pinning service to use (mandatory)
-    /// "name": an optional name for the pin
+    /// "service": the Name of the remote pinning service to use (mandatory).
+    ///
+    /// "name": an optional name for the pin.
+    ///
     /// "background": add to the queue on the remote service and
-    /// return immediately (does not wait for pinned status)
+    /// return immediately (does not wait for pinned status).
     ///
     /// # Examples
     ///
@@ -2042,9 +2044,12 @@ pub trait IpfsApi: Backend {
 
     /// Returns a list objects pinned to remote pinning service.
     ///
-    /// "service": the Name of the remote pinning service to use (mandatory)
+    /// "service": the Name of the remote pinning service to use (mandatory).
+    ///
     /// "name": return pins with names that contain the value provided (case-sensitive, exact match).
+    ///
     /// "cid": return pins for the specified CIDs
+    ///
     /// "status": return pins with the specified statuses (queued,pinning,pinned,failed), default pinned.
     ///
     /// # Examples
