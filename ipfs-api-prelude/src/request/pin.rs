@@ -60,3 +60,30 @@ pub struct PinRemoteAdd<'a> {
 impl<'a> ApiRequest for PinRemoteAdd<'a> {
     const PATH: &'static str = "/pin/remote/add";
 }
+
+#[derive(Serialize)]
+pub struct PinRemoteLs<'a> {
+    pub service: Option<&'a str>,
+    pub name: Option<&'a str>,
+    pub cid: Option<&'a [&'a str]>,
+    pub status: Option<&'a [PinStatus]>,
+}
+
+impl<'a> ApiRequest for PinRemoteLs<'a> {
+    const PATH: &'static str = "/pin/remote/ls";
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum PinStatus {
+    Queued,
+    Pinning,
+    Pinned,
+    Failed,
+}
+
+impl Default for PinStatus {
+    fn default() -> Self {
+        Self::Pinned
+    }
+}

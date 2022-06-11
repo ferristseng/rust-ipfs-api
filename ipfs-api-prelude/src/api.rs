@@ -10,7 +10,7 @@ use crate::{read::LineDecoder, request, response, Backend, BoxStream};
 use async_trait::async_trait;
 use bytes::Bytes;
 use common_multipart_rfc7578::client::multipart;
-use futures::{future, FutureExt, TryStreamExt, AsyncRead};
+use futures::{future, AsyncRead, FutureExt, TryStreamExt};
 use std::{
     fs::File,
     io::{Cursor, Read},
@@ -80,7 +80,8 @@ pub trait IpfsApi: Backend {
     where
         R: 'static + AsyncRead + Send + Sync + Unpin,
     {
-        self.add_async_with_options(data, request::Add::default()).await
+        self.add_async_with_options(data, request::Add::default())
+            .await
     }
 
     /// Add a file to IPFS with options.
@@ -2033,6 +2034,47 @@ pub trait IpfsApi: Backend {
                 service: Some(service),
                 name,
                 background: Some(background),
+            },
+            None,
+        )
+        .await
+    }
+
+    /// Returns a list objects pinned to remote pinning service.
+    ///
+    /// "service": the Name of the remote pinning service to use (mandatory)
+    /// "name": return pins with names that contain the value provided (case-sensitive, exact match).
+    /// "cid": return pins for the specified CIDs
+    /// "status": return pins with the specified statuses (queued,pinning,pinned,failed), default pinned.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use ipfs_api::{IpfsApi, IpfsClient};
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.pin_remote_ls("pinata", None, None, None);
+    /// let res = client.pin_remote_ls(
+    ///     "pinata",
+    ///     None,
+    ///     None,
+    ///     Some(&vec[PinStatus::Pinning, PinStatus::Pinned, PinStatus::Failed]),
+    /// );
+    /// ```
+    ///
+    async fn pin_remote_ls(
+        &self,
+        service: &str,
+        name: Option<&str>,
+        cid: Option<&[&str]>,
+        status: Option<&[request::PinStatus]>,
+    ) -> Result<response::PinRemoteLsResponse, Self::Error> {
+        self.request(
+            request::PinRemoteLs {
+                service: Some(service),
+                name,
+                cid,
+                status,
             },
             None,
         )

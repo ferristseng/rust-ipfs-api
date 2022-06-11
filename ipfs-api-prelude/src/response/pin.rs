@@ -48,6 +48,14 @@ pub struct PinRemoteAddResponse {
     pub status: String,
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct PinRemoteLsResponse {
+    pub cid: String,
+    pub name: String,
+    pub status: String,
+}
+
 #[cfg(test)]
 mod tests {
     deserialize_test!(v0_pin_ls_0, PinLsResponse);
