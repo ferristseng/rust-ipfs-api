@@ -2004,6 +2004,41 @@ pub trait IpfsApi: Backend {
 
     // TODO /pin/verify
 
+    /// Pin object to remote pinning service.
+    ///
+    /// "service": the Name of the remote pinning service to use (mandatory)
+    /// "name": an optional name for the pin
+    /// "background": add to the queue on the remote service and
+    /// return immediately (does not wait for pinned status)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use ipfs_api::{IpfsApi, IpfsClient};
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.pin_remote_add("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ", "pinata", Some("pin_task_name"), true);
+    /// ```
+    ///
+    async fn pin_remote_add(
+        &self,
+        key: &str,
+        service: &str,
+        name: Option<&str>,
+        background: bool,
+    ) -> Result<response::PinRemoteAddResponse, Self::Error> {
+        self.request(
+            request::PinRemoteAdd {
+                key,
+                service: Some(service),
+                name,
+                background: Some(background),
+            },
+            None,
+        )
+        .await
+    }
+
     /// Pings a peer.
     ///
     /// ```no_run
