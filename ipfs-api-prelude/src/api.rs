@@ -2063,7 +2063,7 @@ pub trait IpfsApi: Backend {
     ///     "pinata",
     ///     None,
     ///     None,
-    ///     Some(&vec[PinStatus::Pinning, PinStatus::Pinned, PinStatus::Failed]),
+    ///     Some(&vec[PinStatus::Pinning, PinStatus::Pinned, PinStatus::Failed])
     /// );
     /// ```
     ///
@@ -2080,6 +2080,54 @@ pub trait IpfsApi: Backend {
                 name,
                 cid,
                 status,
+            },
+            None,
+        )
+        .await
+    }
+
+    /// Remove pins from remote pinning service.
+    ///
+    /// "service": the Name of the remote pinning service to use (mandatory).
+    ///
+    /// "name": return pins with names that contain the value provided (case-sensitive, exact match).
+    ///
+    /// "cid": return pins for the specified CIDs
+    ///
+    /// "status": return pins with the specified statuses (queued,pinning,pinned,failed), default pinned.
+    ///
+    /// "force": allow removal of multiple pins matching the query without additional confirmation.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use ipfs_api::{IpfsApi, IpfsClient};
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.pin_remote_rm(
+    ///     "pinata",
+    ///     None,
+    ///     None,
+    ///     None,
+    ///     true
+    /// );
+    /// ```
+    ///
+    async fn pin_remote_rm(
+        &self,
+        service: &str,
+        name: Option<&str>,
+        cid: Option<&[&str]>,
+        status: Option<&[request::PinStatus]>,
+        force: bool,
+    ) -> Result<response::PinRemoteRmResponse, Self::Error> {
+        self.request(
+            request::PinRemoteRm {
+                service: Some(service),
+                name,
+                cid,
+                status,
+                force: Some(force),
             },
             None,
         )

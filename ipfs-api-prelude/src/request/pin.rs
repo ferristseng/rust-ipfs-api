@@ -74,6 +74,19 @@ impl<'a> ApiRequest for PinRemoteLs<'a> {
 }
 
 #[derive(Serialize)]
+pub struct PinRemoteRm<'a> {
+    pub service: Option<&'a str>,
+    pub name: Option<&'a str>,
+    pub cid: Option<&'a [&'a str]>,
+    pub status: Option<&'a [PinStatus]>,
+    pub force: Option<bool>,
+}
+
+impl<'a> ApiRequest for PinRemoteRm<'a> {
+    const PATH: &'static str = "/pin/remote/rm";
+}
+
+#[derive(Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum PinStatus {
     Queued,
