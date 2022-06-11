@@ -2050,20 +2050,23 @@ pub trait IpfsApi: Backend {
     ///
     /// "cid": return pins for the specified CIDs
     ///
-    /// "status": return pins with the specified statuses (queued,pinning,pinned,failed), default pinned.
+    /// "status": return pins with the specified statuses (queued,pinning,pinned,failed), default [pinned].
     ///
     /// # Examples
     ///
     /// ```no_run
     /// use ipfs_api::{IpfsApi, IpfsClient};
+    /// use ipfs_api_prelude::request::PinStatus;
     ///
     /// let client = IpfsClient::default();
     /// let res = client.pin_remote_ls("pinata", None, None, None);
+    ///
+    /// let status = vec![PinStatus::Pinning, PinStatus::Pinned];
     /// let res = client.pin_remote_ls(
     ///     "pinata",
     ///     None,
     ///     None,
-    ///     Some(&vec[PinStatus::Pinning, PinStatus::Pinned, PinStatus::Failed])
+    ///     Some(&status)
     /// );
     /// ```
     ///
