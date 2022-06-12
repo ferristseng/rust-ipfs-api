@@ -57,7 +57,7 @@ pub struct PinRemoteLsResponse {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct PinRemoteRmResponse(String);
+pub struct PinRemoteRmResponse(pub String);
 
 #[cfg(test)]
 mod tests {
