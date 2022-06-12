@@ -2076,17 +2076,17 @@ pub trait IpfsApi: Backend {
         name: Option<&str>,
         cid: Option<&[&str]>,
         status: Option<&[request::PinStatus]>,
-    ) -> Result<response::PinRemoteLsResponse, Self::Error> {
-        self.request(
+    ) -> Result<Vec<response::PinRemoteLsResponse>, Self::Error> {
+        let req = self.build_base_request(
             request::PinRemoteLs {
                 service: Some(service),
                 name,
-                cid,
+                cid: cid.map(|cid| cid.into()),
                 status,
             },
             None,
-        )
-        .await
+        )?;
+        self.request_stream_json(req).try_collect().await
     }
 
     /// Remove pins from remote pinning service.
@@ -2123,12 +2123,12 @@ pub trait IpfsApi: Backend {
         cid: Option<&[&str]>,
         status: Option<&[request::PinStatus]>,
         force: bool,
-    ) -> Result<response::PinRemoteRmResponse, Self::Error> {
-        self.request(
+    ) -> Result<String, Self::Error> {
+        self.request_string(
             request::PinRemoteRm {
                 service: Some(service),
                 name,
-                cid,
+                cid: cid.map(|cid| cid.into()),
                 status,
                 force: Some(force),
             },
