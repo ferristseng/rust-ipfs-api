@@ -2007,11 +2007,11 @@ pub trait IpfsApi: Backend {
 
     /// Pin object to remote pinning service.
     ///
-    /// "service": the Name of the remote pinning service to use (mandatory).
+    /// - `service`: Name of the remote pinning service to use (mandatory).
     ///
-    /// "name": an optional name for the pin.
+    /// - `name`: An optional name for the pin.
     ///
-    /// "background": add to the queue on the remote service and
+    /// - `background`: Add to the queue on the remote service and
     /// return immediately (does not wait for pinned status).
     ///
     /// # Examples
@@ -2044,13 +2044,13 @@ pub trait IpfsApi: Backend {
 
     /// Returns a list objects pinned to remote pinning service.
     ///
-    /// "service": the Name of the remote pinning service to use (mandatory).
+    /// - `service`: Name of the remote pinning service to use (mandatory).
     ///
-    /// "name": return pins with names that contain the value provided (case-sensitive, exact match).
+    /// - `name`: Return pins with names that contain the value provided (case-sensitive, exact match).
     ///
-    /// "cid": return pins for the specified CIDs
+    /// - `cid`: Return pins for the specified CIDs
     ///
-    /// "status": return pins with the specified statuses (queued,pinning,pinned,failed), default [pinned].
+    /// - `status`: Return pins with the specified statuses (queued,pinning,pinned,failed), default [pinned].
     ///
     /// # Examples
     ///
@@ -2091,15 +2091,15 @@ pub trait IpfsApi: Backend {
 
     /// Remove pins from remote pinning service.
     ///
-    /// "service": the Name of the remote pinning service to use (mandatory).
+    /// - `service`: Name of the remote pinning service to use (mandatory).
     ///
-    /// "name": return pins with names that contain the value provided (case-sensitive, exact match).
+    /// - `name`: Remove pins with names that contain provided value (case-sensitive, exact match).
     ///
-    /// "cid": return pins for the specified CIDs
+    /// - `cid`: Remove pins for the specified CIDs.
     ///
-    /// "status": return pins with the specified statuses (queued,pinning,pinned,failed), default pinned.
+    /// - `status`: Remove pins with the specified statuses (queued,pinning,pinned,failed)
     ///
-    /// "force": allow removal of multiple pins matching the query without additional confirmation.
+    /// - `force`: Allow removal of multiple pins matching the query without additional confirmation.
     ///
     /// # Examples
     ///
