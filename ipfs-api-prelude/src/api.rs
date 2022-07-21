@@ -535,6 +535,41 @@ pub trait IpfsApi: Backend {
         }
     }
 
+    /// Returns the the specified bytes of an Ipfs object.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use futures::TryStreamExt;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
+    ///
+    /// #[tokio::main]
+    /// async fn main() {
+    ///     let client = IpfsClient::default();
+    ///     let hash = "QmcBKNB3P2MjsqC5XRomF3JRvz8kW8REMHLsULXfoifECd";
+    ///
+    ///     //Declare and option for our offset
+    ///     let offset = 0;
+    ///     let length = 10;
+    ///
+    ///     // Request the first 10 bytes of the file
+    ///     let res = client
+    ///         .cat_bytes(hash, offset, length)
+    ///         .map_ok(|chunk| chunk.to_vec())
+    ///         .try_concat()
+    ///         .await;
+    ///    // Assert that we got the first 10 bytes of the file
+    ///    assert_eq!(res.unwrap().len() as i64, 10);
+    /// }
+    ///
+    /// ```
+
+    fn cat_bytes(&self, path: &str, offset: i64, length: i64) -> BoxStream<Bytes, Self::Error> {
+        impl_stream_api_response! {
+            (self, request::CatBytes { path, offset, length }, None) => request_stream_bytes
+        }
+    }
+
     /// List available commands that the server accepts.
     ///
     /// ```no_run
