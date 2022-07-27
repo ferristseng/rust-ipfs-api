@@ -530,43 +530,38 @@ pub trait IpfsApi: Backend {
     /// ```
     ///
     fn cat(&self, path: &str) -> BoxStream<Bytes, Self::Error> {
+        let offset= None;
+        let length = None;
         impl_stream_api_response! {
-            (self, request::Cat { path }, None) => request_stream_bytes
+            (self, request::Cat { path, offset, length }, None) => request_stream_bytes
         }
     }
 
-    /// Returns the the specified bytes of an Ipfs object.
+    /// Returns the the specified range of bytes of an Ipfs object.
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// use futures::TryStreamExt;
     /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
-    /// #[tokio::main]
-    /// async fn main() {
-    ///     let client = IpfsClient::default();
-    ///     let hash = "QmcBKNB3P2MjsqC5XRomF3JRvz8kW8REMHLsULXfoifECd";
+    /// let client = IpfsClient::default();
+    /// let hash = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
+    /// let offset = 0;
+    /// let length = 10;
     ///
-    ///     //Declare and option for our offset
-    ///     let offset = 0;
-    ///     let length = 10;
-    ///
-    ///     // Request the first 10 bytes of the file
-    ///     let res = client
-    ///         .cat_bytes(hash, offset, length)
-    ///         .map_ok(|chunk| chunk.to_vec())
-    ///         .try_concat()
-    ///         .await;
-    ///    // Assert that we got the first 10 bytes of the file
-    ///    assert_eq!(res.unwrap().len() as i64, 10);
-    /// }
+    /// let res = client
+    ///     .cat_range(hash, offset, length)
+    ///     .map_ok(|chunk| chunk.to_vec())
+    ///     .try_concat();
     ///
     /// ```
-
-    fn cat_bytes(&self, path: &str, offset: i64, length: i64) -> BoxStream<Bytes, Self::Error> {
+    ///
+    fn cat_range(&self, path: &str, _offset: usize, _length: usize) -> BoxStream<Bytes, Self::Error> {
+        let offset = Some(_offset);
+        let length = Some(_length);
         impl_stream_api_response! {
-            (self, request::CatBytes { path, offset, length }, None) => request_stream_bytes
+            (self, request::Cat { path, offset, length }, None) => request_stream_bytes
         }
     }
 
