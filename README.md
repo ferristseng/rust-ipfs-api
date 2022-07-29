@@ -1,5 +1,5 @@
 [![Workflow Status](https://github.com/ferristseng/rust-ipfs-api/workflows/Rust/badge.svg)](https://github.com/ferristseng/rust-ipfs-api/actions?query=workflow%3A%22Rust%22)
-![Maintenance](https://img.shields.io/badge/maintenance-passively--maintained-yellowgreen.svg)
+![Maintenance](https://img.shields.io/badge/maintenance-deprecated-red.svg)
 
 # ipfs-api
 
@@ -22,7 +22,7 @@ To use the Hyper backend, declare:
 
 ```toml
 [dependencies]
-ipfs-api-backend-hyper = "0.4"
+ipfs-api-backend-hyper = "0.5"
 ```
 
 You can specify either `with-hyper-rustls` or `with-hyper-tls` (mutually exclusive) feature for TLS support.
@@ -33,7 +33,7 @@ To use the Actix backend, declare:
 
 ```toml
 [dependencies]
-ipfs-api-backend-actix = "0.5"
+ipfs-api-backend-actix = "0.6"
 ```
 
 #### Builder Pattern
@@ -44,7 +44,7 @@ With either the Hyper or Actix backend, you can specify the `with-builder` featu
 
 ```toml
 [dependencies]
-ipfs-api = "0.15.0"
+ipfs-api = "0.16.0"
 ```
 
 #### Feature Flags (DEPRECATED)
@@ -53,7 +53,7 @@ You can use `actix-web` as a backend instead of `hyper`.
 
 ```toml
 [dependencies]
-ipfs-api = { version = "0.15.0", features = ["with-actix"], default-features = false }
+ipfs-api = { version = "0.16.0", features = ["with-actix"], default-features = false }
 ```
 
 You also have the option of using [`rustls`](https://crates.io/crates/rustls)
@@ -61,14 +61,14 @@ instead of native tls:
 
 ```toml
 [dependencies]
-ipfs-api = { version = "0.15.0", features = ["with-hyper-rustls"], default-features = false }
+ipfs-api = { version = "0.16.0", features = ["with-hyper-rustls"], default-features = false }
 ```
 
 To enable the builder pattern (default) use the `with-builder` feature:
 
 ```toml
 [dependencies]
-ipfs-api = { version = "0.15.0", features = ["with-hyper-rustls", "with-builder"], default-features = false }
+ipfs-api = { version = "0.16.0", features = ["with-hyper-rustls", "with-builder"], default-features = false }
 ```
 
 ### Examples
