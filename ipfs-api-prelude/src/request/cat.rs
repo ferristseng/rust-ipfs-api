@@ -13,8 +13,11 @@ use serde::Serialize;
 pub struct Cat<'a> {
     #[serde(rename = "arg")]
     pub path: &'a str,
+
+    pub offset: Option<usize>,
+    pub length: Option<usize>,
 }
 
-impl<'a> ApiRequest for Cat<'a> {
+impl<'a> ApiRequest for Cat<'a>{
     const PATH: &'static str = "/cat";
 }

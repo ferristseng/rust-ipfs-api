@@ -530,8 +530,38 @@ pub trait IpfsApi: Backend {
     /// ```
     ///
     fn cat(&self, path: &str) -> BoxStream<Bytes, Self::Error> {
+        let offset= None;
+        let length = None;
         impl_stream_api_response! {
-            (self, request::Cat { path }, None) => request_stream_bytes
+            (self, request::Cat { path, offset, length }, None) => request_stream_bytes
+        }
+    }
+
+    /// Returns the the specified range of bytes of an Ipfs object.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use futures::TryStreamExt;
+    /// use ipfs_api::{IpfsApi, IpfsClient};
+    ///
+    /// let client = IpfsClient::default();
+    /// let hash = "QmXdNSQx7nbdRvkjGCEQgVjVtVwsHvV8NmV2a8xzQVwuFA";
+    /// let offset = 0;
+    /// let length = 10;
+    ///
+    /// let res = client
+    ///     .cat_range(hash, offset, length)
+    ///     .map_ok(|chunk| chunk.to_vec())
+    ///     .try_concat();
+    ///
+    /// ```
+    ///
+    fn cat_range(&self, path: &str, _offset: usize, _length: usize) -> BoxStream<Bytes, Self::Error> {
+        let offset = Some(_offset);
+        let length = Some(_length);
+        impl_stream_api_response! {
+            (self, request::Cat { path, offset, length }, None) => request_stream_bytes
         }
     }
 
