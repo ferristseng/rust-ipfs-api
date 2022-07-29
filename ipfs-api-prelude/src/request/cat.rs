@@ -18,6 +18,6 @@ pub struct Cat<'a> {
     pub length: Option<usize>,
 }
 
-impl<'a> ApiRequest for Cat<'a>{
+impl<'a> ApiRequest for Cat<'a> {
     const PATH: &'static str = "/cat";
 }

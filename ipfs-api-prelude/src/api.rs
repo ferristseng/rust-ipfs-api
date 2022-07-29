@@ -10,7 +10,7 @@ use crate::{read::LineDecoder, request, response, Backend, BoxStream};
 use async_trait::async_trait;
 use bytes::Bytes;
 use common_multipart_rfc7578::client::multipart;
-use futures::{future, FutureExt, TryStreamExt, AsyncRead};
+use futures::{future, AsyncRead, FutureExt, TryStreamExt};
 use std::{
     fs::File,
     io::{Cursor, Read},
@@ -80,7 +80,8 @@ pub trait IpfsApi: Backend {
     where
         R: 'static + AsyncRead + Send + Sync + Unpin,
     {
-        self.add_async_with_options(data, request::Add::default()).await
+        self.add_async_with_options(data, request::Add::default())
+            .await
     }
 
     /// Add a file to IPFS with options.
@@ -530,7 +531,7 @@ pub trait IpfsApi: Backend {
     /// ```
     ///
     fn cat(&self, path: &str) -> BoxStream<Bytes, Self::Error> {
-        let offset= None;
+        let offset = None;
         let length = None;
         impl_stream_api_response! {
             (self, request::Cat { path, offset, length }, None) => request_stream_bytes
@@ -557,7 +558,12 @@ pub trait IpfsApi: Backend {
     ///
     /// ```
     ///
-    fn cat_range(&self, path: &str, _offset: usize, _length: usize) -> BoxStream<Bytes, Self::Error> {
+    fn cat_range(
+        &self,
+        path: &str,
+        _offset: usize,
+        _length: usize,
+    ) -> BoxStream<Bytes, Self::Error> {
         let offset = Some(_offset);
         let length = Some(_length);
         impl_stream_api_response! {
