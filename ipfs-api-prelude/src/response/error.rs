@@ -17,7 +17,7 @@ pub struct ApiError {
 }
 
 impl Display for ApiError {
-    fn fmt(&self, mut formatter: &mut Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(&mut formatter, "[{}] {}", self.code, self.message)
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result<(), fmt::Error> {
+        write!(formatter, "[{}] {}", self.code, self.message)
     }
 }

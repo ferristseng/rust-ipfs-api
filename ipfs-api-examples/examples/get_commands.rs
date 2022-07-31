@@ -14,14 +14,14 @@ fn print_recursive(indent: usize, cmd: &response::CommandsResponse) {
 
     eprintln!("{}[{}]", cmd_indent, cmd.name);
 
-    if cmd.options.len() > 0 {
+    if !cmd.options.is_empty() {
         eprintln!("{}* options:", cmd_indent);
         for options in cmd.options.iter() {
             eprintln!("{}{}", opt_indent, &options.names[..].join(", "));
         }
     }
 
-    if cmd.subcommands.len() > 0 {
+    if !cmd.subcommands.is_empty() {
         eprintln!("{}- subcommands:", cmd_indent);
         for subcommand in cmd.subcommands.iter() {
             print_recursive(indent + 1, subcommand);

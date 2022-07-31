@@ -33,7 +33,7 @@ async fn main() {
 
     let start_cid = std::env::args()
         .nth(1)
-        .unwrap_or("QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn".into());
+        .unwrap_or_else(|| "QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn".into());
     let mut cids = vec![start_cid];
 
     while let Some(cid) = cids.pop() {

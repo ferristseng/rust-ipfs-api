@@ -12,7 +12,7 @@ use std::{io::Cursor, time::Duration};
 use tokio::time;
 use tokio_stream::wrappers::IntervalStream;
 
-static TOPIC: &'static str = "test";
+static TOPIC: &str = "test";
 
 fn get_client() -> IpfsClient {
     eprintln!("connecting to localhost:5001...");
