@@ -2017,10 +2017,15 @@ pub trait IpfsApi: Backend {
     /// # Examples
     ///
     /// ```no_run
-    /// use ipfs_api::{IpfsApi, IpfsClient};
+    /// use ipfs-api-backend-hyper::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
-    /// let res = client.pin_remote_add("QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ", "pinata", Some("pin_task_name"), true);
+    /// let res = client.pin_remote_add(
+    ///     "QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ",
+    ///     "pinata",
+    ///     Some("pin_task_name"),
+    ///     true
+    /// );
     /// ```
     ///
     async fn pin_remote_add(
@@ -2055,7 +2060,7 @@ pub trait IpfsApi: Backend {
     /// # Examples
     ///
     /// ```no_run
-    /// use ipfs_api::{IpfsApi, IpfsClient};
+    /// use ipfs-api-backend-hyper::{IpfsApi, IpfsClient};
     /// use ipfs_api_prelude::request::PinStatus;
     ///
     /// let client = IpfsClient::default();

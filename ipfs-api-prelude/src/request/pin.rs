@@ -120,9 +120,15 @@ pub enum PinStatus {
     Failed,
 }
 
-impl Default for PinStatus {
-    fn default() -> Self {
-        Self::Pinned
+impl std::fmt::Display for PinStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let pin_status = match self {
+            PinStatus::Failed => "failed",
+            PinStatus::Queued => "queued",
+            PinStatus::Pinning => "pinning",
+            PinStatus::Pinned => "pinned",
+        };
+        write!(f, "{pin_status}")
     }
 }
 
@@ -136,13 +142,8 @@ where
     let pin_status = pin_status.unwrap();
     let pin_status = pin_status
         .iter()
-        .map(|item| match *item {
-            PinStatus::Failed => "failed",
-            PinStatus::Queued => "queued",
-            PinStatus::Pinning => "pinning",
-            PinStatus::Pinned => "pinned",
-        })
-        .collect::<Vec<&str>>()
+        .map(|item| item.to_string())
+        .collect::<Vec<String>>()
         .join(",");
     serializer.serialize_str(&format!("[{pin_status}]"))
 }
