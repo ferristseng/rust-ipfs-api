@@ -74,7 +74,7 @@ impl<Back: Backend> BackendWithGlobalOptions<Back> {
         Self { backend, options }
     }
 
-    fn combine<'a, Req>(&'a self, req: Req) -> OptCombiner<'a, Req>
+    fn combine<Req>(&self, req: Req) -> OptCombiner<Req>
     where
         Req: ApiRequest,
     {
