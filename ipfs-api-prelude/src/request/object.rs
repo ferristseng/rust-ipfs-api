@@ -81,6 +81,25 @@ impl ApiRequest for ObjectNew {
 }
 
 #[derive(Serialize)]
+pub struct ObjectPatchAddLink<'a> {
+    #[serde(rename = "arg")]
+    pub folder: &'a str,
+
+    #[serde(rename = "arg")]
+    pub name: &'a str,
+
+    #[serde(rename = "arg")]
+    pub key: &'a str,
+
+    #[serde(rename = "create")]
+    pub create: bool,
+}
+
+impl<'a> ApiRequest for ObjectPatchAddLink<'a> {
+    const PATH: &'static str = "/object/patch/add-link";
+}
+
+#[derive(Serialize)]
 pub struct ObjectStat<'a> {
     #[serde(rename = "arg")]
     pub key: &'a str,
