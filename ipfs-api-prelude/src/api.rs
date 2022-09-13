@@ -1948,7 +1948,16 @@ pub trait IpfsApi: Backend {
         key: &str,
         create: bool,
     ) -> Result<response::ObjectPatchAddLinkResponse, Self::Error> {
-        self.request(request::ObjectPatchAddLink { folder, name, key, create }, None).await
+        self.request(
+            request::ObjectPatchAddLink {
+                folder,
+                name,
+                key,
+                create,
+            },
+            None,
+        )
+        .await
     }
 
     // TODO /object/patch/append-data
