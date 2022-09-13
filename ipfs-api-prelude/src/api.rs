@@ -1921,7 +1921,44 @@ pub trait IpfsApi: Backend {
         self.request(request::ObjectNew { template }, None).await
     }
 
-    // TODO /object/patch/add-link
+    /// Add a directory link to an object.
+    ///
+    /// ```no_run
+    /// use ipfs_api::{IpfsApi, IpfsClient};
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.object_patch_add_link(
+    ///     "QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn",
+    ///     "hello_world.txt",
+    ///     "QmfM2r8seH2GiRaC4esTjeraXEachRt8ZsSeGaWTPLyMoG",
+    ///     false
+    /// );
+    /// let res = client.object_patch_add_link(
+    ///     "QmcXu68EVrtSEQ8SoPCWAfKJ9JqY6jnZyyiizRwksnt3kv",
+    ///     "hello/dad.txt",
+    ///     "Qma1UVHKYFkk6cGo3V1VmyMxRb1Bpd9SBbXdZURk28VtND",
+    ///     true
+    /// );
+    /// ```
+    ///
+    async fn object_patch_add_link(
+        &self,
+        folder: &str,
+        name: &str,
+        key: &str,
+        create: bool,
+    ) -> Result<response::ObjectPatchAddLinkResponse, Self::Error> {
+        self.request(
+            request::ObjectPatchAddLink {
+                folder,
+                name,
+                key,
+                create,
+            },
+            None,
+        )
+        .await
+    }
 
     // TODO /object/patch/append-data
 

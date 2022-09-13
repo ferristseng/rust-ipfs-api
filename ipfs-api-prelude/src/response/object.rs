@@ -56,6 +56,7 @@ pub struct ObjectNewResponse {
     pub hash: String,
 
     #[serde(deserialize_with = "serde::deserialize_vec")]
+    #[serde(default)]
     pub links: Vec<IpfsHeader>,
 }
 
@@ -65,6 +66,7 @@ pub struct ObjectPatchAddLinkResponse {
     pub hash: String,
 
     #[serde(deserialize_with = "serde::deserialize_vec")]
+    #[serde(default)]
     pub links: Vec<IpfsHeader>,
 }
 
