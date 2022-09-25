@@ -117,7 +117,7 @@ async fn main() {
 
 ```rust
 use futures::TryStreamExt;
-use ipfs_api::{IpfsApi, IpfsClient};
+use ipfs_api_backend_hyper::{IpfsApi, IpfsClient};
 use std::io::{self, Write};
 
 #[tokio::main]
