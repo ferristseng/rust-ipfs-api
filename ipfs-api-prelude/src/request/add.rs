@@ -54,6 +54,10 @@ pub struct Add<'a> {
     /// Maximum block size to inline. (experimental). Default: `32`.
     #[cfg_attr(feature = "with-builder", builder(default, setter(strip_option)))]
     pub inline_limit: Option<u32>,
+
+    ///  Add reference to Files API (MFS) at the provided path
+    #[cfg_attr(feature = "with-builder", builder(default, setter(strip_option)))]
+    pub to_files: Option<&'a str>,
 }
 
 impl<'a> ApiRequest for Add<'a> {
