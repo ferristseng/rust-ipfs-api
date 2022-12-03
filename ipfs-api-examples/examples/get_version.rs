@@ -19,7 +19,7 @@ async fn main() {
     let client = IpfsClient::default();
 
     match client.version().await {
-        Ok(version) => eprintln!("version: {:?}", version.version),
+        Ok(version) => println!("version: {}", version.version),
         Err(e) => eprintln!("error getting version: {}", e),
     }
 }

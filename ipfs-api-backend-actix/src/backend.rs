@@ -25,6 +25,9 @@ const ACTIX_REQUEST_TIMEOUT: Duration = Duration::from_secs(90);
 pub struct ActixBackend {
     base: Uri,
     client: Client,
+
+    /// Username and password
+    credentials: Option<(String, String)>,
 }
 
 impl Default for ActixBackend {
@@ -41,7 +44,25 @@ impl TryFromUri for ActixBackend {
     fn build_with_base_uri(base: Uri) -> Self {
         let client = Client::default();
 
-        ActixBackend { base, client }
+        ActixBackend {
+            base,
+            client,
+            credentials: None,
+        }
+    }
+}
+
+impl ActixBackend {
+    pub fn with_credentials<U, P>(self, username: U, password: P) -> Self
+    where
+        U: Into<String>,
+        P: Into<String>,
+    {
+        Self {
+            base: self.base,
+            client: self.client,
+            credentials: Some((username.into(), password.into())),
+        }
     }
 }
 
@@ -53,6 +74,14 @@ impl Backend for ActixBackend {
 
     type Error = Error;
 
+    fn with_credentials<U, P>(self, username: U, password: P) -> Self
+    where
+        U: Into<String>,
+        P: Into<String>,
+    {
+        (self as ActixBackend).with_credentials(username, password)
+    }
+
     fn build_base_request<Req>(
         &self,
         req: Req,
@@ -63,6 +92,11 @@ impl Backend for ActixBackend {
     {
         let url = req.absolute_url(&self.base)?;
         let req = self.client.request(Req::METHOD, url);
+        let req = if let Some((username, password)) = &self.credentials {
+            req.basic_auth(username, password)
+        } else {
+            req
+        };
         let req = if let Some(form) = form {
             req.content_type(form.content_type())
                 .send_body(multipart::Body::from(form))
