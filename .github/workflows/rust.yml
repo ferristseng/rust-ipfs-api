@@ -23,6 +23,14 @@ jobs:
       run: cargo clippy --all-targets -- -D warnings
     - name: Build (Default)
       run: cargo build --verbose
+    - name: Build examples (Default)
+      run: cargo build --verbose --examples
+    - name: Build examples (Actix)
+      run: cargo build --verbose --examples --no-default-features --features with-actix
+    - name: Build examples (Hyper with tls)
+      run: cargo build --verbose --examples --no-default-features --features with-hyper-tls
+    - name: Build examples (Hyper with rustls)
+      run: cargo build --verbose --examples --no-default-features --features with-hyper-rustls
     - name: Run tests (Default)
       run: cargo test --verbose
     - name: Build (Actix)

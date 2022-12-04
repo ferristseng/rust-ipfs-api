@@ -18,6 +18,8 @@ maintenance               = { status = "passively-maintained" }
 [features]
 default                   = ["with-hyper"]
 with-hyper                = ["ipfs-api-backend-hyper", "tokio/macros", "tokio/rt-multi-thread"]
+with-hyper-tls            = ["with-hyper", "ipfs-api-backend-hyper/with-hyper-tls"]
+with-hyper-rustls         = ["with-hyper", "ipfs-api-backend-hyper/with-hyper-rustls"]
 with-actix                = ["ipfs-api-backend-actix", "actix-rt"]
 
 [dependencies]

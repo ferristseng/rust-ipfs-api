@@ -4,7 +4,21 @@
 // http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
-//
+
+//! Connect to an IPFS API using a client implemented with Actix.
+//!
+//! # Example
+//!
+//! ```rust
+//!  use ipfs_api_backend_actix::{IpfsApi, IpfsClient};
+//!  use ipfs_api_backend_actix::response::VersionResponse;
+//!
+//!  async fn example() -> Result<VersionResponse, ipfs_api_backend_actix::Error> {
+//!     let client = IpfsClient::default();
+//!
+//!     client.version().await
+//! }
+//! ```
 
 extern crate actix_multipart_rfc7578 as multipart;
 

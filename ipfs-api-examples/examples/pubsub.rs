@@ -14,12 +14,6 @@ use tokio_stream::wrappers::IntervalStream;
 
 static TOPIC: &str = "test";
 
-fn get_client() -> IpfsClient {
-    eprintln!("connecting to localhost:5001...");
-
-    IpfsClient::default()
-}
-
 // Creates an Ipfs client, and simultaneously publishes and reads from a pubsub
 // topic.
 //
@@ -29,7 +23,7 @@ async fn main() {
 
     eprintln!("note: ipfs must be run with pubsub enable in config");
 
-    let publish_client = get_client();
+    let publish_client = IpfsClient::default();
 
     // This block will execute a repeating function that sends
     // a message to the "test" topic.
@@ -48,11 +42,11 @@ async fn main() {
         .boxed_local()
         .fuse();
 
-    // This block will execute a future that suscribes to a topic,
+    // This block will execute a future that subscribes to a topic,
     // and reads any incoming messages.
     //
     let mut subscribe = {
-        let client = get_client();
+        let client = IpfsClient::default();
 
         client
             .pubsub_sub(TOPIC)
