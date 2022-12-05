@@ -59,6 +59,15 @@ macro_rules! impl_default {
     };
 }
 
+// Because the Hyper TLS connector supports both HTTP and HTTPS,
+// if TLS is enabled, always use the TLS connector as default.
+//
+// Otherwise, compile errors will result due to ambiguity:
+//
+//   * "cannot infer type for struct `IpfsClient<_>`"
+//
+#[cfg(not(feature = "with-hyper-tls"))]
+#[cfg(not(feature = "with-hyper-rustls"))]
 impl_default!(HttpConnector);
 
 #[cfg(feature = "with-hyper-tls")]
