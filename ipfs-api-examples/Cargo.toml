@@ -28,6 +28,7 @@ futures                   = "0.3"
 ipfs-api-backend-actix    = { version = "0.6", path = "../ipfs-api-backend-actix", optional = true }
 ipfs-api-backend-hyper    = { version = "0.5", path = "../ipfs-api-backend-hyper", optional = true }
 tar                       = "0.4"
+thiserror                 = "1"
 tokio                     = { version = "1", features = ["time"] }
 tokio-stream              = { version = "0.1", features = ["time"] }
 tracing-subscriber        = { version = "0.3", features = ["fmt"] }

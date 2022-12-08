@@ -1,4 +1,4 @@
-// Copyright 2021 rust-ipfs-api Developers
+// Copyright 2022 rust-ipfs-api Developers
 //
 // Licensed under the Apache License, Version 2.0, <LICENSE-APACHE or
 // http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
@@ -22,20 +22,20 @@ use hyper::{
 use ipfs_api_prelude::{ApiRequest, Backend, BoxStream, TryFromUri};
 use multipart::client::multipart;
 
-#[derive(Clone)]
-pub struct HyperBackend<C = HttpConnector>
-where
-    C: Connect + Clone + Send + Sync + 'static,
-{
-    base: Uri,
-    client: client::Client<C, hyper::Body>,
-}
-
 macro_rules! impl_default {
     ($http_connector:path) => {
         impl_default!($http_connector, <$http_connector>::new());
     };
     ($http_connector:path, $constructor:expr) => {
+        #[derive(Clone)]
+        pub struct HyperBackend<C = $http_connector>
+        where
+            C: Connect + Clone + Send + Sync + 'static,
+        {
+            base: Uri,
+            client: client::Client<C, hyper::Body>,
+        }
+
         impl Default for HyperBackend<$http_connector> {
             /// Creates an `IpfsClient` connected to the endpoint specified in ~/.ipfs/api.
             /// If not found, tries to connect to `localhost:5001`.
