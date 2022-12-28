@@ -40,6 +40,7 @@ pub use self::resolve::*;
 pub use self::shutdown::*;
 pub use self::stats::*;
 pub use self::swarm::*;
+pub use self::swarm_connect::*;
 pub use self::tar::*;
 pub use self::version::*;
 
@@ -91,6 +92,7 @@ mod serde;
 mod shutdown;
 mod stats;
 mod swarm;
+mod swarm_connect;
 mod tar;
 mod version;
 
