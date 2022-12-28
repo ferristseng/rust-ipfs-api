@@ -2290,14 +2290,14 @@ pub trait IpfsApi: Backend {
     }
 
     /// Connect to a given peer
-    /// 
+    ///
     /// ```no_run
     /// use ipfs_api::{IpfsApi, IpfsClient};
     ///
     /// let client = IpfsClient::default();
     /// let res = client.swarm_connect("/dns4/production-ipfs-cluster-us-east-1-node2.runfission.com/tcp/4003/wss/p2p/12D3KooWQ2hL9NschcJ1Suqa1TybJc2ZaacqoQMBT3ziFC7Ye2BZ");
     /// ```
-    /// 
+    ///
     async fn swarm_connect(
         &self,
         peer: &str,

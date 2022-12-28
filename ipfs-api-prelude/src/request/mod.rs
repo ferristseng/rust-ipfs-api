@@ -29,12 +29,12 @@ pub use self::name::*;
 pub use self::object::*;
 pub use self::pin::*;
 pub use self::ping::*;
-pub use self::swarm_connect::*;
 pub use self::pubsub::*;
 pub use self::refs::*;
 pub use self::shutdown::*;
 pub use self::stats::*;
 pub use self::swarm::*;
+pub use self::swarm_connect::*;
 pub use self::tar::*;
 pub use self::version::*;
 
@@ -96,9 +96,9 @@ mod refs;
 mod shutdown;
 mod stats;
 mod swarm;
+mod swarm_connect;
 mod tar;
 mod version;
-mod swarm_connect;
 
 use http::uri::Uri;
 use serde::Serialize;

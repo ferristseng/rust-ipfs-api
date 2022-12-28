@@ -33,7 +33,6 @@ pub use self::name::*;
 pub use self::object::*;
 pub use self::pin::*;
 pub use self::ping::*;
-pub use self::swarm_connect::*;
 pub use self::pubsub::*;
 pub use self::refs::*;
 pub use self::repo::*;
@@ -41,6 +40,7 @@ pub use self::resolve::*;
 pub use self::shutdown::*;
 pub use self::stats::*;
 pub use self::swarm::*;
+pub use self::swarm_connect::*;
 pub use self::tar::*;
 pub use self::version::*;
 
@@ -92,9 +92,9 @@ mod serde;
 mod shutdown;
 mod stats;
 mod swarm;
+mod swarm_connect;
 mod tar;
 mod version;
-mod swarm_connect;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]

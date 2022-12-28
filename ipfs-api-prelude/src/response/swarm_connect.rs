@@ -5,9 +5,8 @@ use crate::serde::Deserialize;
 #[serde(rename_all = "PascalCase")]
 pub struct SwarmConnectResponse {
     #[serde(deserialize_with = "serde::deserialize_vec")]
-    pub strings: Vec<String>
+    pub strings: Vec<String>,
 }
-
 
 #[cfg(test)]
 mod tests {
