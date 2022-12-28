@@ -34,7 +34,7 @@ serde_json                = "1"
 serde_urlencoded          = "0.7"
 thiserror                 = "1"
 tokio                     = "1"
-tokio-util                = { version = "0.6", features = ["codec"] }
+tokio-util                = { version = "0.7", features = ["codec"] }
 tracing                   = "0.1"
 typed-builder             = { version = "0.10", optional = true }
 walkdir                   = "2.3"
