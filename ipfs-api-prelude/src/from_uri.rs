@@ -1,4 +1,4 @@
-// Copyright 2020 rust-ipfs-api Developers
+// Copyright 2022 rust-ipfs-api Developers
 //
 // Licensed under the Apache License, Version 2.0, <LICENSE-APACHE or
 // http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
@@ -7,7 +7,7 @@
 //
 
 use http::uri::{Builder, InvalidUri, PathAndQuery, Scheme, Uri};
-use parity_multiaddr::{self as multiaddr, Multiaddr, Protocol};
+use multiaddr::{Multiaddr, Protocol};
 use std::{
     fs,
     net::{SocketAddr, SocketAddrV4, SocketAddrV6},
@@ -127,7 +127,7 @@ pub trait TryFromUri: Sized {
     /// Creates a new client from a multiaddr.
     ///
     fn from_multiaddr_str(multiaddr: &str) -> Result<Self, multiaddr::Error> {
-        parity_multiaddr::from_url(multiaddr)
+        multiaddr::from_url(multiaddr)
             .map_err(|e| multiaddr::Error::ParsingError(Box::new(e)))
             .or_else(|_| Multiaddr::from_str(multiaddr))
             .and_then(Self::from_multiaddr)
