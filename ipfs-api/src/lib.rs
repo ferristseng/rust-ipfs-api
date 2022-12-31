@@ -16,7 +16,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api-backend-hyper = "0.5"
+//! ipfs-api-backend-hyper = "0.6"
 //! ```
 //!
 //! You can specify either `with-hyper-rustls` or `with-hyper-tls` (mutually exclusive) feature for TLS support.
@@ -27,7 +27,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api-backend-actix = "0.6"
+//! ipfs-api-backend-actix = "0.7"
 //! ```
 //!
 //! ### Builder Pattern
@@ -38,7 +38,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = "0.16.0"
+//! ipfs-api = "0.17.0"
 //! ```
 //!
 //! ### Feature Flags (DEPRECATED)
@@ -47,7 +47,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = { version = "0.16.0", features = ["with-actix"], default-features = false }
+//! ipfs-api = { version = "0.17.0", features = ["with-actix"], default-features = false }
 //! ```
 //!
 //! You also have the option of using [`rustls`](https://crates.io/crates/rustls)
@@ -55,14 +55,14 @@
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = { version = "0.16.0", features = ["with-hyper-rustls"], default-features = false }
+//! ipfs-api = { version = "0.17.0", features = ["with-hyper-rustls"], default-features = false }
 //! ```
 //!
 //! To enable the builder pattern (default) use the `with-builder` feature:
 //!
 //! ```toml
 //! [dependencies]
-//! ipfs-api = { version = "0.16.0", features = ["with-hyper-rustls", "with-builder"], default-features = false }
+//! ipfs-api = { version = "0.17.0", features = ["with-hyper-rustls", "with-builder"], default-features = false }
 //! ```
 //!
 //! ## Examples
