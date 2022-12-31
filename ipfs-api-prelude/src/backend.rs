@@ -236,4 +236,10 @@ pub trait Backend {
             )
         })
     }
+
+    /// Set basic authentication credentials to use on every request from this client.
+    fn with_credentials<U, P>(self, username: U, password: P) -> Self
+    where
+        U: Into<String>,
+        P: Into<String>;
 }

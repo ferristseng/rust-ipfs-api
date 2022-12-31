@@ -6,4 +6,5 @@ members = [
   "ipfs-api-backend-hyper",
   "ipfs-api-examples",
   "ipfs-api-prelude",
+  "ipfs-api-versions",
 ]

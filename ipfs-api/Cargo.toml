@@ -28,5 +28,19 @@ ipfs-api-backend-hyper    = { version = "0.5", path = "../ipfs-api-backend-hyper
 
 [dev-dependencies]
 actix-rt                  = "2.5"
+cfg-if                    = "1"
 futures                   = "0.3"
-tokio                     = { version = "1", features = ["rt-multi-thread", "macros"] }
+ipfs-api-versions         = { version = "0.1", path = "../ipfs-api-versions" }
+passivized_docker_engine_client = "0.0.6"
+passivized_htpasswd       = "0.0.3"
+reqwest                   = "0.11"
+tempfile                  = "3.3"
+test-case                 = "2.2"
+thiserror                 = "1.0"
+tokio                     = { version = "1", features = ["fs", "rt-multi-thread", "macros"] }
+
+# Only when testing with-hyper
+hyper                     = "0.14"
+
+# Only when testing with-hyper-tls
+hyper-tls                 = "0.5"

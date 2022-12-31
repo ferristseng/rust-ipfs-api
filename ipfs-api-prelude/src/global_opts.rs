@@ -74,6 +74,17 @@ impl<Back: Backend> BackendWithGlobalOptions<Back> {
         Self { backend, options }
     }
 
+    fn with_credentials<U, P>(self, username: U, password: P) -> Self
+    where
+        U: Into<String>,
+        P: Into<String>,
+    {
+        Self {
+            backend: self.backend.with_credentials(username, password),
+            options: self.options,
+        }
+    }
+
     fn combine<Req>(&self, req: Req) -> OptCombiner<Req>
     where
         Req: ApiRequest,
@@ -102,6 +113,14 @@ impl<Back: Backend + Send + Sync> Backend for BackendWithGlobalOptions<Back> {
     type HttpResponse = Back::HttpResponse;
 
     type Error = Back::Error;
+
+    fn with_credentials<U, P>(self, username: U, password: P) -> Self
+    where
+        U: Into<String>,
+        P: Into<String>,
+    {
+        (self as BackendWithGlobalOptions<Back>).with_credentials(username, password)
+    }
 
     fn build_base_request<Req>(
         &self,
@@ -156,6 +175,14 @@ impl<Back: Backend> Backend for BackendWithGlobalOptions<Back> {
     type HttpResponse = Back::HttpResponse;
 
     type Error = Back::Error;
+
+    fn with_credentials<U, P>(self, username: U, password: P) -> Self
+    where
+        U: Into<String>,
+        P: Into<String>,
+    {
+        (self as BackendWithGlobalOptions<Back>).with_credentials(username, password)
+    }
 
     fn build_base_request<Req>(
         &self,

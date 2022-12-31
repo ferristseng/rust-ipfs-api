@@ -10,7 +10,61 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  build-actix:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build (Actix)
+      run: cd ipfs-api; cargo build --verbose --features with-actix --no-default-features
+    - name: Build examples (Actix)
+      run: cargo build --verbose --examples --no-default-features --features with-actix
+    - name: Build tests (Actix)
+      run: cd ipfs-api; cargo test --verbose --features with-actix --no-default-features --no-run
+    - name: Run tests (Actix)
+      run: cd ipfs-api; cargo test --verbose --features with-actix --no-default-features
+
+  build-default:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: cargo build --verbose
+    - name: Build examples
+      run: cargo build --verbose --examples
+    - name: Build tests
+      run: cargo test --verbose --no-run
+    - name: Run tests
+      run: cargo test --verbose
+
+  build-hyper:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build (Hyper with tls)
+      run: cd ipfs-api; cargo build --verbose --features with-hyper-tls --no-default-features
+    - name: Build examples (Hyper with tls)
+      run: cargo build --verbose --examples --no-default-features --features with-hyper-tls
+    - name: Build tests (Hyper with tls)
+      run: cargo test --verbose --features with-hyper-tls --no-default-features --no-run
+    - name: Run tests (Hyper with tls)
+      run: cargo test --verbose --features with-hyper-tls --no-default-features
+
+    - name: Build (Hyper with rustls)
+      run: cd ipfs-api; cargo build --verbose --features with-hyper-rustls --no-default-features
+    - name: Build examples (Hyper with rustls)
+      run: cargo build --verbose --examples --no-default-features --features with-hyper-rustls
+
+    - name: Build (Hyper with Send trait)
+      run: cd ipfs-api-backend-hyper; cargo build --verbose --features with-send-sync
+
+  other:
 
     runs-on: ubuntu-latest
 
@@ -21,25 +75,3 @@ jobs:
     - name: Clippy
       shell: bash
       run: cargo clippy --all-targets -- -D warnings
-    - name: Build (Default)
-      run: cargo build --verbose
-    - name: Build examples (Default)
-      run: cargo build --verbose --examples
-    - name: Build examples (Actix)
-      run: cargo build --verbose --examples --no-default-features --features with-actix
-    - name: Build examples (Hyper with tls)
-      run: cargo build --verbose --examples --no-default-features --features with-hyper-tls
-    - name: Build examples (Hyper with rustls)
-      run: cargo build --verbose --examples --no-default-features --features with-hyper-rustls
-    - name: Run tests (Default)
-      run: cargo test --verbose
-    - name: Build (Actix)
-      run: cd ipfs-api; cargo build --verbose --features with-actix --no-default-features
-    - name: Run tests (Actix)
-      run: cd ipfs-api; cargo test --verbose --features with-actix --no-default-features
-    - name: Build (Hyper with tls)
-      run: cd ipfs-api; cargo build --verbose --features with-hyper-tls --no-default-features
-    - name: Build (Hyper with rustls)
-      run: cd ipfs-api; cargo build --verbose --features with-hyper-rustls --no-default-features
-    - name: Build (Hyper with Send trait)
-      run: cd ipfs-api-backend-hyper; cargo build --verbose --features with-send-sync
