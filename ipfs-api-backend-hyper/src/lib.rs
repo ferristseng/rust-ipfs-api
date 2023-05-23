@@ -25,7 +25,8 @@ extern crate hyper_multipart_rfc7578 as multipart;
 mod backend;
 mod error;
 
-pub use crate::{backend::HyperBackend as IpfsClient, error::Error};
+pub type IpfsClient = HyperBackend;
+pub use crate::{backend::HyperBackend, error::Error};
 pub use ipfs_api_prelude::{
     request::{self, KeyType, Logger, LoggingLevel, ObjectTemplate},
     response, ApiError, BackendWithGlobalOptions, GlobalOptions, IpfsApi, TryFromUri,
