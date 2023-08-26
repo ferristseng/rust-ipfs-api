@@ -52,9 +52,7 @@ macro_rules! impl_default {
 
         impl TryFromUri for HyperBackend<$http_connector> {
             fn build_with_base_uri(base: Uri) -> Self {
-                let client = Builder::default()
-                    .pool_max_idle_per_host(0)
-                    .build($constructor);
+                let client = Builder::default().build($constructor);
 
                 HyperBackend {
                     base,
