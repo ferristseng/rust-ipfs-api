@@ -44,6 +44,11 @@ fn supported() -> Vec<(String, String)> {
         ("ipfs/kubo", "v0.15.0"),
         ("ipfs/kubo", "v0.16.0"),
         ("ipfs/kubo", "v0.17.0"),
+        ("ipfs/kubo", "v0.18.0"),
+        ("ipfs/kubo", "v0.19.0"),
+        ("ipfs/kubo", "v0.20.0"),
+        ("ipfs/kubo", "v0.21.0"),
+        ("ipfs/kubo", "v0.22.0"),
     ];
 
     source
