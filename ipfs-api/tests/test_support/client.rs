@@ -10,26 +10,8 @@ use std::time::Duration;
 use ipfs_api::response::VersionResponse;
 use ipfs_api::{IpfsApi, IpfsClient, TryFromUri};
 
-#[cfg(feature = "with-hyper")]
-use hyper::client::HttpConnector;
-
-#[cfg(feature = "with-hyper-tls")]
-use hyper_tls::HttpsConnector;
-
-cfg_if::cfg_if! {
-    if #[cfg(feature = "with-actix")] {
-        pub fn build_client(api_url: &str) -> IpfsClient {
-            IpfsClient::from_str(api_url).unwrap()
-        }
-    } else if #[cfg(feature = "with-hyper-tls")] {
-        pub fn build_client(api_url: &str) -> IpfsClient<HttpsConnector<HttpConnector>> {
-            IpfsClient::from_str(api_url).unwrap()
-        }
-    } else if #[cfg(feature = "with-hyper")] {
-        pub fn build_client(api_url: &str) -> IpfsClient<HttpConnector> {
-            IpfsClient::from_str(api_url).unwrap()
-        }
-    }
+pub fn build_client(api_url: &str) -> IpfsClient {
+    IpfsClient::from_str(api_url).unwrap()
 }
 
 pub async fn wait_for_server<C: IpfsApi>(client: &C) -> Result<VersionResponse, String> {
