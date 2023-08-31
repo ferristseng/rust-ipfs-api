@@ -13,7 +13,6 @@ use std::str::FromStr;
 fn strip_path_prefix(path: &Path) -> PathBuf {
     let base = path
         .components()
-        .into_iter()
         .next()
         .unwrap()
         .as_os_str()

@@ -139,7 +139,7 @@ pub trait TryFromUri: Sized {
     fn from_ipfs_config() -> Option<Self> {
         dirs::home_dir()
             .map(|home_dir| home_dir.join(".ipfs").join("api"))
-            .and_then(|multiaddr_path| fs::read_to_string(&multiaddr_path).ok())
+            .and_then(|multiaddr_path| fs::read_to_string(multiaddr_path).ok())
             .and_then(|multiaddr_str| Self::from_multiaddr_str(&multiaddr_str).ok())
     }
 }
