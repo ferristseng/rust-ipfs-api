@@ -16,4 +16,4 @@ proc-macro2 = "1.0"
 quote = "1.0"
 
 [dev-dependencies]
-test-case = "2.2"
+test-case = "3.1"
