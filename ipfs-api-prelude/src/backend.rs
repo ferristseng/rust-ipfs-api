@@ -20,7 +20,7 @@ use http::{
     StatusCode,
 };
 use serde::Deserialize;
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 use tokio_util::codec::{Decoder, FramedRead};
 
 cfg_if::cfg_if! {
@@ -46,9 +46,9 @@ pub trait Backend {
 
     cfg_if::cfg_if! {
         if #[cfg(feature = "with-send-sync")] {
-            type Error: Display + From<ApiError> + From<crate::Error> + Send + 'static;
+            type Error: Display + Debug + From<ApiError> + From<crate::Error> + Send + 'static;
         } else {
-            type Error: Display + From<ApiError> + From<crate::Error> + 'static;
+            type Error: Display + Debug + From<ApiError> + From<crate::Error> + 'static;
         }
     }
 
