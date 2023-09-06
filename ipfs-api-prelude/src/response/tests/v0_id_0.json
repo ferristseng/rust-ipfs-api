@@ -1,9 +1,31 @@
 {
-  "ID": "QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ",
-  "PublicKey": "CAASpgQwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQCh9cDnwNXlVq/A6EVm+MVldzrbVI3cIZypaIYToAlsLf0GmATISWhUW5yd8Z3RMcyECLd4Hffd+vIIpCqCFSPOA5VRZKYtyra9EN0m+FB1F1Z8oSjwCgVthja5VJ3bWcpydih3XJC9kdYlGtvf02v2ignDv+aeGxWH6PMaS1WvyAlee29mgxZfnA7wrRsi2Lc3Se4CqkZWbNX3qf9usQmf42s2Or1OEpMQim1HOjSed6yhXkmyD/5htCIus6Y06Egdcaf9zuqIogRPpc7d4d7jFOJ4gLxxPKV4gUaE6F4NIc/0DiPDQfE+4aBkUvKEZkmZhilz5R1pK1eM2bfeideGrWuuvPjfw0PbjtpDShWSlZGRfFK/FnQTWRSdDnCSvJGZKPHVsly0iw+Qp6BbDrKa3KmT+JPG+xN6U6XEcKijCbV0u0/YCHm959zCN+ryzpoXuRkwMt+ZyL9VGYdWHuJkoJcw+QKWEFcWJeDQ4eKn+QRppqSA7QjPm0w68FZ7/pq/RwB52Mx9fyLvyDWY+GyeBnjK954imamcR8jQV+fzuK9AGFyN1JmhwWfDWNerg69lgZRM4Li2vSz+S/gMjJ5/Yf6UgW33nhKuXoLFiPiUuG/VmdpZEvh1TeKiPy0VKYRaVXCnLY2FNzJbld08adnKMLgYbCAXDRCVW32iFoIscwIDAQAB",
+  "ID": "12D3KooWFX2LDeiJu29PWiVk1Wn5h11czSXjtbZuxwTpvA1Ui1Gt",
+  "PublicKey": "CAESIFS00YT+YVGn4fxI4Bmc0PrvP1JIzhgsD5O8rMQ3Mlxx",
   "Addresses": [
-    "/ip4/104.131.131.82/tcp/4001"
+    "/ip4/127.0.0.1/tcp/4001/p2p/12D3KooWFX2LDeiJu29PWiVk1Wn5h11czSXjtbZuxwTpvA1Ui1Gt",
+    "/ip4/127.0.0.1/udp/4001/quic-v1/p2p/12D3KooWFX2LDeiJu29PWiVk1Wn5h11czSXjtbZuxwTpvA1Ui1Gt",
+    "/ip4/127.0.0.1/udp/4001/quic-v1/webtransport/certhash/uEiB3d2P2cOsDRwxmoDk6bZ1HS8PD5oCHTCA56Iss6_80SQ/certhash/uEiBNlsbe3IxJNYZuT1x7Nz8nTB1Y-0KvODqUnmdTCWqWLA/p2p/12D3KooWFX2LDeiJu29PWiVk1Wn5h11czSXjtbZuxwTpvA1Ui1Gt",
+    "/ip4/127.0.0.1/udp/4001/quic/p2p/12D3KooWFX2LDeiJu29PWiVk1Wn5h11czSXjtbZuxwTpvA1Ui1Gt",
+    "/ip4/104.131.131.82/tcp/4001/p2p/12D3KooWJmT7tEPitk67Vem6T5zCGqkVZZVX377XtXPWPLryyDvp/p2p-circuit/p2p/12D3KooWFX2LDeiJu29PWiVk1Wn5h11czSXjtbZuxwTpvA1Ui1Gt",
+    "/ip4/104.131.131.82/udp/4001/quic-v1/p2p/12D3KooWJmT7tEPitk67Vem6T5zCGqkVZZVX377XtXPWPLryyDvp/p2p-circuit/p2p/12D3KooWFX2LDeiJu29PWiVk1Wn5h11czSXjtbZuxwTpvA1Ui1Gt",
+    "/ip4/104.131.131.82/udp/4001/quic/p2p/12D3KooWJmT7tEPitk67Vem6T5zCGqkVZZVX377XtXPWPLryyDvp/p2p-circuit/p2p/12D3KooWFX2LDeiJu29PWiVk1Wn5h11czSXjtbZuxwTpvA1Ui1Gt",
+    "/ip4/172.20.0.2/tcp/4001/p2p/12D3KooWFX2LDeiJu29PWiVk1Wn5h11czSXjtbZuxwTpvA1Ui1Gt",
+    "/ip4/172.20.0.2/udp/4001/quic-v1/p2p/12D3KooWFX2LDeiJu29PWiVk1Wn5h11czSXjtbZuxwTpvA1Ui1Gt",
+    "/ip4/172.20.0.2/udp/4001/quic-v1/webtransport/certhash/uEiB3d2P2cOsDRwxmoDk6bZ1HS8PD5oCHTCA56Iss6_80SQ/certhash/uEiBNlsbe3IxJNYZuT1x7Nz8nTB1Y-0KvODqUnmdTCWqWLA/p2p/12D3KooWFX2LDeiJu29PWiVk1Wn5h11czSXjtbZuxwTpvA1Ui1Gt",
+    "/ip4/172.20.0.2/udp/4001/quic/p2p/12D3KooWFX2LDeiJu29PWiVk1Wn5h11czSXjtbZuxwTpvA1Ui1Gt"
   ],
-  "AgentVersion": "go-ipfs/0.4.11-rc1/",
-  "ProtocolVersion": "ipfs/0.1.0"
+  "AgentVersion": "kubo/0.22.0/3f884d3/docker",
+  "Protocols": [
+    "/ipfs/bitswap",
+    "/ipfs/bitswap/1.0.0",
+    "/ipfs/bitswap/1.1.0",
+    "/ipfs/bitswap/1.2.0",
+    "/ipfs/id/1.0.0",
+    "/ipfs/id/push/1.0.0",
+    "/ipfs/lan/kad/1.0.0",
+    "/ipfs/ping/1.0.0",
+    "/libp2p/circuit/relay/0.2.0/stop",
+    "/libp2p/dcutr",
+    "/x/"
+  ]
 }

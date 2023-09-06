@@ -19,9 +19,10 @@ pub struct IdResponse {
 
     #[serde(deserialize_with = "serde::deserialize_vec")]
     pub addresses: Vec<String>,
+    #[serde(deserialize_with = "serde::deserialize_vec")]
+    pub protocols: Vec<String>,
 
     pub agent_version: String,
-    pub protocol_version: String,
 }
 
 #[cfg(test)]
