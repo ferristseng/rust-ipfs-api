@@ -11,16 +11,12 @@ mod test_support;
 use test_support::client::{build_client, wait_for_server};
 use test_support::container::IpfsContainer;
 use test_support::images;
-use test_support::rt::run_async;
 
 use ipfs_api_versions::test_supported_images;
 
 #[test_supported_images]
-fn test_get_version(image_name: &str, image_tag: &str) {
-    run_async(run_test(image_name, image_tag));
-}
-
-async fn run_test(image_name: &str, image_tag: &str) {
+#[actix_rt::test]
+async fn test_get_version(image_name: &str, image_tag: &str) {
     let expected_version = images::extract_version(image_tag);
 
     let container_name = format!("test_get_version_{}", expected_version.replace('.', "-"));
