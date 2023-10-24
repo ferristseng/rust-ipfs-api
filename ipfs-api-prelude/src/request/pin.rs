@@ -46,3 +46,133 @@ pub struct PinRm<'a> {
 impl<'a> ApiRequest for PinRm<'a> {
     const PATH: &'static str = "/pin/rm";
 }
+
+#[derive(Serialize)]
+pub struct PinRemoteAdd<'a> {
+    #[serde(rename = "arg")]
+    pub key: &'a str,
+
+    pub service: Option<&'a str>,
+    pub name: Option<&'a str>,
+    pub background: Option<bool>,
+}
+
+impl<'a> ApiRequest for PinRemoteAdd<'a> {
+    const PATH: &'static str = "/pin/remote/add";
+}
+
+#[derive(Serialize)]
+pub struct PinRemoteLs<'a> {
+    pub service: Option<&'a str>,
+    pub name: Option<&'a str>,
+    pub cid: Option<Cids<'a>>,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_pin_status"
+    )]
+    pub status: Option<&'a [PinStatus]>,
+}
+
+impl<'a> ApiRequest for PinRemoteLs<'a> {
+    const PATH: &'static str = "/pin/remote/ls";
+}
+
+#[derive(Serialize)]
+pub struct PinRemoteRm<'a> {
+    pub service: Option<&'a str>,
+    pub name: Option<&'a str>,
+    pub cid: Option<Cids<'a>>,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_pin_status"
+    )]
+    pub status: Option<&'a [PinStatus]>,
+    pub force: Option<bool>,
+}
+
+impl<'a> ApiRequest for PinRemoteRm<'a> {
+    const PATH: &'static str = "/pin/remote/rm";
+}
+
+pub struct Cids<'a>(&'a [&'a str]);
+
+impl<'a> From<&'a [&'a str]> for Cids<'a> {
+    fn from(data: &'a [&'a str]) -> Self {
+        Self(data)
+    }
+}
+
+impl<'a> Serialize for Cids<'a> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let cids = self.0.join(",");
+        serializer.serialize_str(&cids)
+    }
+}
+
+#[derive(Serialize)]
+pub enum PinStatus {
+    Queued,
+    Pinning,
+    Pinned,
+    Failed,
+}
+
+impl std::fmt::Display for PinStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let pin_status = match self {
+            PinStatus::Failed => "failed",
+            PinStatus::Queued => "queued",
+            PinStatus::Pinning => "pinning",
+            PinStatus::Pinned => "pinned",
+        };
+        write!(f, "{pin_status}")
+    }
+}
+
+fn serialize_pin_status<S>(
+    pin_status: &Option<&[PinStatus]>,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    let pin_status = pin_status.unwrap();
+    let pin_status = pin_status
+        .iter()
+        .map(|item| item.to_string())
+        .collect::<Vec<String>>()
+        .join(",");
+    serializer.serialize_str(&format!("[{pin_status}]"))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    serialize_url_test!(
+        test_serializes_pin_remote_rm,
+        PinRemoteRm {
+            service: Some("Pinata"),
+            name: None,
+            cid: Some((&vec!["bafybeiaq3hspbuvhvg7nlxjjvsnzit6m6hevrjwedoj4jbx6uycgkkexni"] as &[&str]).into()),
+            status: Some(&vec![PinStatus::Pinned, PinStatus::Pinning]),
+            force: Some(true)
+        },
+        "service=Pinata&cid=bafybeiaq3hspbuvhvg7nlxjjvsnzit6m6hevrjwedoj4jbx6uycgkkexni&status=%5Bpinned%2Cpinning%5D&force=true"
+    );
+
+    serialize_url_test!(
+        test_serializes_pin_remote_rm_multi_cid,
+        PinRemoteRm {
+            service: Some("Pinata"),
+            name: None,
+            cid: Some((&vec!["bafybeiaq3hspbuvhvg7nlxjjvsnzit6m6hevrjwedoj4jbx6uycgkkexni", "QmfWC6JwVxmjVQfPpSiTsxFaSBdPTtFCd1B4aqMqRgaeMU"] as &[&str]).into()),
+            status:None,
+            force: None
+        },
+        "service=Pinata&cid=bafybeiaq3hspbuvhvg7nlxjjvsnzit6m6hevrjwedoj4jbx6uycgkkexni%2CQmfWC6JwVxmjVQfPpSiTsxFaSBdPTtFCd1B4aqMqRgaeMU"
+    );
+}

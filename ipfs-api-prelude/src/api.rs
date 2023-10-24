@@ -2077,6 +2077,143 @@ pub trait IpfsApi: Backend {
 
     // TODO /pin/verify
 
+    /// Pin object to remote pinning service.
+    ///
+    /// - `service`: Name of the remote pinning service to use (mandatory).
+    ///
+    /// - `name`: An optional name for the pin.
+    ///
+    /// - `background`: Add to the queue on the remote service and
+    /// return immediately (does not wait for pinned status).
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use ipfs-api-backend-hyper::{IpfsApi, IpfsClient};
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.pin_remote_add(
+    ///     "QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ",
+    ///     "pinata",
+    ///     Some("pin_task_name"),
+    ///     true
+    /// );
+    /// ```
+    ///
+    async fn pin_remote_add(
+        &self,
+        key: &str,
+        service: &str,
+        name: Option<&str>,
+        background: bool,
+    ) -> Result<response::PinRemoteAddResponse, Self::Error> {
+        self.request(
+            request::PinRemoteAdd {
+                key,
+                service: Some(service),
+                name,
+                background: Some(background),
+            },
+            None,
+        )
+        .await
+    }
+
+    /// Returns a list objects pinned to remote pinning service.
+    ///
+    /// - `service`: Name of the remote pinning service to use (mandatory).
+    ///
+    /// - `name`: Return pins with names that contain the value provided (case-sensitive, exact match).
+    ///
+    /// - `cid`: Return pins for the specified CIDs
+    ///
+    /// - `status`: Return pins with the specified statuses (queued,pinning,pinned,failed), default [pinned].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use ipfs-api-backend-hyper::{IpfsApi, IpfsClient};
+    /// use ipfs_api_prelude::request::PinStatus;
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.pin_remote_ls("pinata", None, None, None);
+    ///
+    /// let status = vec![PinStatus::Pinning, PinStatus::Pinned];
+    /// let res = client.pin_remote_ls(
+    ///     "pinata",
+    ///     None,
+    ///     None,
+    ///     Some(&status)
+    /// );
+    /// ```
+    ///
+    async fn pin_remote_ls(
+        &self,
+        service: &str,
+        name: Option<&str>,
+        cid: Option<&[&str]>,
+        status: Option<&[request::PinStatus]>,
+    ) -> Result<Vec<response::PinRemoteLsResponse>, Self::Error> {
+        let req = self.build_base_request(
+            request::PinRemoteLs {
+                service: Some(service),
+                name,
+                cid: cid.map(|cid| cid.into()),
+                status,
+            },
+            None,
+        )?;
+        self.request_stream_json(req).try_collect().await
+    }
+
+    /// Remove pins from remote pinning service.
+    ///
+    /// - `service`: Name of the remote pinning service to use (mandatory).
+    ///
+    /// - `name`: Remove pins with names that contain provided value (case-sensitive, exact match).
+    ///
+    /// - `cid`: Remove pins for the specified CIDs.
+    ///
+    /// - `status`: Remove pins with the specified statuses (queued,pinning,pinned,failed)
+    ///
+    /// - `force`: Allow removal of multiple pins matching the query without additional confirmation.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use ipfs_api::{IpfsApi, IpfsClient};
+    ///
+    /// let client = IpfsClient::default();
+    /// let res = client.pin_remote_rm(
+    ///     "pinata",
+    ///     None,
+    ///     None,
+    ///     None,
+    ///     true
+    /// );
+    /// ```
+    ///
+    async fn pin_remote_rm(
+        &self,
+        service: &str,
+        name: Option<&str>,
+        cid: Option<&[&str]>,
+        status: Option<&[request::PinStatus]>,
+        force: bool,
+    ) -> Result<String, Self::Error> {
+        self.request_string(
+            request::PinRemoteRm {
+                service: Some(service),
+                name,
+                cid: cid.map(|cid| cid.into()),
+                status,
+                force: Some(force),
+            },
+            None,
+        )
+        .await
+    }
+
     /// Pings a peer.
     ///
     /// ```no_run
