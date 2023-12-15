@@ -9,3 +9,8 @@ members = [
   "ipfs-api-prelude",
   "ipfs-api-versions",
 ]
+
+[patch.crates-io]
+common-multipart-rfc7578  = { git = "https://github.com/miraclx/rust-multipart-rfc7578", branch = "relax-sync-requirement" }
+hyper-multipart-rfc7578  = { git = "https://github.com/miraclx/rust-multipart-rfc7578", branch = "relax-sync-requirement" }
+actix-multipart-rfc7578  = { git = "https://github.com/miraclx/rust-multipart-rfc7578", branch = "relax-sync-requirement" }
