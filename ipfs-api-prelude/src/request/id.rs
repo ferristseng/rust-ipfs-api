@@ -18,9 +18,10 @@ pub struct Id<'a> {
     #[cfg_attr(feature = "with-builder", builder(default, setter(strip_option)))]
     pub peer: Option<&'a str>,
 
-    /// Optional output format.
-    #[cfg_attr(feature = "with-builder", builder(default, setter(strip_option)))]
-    pub format: Option<&'a str>,
+    /// Ignored by go-ipfs in it's REST API. Always returns in JSON. Retained for compatibility.
+    #[serde(skip)]
+    #[cfg_attr(feature = "with-builder", builder(default))]
+    pub format: (),
 
     /// Encoding used for peer IDs: Can either be a multibase encoded CID or a base58btc encoded multihash. Takes {b58mh|base36|k|base32|b...}. Default: b58mh.
     #[cfg_attr(feature = "with-builder", builder(default, setter(strip_option)))]

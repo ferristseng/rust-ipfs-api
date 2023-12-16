@@ -1606,7 +1606,7 @@ pub trait IpfsApi: Backend {
         self.request(
             request::Id {
                 peer,
-                format: None,
+                format: (),
                 peerid_base: None,
             },
             None,
