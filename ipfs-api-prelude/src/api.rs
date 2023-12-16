@@ -1603,7 +1603,41 @@ pub trait IpfsApi: Backend {
     /// ```
     ///
     async fn id(&self, peer: Option<&str>) -> Result<response::IdResponse, Self::Error> {
-        self.request(request::Id { peer }, None).await
+        self.request(
+            request::Id {
+                peer,
+                format: None,
+                peerid_base: None,
+            },
+            None,
+        )
+        .await
+    }
+
+    /// Returns information about a peer.
+    ///
+    /// If `peer` is `None`, returns information about you.
+    ///
+    /// ```no_run
+    /// use ipfs_api::{IpfsApi, IpfsClient};
+    ///
+    /// let client = IpfsClient::default();
+    /// #[cfg(feature = "with-builder")]
+    /// let req = ipfs_api::request::Id::builder()
+    ///     .peer("QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM")
+    ///     .build();
+    /// #[cfg(not(feature = "with-builder"))]
+    /// let req = ipfs_api::request::Id {
+    ///     peer: "QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM",
+    ///     .. Default::default()
+    /// };
+    /// let res = client.id_with_options(req);
+    ///
+    async fn id_with_options(
+        &self,
+        options: request::Id<'_>,
+    ) -> Result<response::IdResponse, Self::Error> {
+        self.request(options, None).await
     }
 
     /// Create a new keypair.
