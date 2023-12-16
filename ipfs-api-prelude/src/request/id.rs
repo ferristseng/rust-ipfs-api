@@ -19,6 +19,7 @@ pub struct Id<'a> {
     pub peer: Option<&'a str>,
 
     /// Ignored by go-ipfs in it's REST API. Always returns in JSON. Retained for compatibility.
+    #[serde(skip)]
     #[cfg_attr(feature = "with-builder", builder(default, setter(strip_option)))]
     pub format: Option<IdFormat>,
 
