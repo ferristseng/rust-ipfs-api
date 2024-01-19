@@ -29,7 +29,7 @@ futures                   = "0.3"
 http                      = "0.2"
 hyper                     = { version = "0.14", features = ["http1", "http2", "client", "tcp"] }
 hyper-multipart-rfc7578   = "0.8"
-hyper-rustls              = { version = "0.23", features = ["rustls-native-certs"], optional = true }
+hyper-rustls              = { version = "0.24", features = ["http2", "rustls-native-certs"], optional = true }
 hyper-tls                 = { version = "0.5", optional = true }
 ipfs-api-prelude          = { version = "0.6", path = "../ipfs-api-prelude" }
 thiserror                 = "1"
