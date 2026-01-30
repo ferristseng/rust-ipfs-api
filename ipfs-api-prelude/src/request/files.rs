@@ -17,7 +17,9 @@ pub struct FilesCp<'a> {
     #[serde(rename = "arg")]
     pub dest: &'a str,
 
-    pub flush: Option<bool>,
+    pub force: Option<bool>,
+
+    pub parents: Option<bool>,
 }
 
 impl<'a> ApiRequest for FilesCp<'a> {
