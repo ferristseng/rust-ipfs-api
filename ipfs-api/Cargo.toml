@@ -31,16 +31,16 @@ actix-rt                  = "2.5"
 cfg-if                    = "1"
 futures                   = "0.3"
 ipfs-api-versions         = { version = "0.1", path = "../ipfs-api-versions" }
-passivized_docker_engine_client = "0.0.8"
-passivized_htpasswd       = "0.0.5"
-reqwest                   = "0.11"
+passivized_docker_engine_client = "0.0.9"
+passivized_htpasswd       = "0.0.6"
+reqwest                   = "0.13"
 tempfile                  = "3.3"
-test-case                 = "2.2"
-thiserror                 = "1.0"
+test-case                 = "3.3"
+thiserror                 = "2.0"
 tokio                     = { version = "1", features = ["fs", "rt-multi-thread", "macros"] }
 
 # Only when testing with-hyper
-hyper                     = "0.14"
+hyper                     = "1.8"
 
 # Only when testing with-hyper-tls
-hyper-tls                 = "0.5"
+hyper-tls                 = "0.6"

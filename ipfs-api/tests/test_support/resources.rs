@@ -43,6 +43,12 @@ async fn read_default_conf_template() -> Result<String, TestError> {
     Ok(tokio::fs::read_to_string(path).await?)
 }
 
+#[cfg(not(unix))]
+pub fn set_config_permissions(_: &Path) -> Result<(), std::io::Error> {
+    Ok(())
+}
+
+#[cfg(unix)]
 pub fn set_config_permissions(path: &Path) -> Result<(), std::io::Error> {
     use std::os::unix::fs::PermissionsExt;
 

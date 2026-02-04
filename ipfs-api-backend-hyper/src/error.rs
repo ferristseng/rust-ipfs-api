@@ -16,6 +16,12 @@ pub enum Error {
     #[error("hyper client error `{0}`")]
     Client(#[from] hyper::Error),
 
+    #[error("hyper client error `{0}`")]
+    LegacyClient(#[from] hyper_util::client::legacy::Error),
+
+    #[error("multipart parsing error `{0}`")]
+    MultipartParse(#[from] multipart::client::Error),
+
     #[error("http error `{0}`")]
     Http(#[from] http::Error),
 

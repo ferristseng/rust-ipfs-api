@@ -11,7 +11,7 @@ use async_trait::async_trait;
 use bytes::Bytes;
 use common_multipart_rfc7578::client::multipart;
 use serde::{Serialize, Serializer};
-use std::time::Duration;
+use std::{borrow::Borrow, time::Duration};
 
 /// Options valid on any IPFS Api request
 ///
@@ -85,7 +85,7 @@ impl<Back: Backend> BackendWithGlobalOptions<Back> {
         }
     }
 
-    fn combine<Req>(&self, req: Req) -> OptCombiner<Req>
+    fn combine<Req>(&'_ self, req: Req) -> OptCombiner<'_, Req>
     where
         Req: ApiRequest,
     {
@@ -136,7 +136,7 @@ impl<Back: Backend + Send + Sync> Backend for BackendWithGlobalOptions<Back> {
     fn get_header(
         res: &Self::HttpResponse,
         key: http::header::HeaderName,
-    ) -> Option<&http::HeaderValue> {
+    ) -> Option<impl Borrow<http::HeaderValue>> {
         Back::get_header(res, key)
     }
 
@@ -198,7 +198,7 @@ impl<Back: Backend> Backend for BackendWithGlobalOptions<Back> {
     fn get_header(
         res: &Self::HttpResponse,
         key: http::header::HeaderName,
-    ) -> Option<&http::HeaderValue> {
+    ) -> Option<impl Borrow<http::HeaderValue>> {
         Back::get_header(res, key)
     }
 

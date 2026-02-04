@@ -17,10 +17,10 @@ maintenance               = { status = "passively-maintained" }
 
 [features]
 default                   = ["with-hyper"]
-with-hyper                = ["ipfs-api-backend-hyper", "tokio/macros", "tokio/rt-multi-thread"]
+with-hyper                = ["ipfs-api-backend-hyper", "tokio/macros", "tokio/rt-multi-thread", "ipfs-api-backend-hyper/with-builder"]
 with-hyper-tls            = ["with-hyper", "ipfs-api-backend-hyper/with-hyper-tls"]
 with-hyper-rustls         = ["with-hyper", "ipfs-api-backend-hyper/with-hyper-rustls"]
-with-actix                = ["ipfs-api-backend-actix", "actix-rt"]
+with-actix                = ["ipfs-api-backend-actix", "actix-rt", "ipfs-api-backend-actix/with-builder"]
 
 [dependencies]
 actix-rt                  = { version = "2.6", optional = true }
@@ -28,7 +28,7 @@ futures                   = "0.3"
 ipfs-api-backend-actix    = { version = "0.7", path = "../ipfs-api-backend-actix", optional = true }
 ipfs-api-backend-hyper    = { version = "0.6", path = "../ipfs-api-backend-hyper", optional = true }
 tar                       = "0.4"
-thiserror                 = "1"
+thiserror                 = "2"
 tokio                     = { version = "1", features = ["time"] }
 tokio-stream              = { version = "0.1", features = ["time"] }
 tracing-subscriber        = { version = "0.3", features = ["fmt"] }

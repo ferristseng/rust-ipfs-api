@@ -20,7 +20,10 @@ use http::{
     StatusCode,
 };
 use serde::Deserialize;
-use std::fmt::{Debug, Display};
+use std::{
+    borrow::Borrow,
+    fmt::{Debug, Display},
+};
 use tokio_util::codec::{Decoder, FramedRead};
 
 cfg_if::cfg_if! {
@@ -64,7 +67,8 @@ pub trait Backend {
 
     /// Get the value of a header from an HTTP response.
     ///
-    fn get_header(res: &Self::HttpResponse, key: HeaderName) -> Option<&HeaderValue>;
+    // TODO: replace `impl Borrow` with `&` after https://github.com/actix/actix-web/issues/3384 is done
+    fn get_header(res: &Self::HttpResponse, key: HeaderName) -> Option<impl Borrow<HeaderValue>>;
 
     /// Generates a request, and returns the unprocessed response future.
     ///
@@ -214,11 +218,11 @@ pub trait Backend {
                 // is used to indicate that there was an error while streaming
                 // data with Ipfs.
                 //
-                if trailer == X_STREAM_ERROR_KEY {
+                if trailer.borrow() == X_STREAM_ERROR_KEY {
                     true
                 } else {
                     let err = crate::Error::UnrecognizedTrailerHeader(
-                        String::from_utf8_lossy(trailer.as_ref()).into(),
+                        String::from_utf8_lossy(trailer.borrow().as_bytes()).into(),
                     );
 
                     // There was an unrecognized trailer value. If that is the case,

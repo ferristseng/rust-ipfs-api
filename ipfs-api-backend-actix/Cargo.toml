@@ -20,12 +20,13 @@ with-builder              = ["ipfs-api-prelude/with-builder"]
 
 [dependencies]
 actix-http                = "3"
-actix-multipart-rfc7578   = "0.10"
+actix-multipart-rfc7578   = "0.11"
 actix-tls                 = "3"
 awc                       = "3"
 async-trait               = "0.1"
 bytes                     = "1"
 futures                   = "0.3"
-http                      = "0.2"
+http                      = "1"
+http_02                   = { version = "0.2", package = "http" } # pending https://github.com/actix/actix-web/issues/3384
 ipfs-api-prelude          = { version = "0.6", path = "../ipfs-api-prelude" }
-thiserror                 = "1"
+thiserror                 = "2"

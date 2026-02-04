@@ -18,7 +18,7 @@ use http::{
 };
 use ipfs_api_prelude::{ApiRequest, Backend, BoxStream, TryFromUri};
 use multipart::client::multipart;
-use std::time::Duration;
+use std::{borrow::Borrow, time::Duration};
 
 const ACTIX_REQUEST_TIMEOUT: Duration = Duration::from_secs(90);
 
@@ -66,6 +66,14 @@ impl ActixBackend {
     }
 }
 
+// Pending until https://github.com/actix/actix-web/issues/3384
+fn to_http_0_2(method: http::Method) -> http_02::Method {
+    match method {
+        http::Method::POST => http_02::Method::POST,
+        _ => todo!("Not used by codebase"),
+    }
+}
+
 #[async_trait(?Send)]
 impl Backend for ActixBackend {
     type HttpRequest = awc::SendClientRequest;
@@ -91,7 +99,9 @@ impl Backend for ActixBackend {
         Req: ApiRequest,
     {
         let url = req.absolute_url(&self.base)?;
-        let req = self.client.request(Req::METHOD, url);
+        let req = self
+            .client
+            .request(to_http_0_2(Req::METHOD), url.to_string());
         let req = if let Some((username, password)) = &self.credentials {
             req.basic_auth(username, password)
         } else {
@@ -107,8 +117,11 @@ impl Backend for ActixBackend {
         Ok(req)
     }
 
-    fn get_header(res: &Self::HttpResponse, key: HeaderName) -> Option<&HeaderValue> {
-        res.headers().get(key)
+    fn get_header(res: &Self::HttpResponse, key: HeaderName) -> Option<impl Borrow<HeaderValue>> {
+        // mapping is needed until https://github.com/actix/actix-web/issues/3384 is done
+        res.headers()
+            .get(key.as_str())
+            .and_then(|v| HeaderValue::from_bytes(v.clone().as_bytes()).ok())
     }
 
     async fn request_raw<Req>(
@@ -125,7 +138,12 @@ impl Backend for ActixBackend {
         let body = res.body().await?;
 
         // FIXME: Actix compat with bytes 1.0
-        Ok((status, body))
+        Ok((
+            // mapping is needed until https://github.com/actix/actix-web/issues/3384 is done
+            StatusCode::from_u16(status.as_u16())
+                .expect("failed mapping http 0.2 to http 1.0 status code"),
+            body,
+        ))
     }
 
     fn response_to_byte_stream(res: Self::HttpResponse) -> BoxStream<Bytes, Self::Error> {
@@ -146,7 +164,7 @@ impl Backend for ActixBackend {
             .err_into()
             .map_ok(move |mut res| {
                 match res.status() {
-                    StatusCode::OK => process(res).right_stream(),
+                    http_02::StatusCode::OK => process(res).right_stream(),
                     // If the server responded with an error status code, the body
                     // still needs to be read so an error can be built. This block will
                     // read the entire body stream, then immediately return an error.

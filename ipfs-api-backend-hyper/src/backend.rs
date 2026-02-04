@@ -6,8 +6,11 @@
 // copied, modified, or distributed except according to those terms.
 //
 
+use std::borrow::Borrow;
+
 use crate::error::Error;
 use async_trait::async_trait;
+use base64::Engine as _;
 use bytes::Bytes;
 use futures::{FutureExt, StreamExt, TryFutureExt, TryStreamExt};
 use http::{
@@ -15,12 +18,17 @@ use http::{
     uri::Scheme,
     StatusCode, Uri,
 };
-use hyper::{
-    body,
-    client::{self, connect::Connect, Builder, HttpConnector},
+use http_body_util::{combinators::BoxBody, BodyExt};
+use hyper::body;
+use hyper_util::client::legacy::connect::HttpConnector;
+use hyper_util::{
+    client::legacy::{self as client, connect::Connect},
+    rt::TokioExecutor,
 };
 use ipfs_api_prelude::{ApiRequest, Backend, BoxStream, TryFromUri};
 use multipart::client::multipart;
+
+type RequestBody = BoxBody<body::Bytes, hyper_multipart_rfc7578::client::Error>;
 
 macro_rules! impl_default {
     ($http_connector:path) => {
@@ -33,7 +41,7 @@ macro_rules! impl_default {
             C: Connect + Clone + Send + Sync + 'static,
         {
             base: Uri,
-            client: client::Client<C, hyper::Body>,
+            client: client::Client<C, RequestBody>,
 
             /// Username and password
             credentials: Option<(String, String)>,
@@ -52,7 +60,7 @@ macro_rules! impl_default {
 
         impl TryFromUri for HyperBackend<$http_connector> {
             fn build_with_base_uri(base: Uri) -> Self {
-                let client = Builder::default().build($constructor);
+                let client = client::Builder::new(TokioExecutor::new()).build($constructor);
 
                 HyperBackend {
                     base,
@@ -83,8 +91,9 @@ impl_default!(
     hyper_rustls::HttpsConnector<HttpConnector>,
     hyper_rustls::HttpsConnectorBuilder::new()
         .with_native_roots()
+        .expect("Could not start native TLS roots")
         .https_or_http()
-        .enable_http1()
+        .enable_all_versions()
         .build()
 );
 
@@ -104,7 +113,7 @@ impl<C: Connect + Clone + Send + Sync + 'static> HyperBackend<C> {
     fn basic_authorization(&self) -> Option<String> {
         self.credentials.as_ref().map(|(username, password)| {
             let credentials = format!("{}:{}", username, password);
-            let encoded = base64::encode(credentials);
+            let encoded = base64::prelude::BASE64_STANDARD.encode(credentials);
 
             format!("Basic {}", encoded)
         })
@@ -117,9 +126,9 @@ impl<C> Backend for HyperBackend<C>
 where
     C: Connect + Clone + Send + Sync + 'static,
 {
-    type HttpRequest = http::Request<hyper::Body>;
+    type HttpRequest = http::Request<RequestBody>;
 
-    type HttpResponse = http::Response<hyper::Body>;
+    type HttpResponse = http::Response<hyper::body::Incoming>;
 
     type Error = Error;
 
@@ -149,17 +158,21 @@ where
         } else {
             builder
         };
-
         let req = if let Some(form) = form {
-            form.set_body_convert::<hyper::Body, multipart::Body>(builder)
+            form.set_body::<multipart::Body>(builder)?
+                .map(|body| body.boxed())
         } else {
-            builder.body(hyper::Body::empty())
-        }?;
+            builder.body(
+                http_body_util::Empty::new()
+                    .map_err(|never| match never {})
+                    .boxed(),
+            )?
+        };
 
         Ok(req)
     }
 
-    fn get_header(res: &Self::HttpResponse, key: HeaderName) -> Option<&HeaderValue> {
+    fn get_header(res: &Self::HttpResponse, key: HeaderName) -> Option<impl Borrow<HeaderValue>> {
         res.headers().get(key)
     }
 
@@ -174,13 +187,19 @@ where
         let req = self.build_base_request(req, form)?;
         let res = self.client.request(req).await?;
         let status = res.status();
-        let body = body::to_bytes(res.into_body()).await?;
+        let body = res.into_body().collect().await?.to_bytes();
 
         Ok((status, body))
     }
 
     fn response_to_byte_stream(res: Self::HttpResponse) -> BoxStream<Bytes, Self::Error> {
-        Box::new(res.into_body().err_into())
+        Box::new(
+            res.into_body()
+                .collect()
+                .into_stream()
+                .map_ok(|body| body.to_bytes())
+                .err_into(),
+        )
     }
 
     fn request_stream<Res, F>(
@@ -202,10 +221,11 @@ where
                     // still needs to be read so an error can be built. This block will
                     // read the entire body stream, then immediately return an error.
                     //
-                    _ => body::to_bytes(res.into_body())
-                        .boxed()
+                    _ => res
+                        .into_body()
+                        .collect()
                         .map(|maybe_body| match maybe_body {
-                            Ok(body) => Err(Self::process_error_from_body(body)),
+                            Ok(body) => Err(Self::process_error_from_body(body.to_bytes())),
                             Err(e) => Err(e.into()),
                         })
                         .into_stream()
